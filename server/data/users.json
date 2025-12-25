@@ -164,5 +164,15 @@
         "reason": "Completed task 1765484544475 (Low Priority Task)"
       }
     ]
+  },
+  "alice": {
+    "username": "alice",
+    "password": "$2b$10$F2bRy9b1kcG.BEHLVm2y5OXALS11Jzz1tVdtpIhGZ9hZCeC86UDfS",
+    "created_at": "2025-12-25T16:55:49.826Z"
+  },
+  "bob": {
+    "username": "bob",
+    "password": "$2b$10$0GOQz6IzIhYXWwa/xK3UaeosL0zBKm5EiPDnRJge3J/ACkru9RhQS",
+    "created_at": "2025-12-25T16:59:04.926Z"
   }
 }
