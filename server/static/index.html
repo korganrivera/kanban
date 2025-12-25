@@ -1148,19 +1148,7 @@
                             body.picker = null;
                         }
 
-                        // Handle claiming when moving to InProgress
-                        if (dstState === "InProgress") {
-                            // Only prompt if task doesn't already have a picker
-                            if (!task.picker) {
-                                const picker = prompt(
-                                    "Who is picking this task?",
-                                    "you",
-                                );
-                                if (!picker) return; // User cancelled
-                                body.picker = picker;
-                            }
-                            // If task already has picker, keep it (don't prompt)
-                        }
+                        // When moving to InProgress, backend auto-sets picker to logged-in user
 
                         // Handle blocking - prompt for note
                         if (dstState === "Blocked") {
@@ -1213,8 +1201,6 @@
                         `Task not actionable until ${derived.readyAt ? fmtDate(derived.readyAt) : derived.scheduledDueAt ? fmtDate(derived.scheduledDueAt) : "scheduled time"}`,
                     );
                 }
-                const picker = prompt("Who is picking this task?", "you");
-                if (!picker) return;
                 try {
                     const res = await fetch(
                         `${API_ROOT}/tasks/${encodeURIComponent(task.id)}/state`,
@@ -1223,7 +1209,6 @@
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
                                 state: "InProgress",
-                                picker,
                             }),
                         },
                     );
