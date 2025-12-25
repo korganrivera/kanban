@@ -1,0 +1,1901 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Kanban — Compact Board</title>
+        <style>
+            :root {
+                --bg: #071428;
+                --card: #081826;
+                --muted: #97a6b6;
+                --accent: #60a5fa;
+                --accent-2: #7dd3fc;
+                --danger: #fb7185;
+                --ok: #34d399;
+                --gap: 10px;
+                font-family:
+                    Inter,
+                    system-ui,
+                    -apple-system,
+                    "Segoe UI",
+                    Roboto,
+                    "Helvetica Neue",
+                    Arial;
+                font-size: 13px;
+            }
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+                background: linear-gradient(180deg, #041025, #06122a);
+                color: #e6eef6;
+            }
+            header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 12px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+                background: linear-gradient(
+                    180deg,
+                    rgba(255, 255, 255, 0.012),
+                    transparent
+                );
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+            .brand {
+                font-weight: 700;
+                color: var(--accent);
+                letter-spacing: 0.6px;
+                font-size: 1rem;
+            }
+            .topbar {
+                flex: 1;
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+            .quick-add {
+                flex: 1;
+                display: flex;
+                gap: 6px;
+                align-items: center;
+            }
+            .quick-add input[type="text"] {
+                flex: 1;
+                padding: 6px 8px;
+                border-radius: 6px;
+                border: 1px solid rgba(255, 255, 255, 0.03);
+                background: rgba(255, 255, 255, 0.02);
+                color: inherit;
+                font-size: 0.95rem;
+            }
+            button {
+                padding: 6px 8px;
+                border-radius: 6px;
+                border: 0;
+                background: var(--accent);
+                color: #06202b;
+                font-weight: 600;
+                cursor: pointer;
+                font-size: 0.9rem;
+            }
+            button.ghost {
+                background: transparent;
+                border: 1px solid rgba(255, 255, 255, 0.03);
+                color: var(--muted);
+            }
+            main {
+                padding: 10px;
+                height: calc(100vh - 56px);
+                overflow: hidden;
+            }
+            .board {
+                display: flex;
+                gap: var(--gap);
+                align-items: flex-start;
+                height: 100%;
+                flex-wrap: nowrap;
+                padding-bottom: 8px;
+            }
+            .col {
+                background: linear-gradient(
+                    180deg,
+                    rgba(255, 255, 255, 0.006),
+                    rgba(255, 255, 255, 0.004)
+                );
+                border-radius: 8px;
+                padding: 8px;
+                box-shadow: 0 4px 10px rgba(2, 6, 23, 0.6);
+                border: 1px solid rgba(255, 255, 255, 0.02);
+                flex: 0 1 calc((100% - (5 * var(--gap))) / 6);
+                min-width: 120px;
+                max-width: 260px;
+                display: flex;
+                flex-direction: column;
+                box-sizing: border-box;
+            }
+            .col h3 {
+                margin: 0 0 6px 0;
+                font-size: 0.85rem;
+                color: var(--muted);
+            }
+            .list {
+                overflow: auto;
+                padding-bottom: 8px;
+                max-height: calc(100vh - 180px);
+            } /* allow column scrolling */
+            .card {
+                background: linear-gradient(180deg, #071428, #061428);
+                padding: 12px 54px 10px 12px;
+                border-radius: 6px;
+                margin-bottom: 8px;
+                cursor: grab;
+                border: 1px solid rgba(255, 255, 255, 0.02);
+                font-size: 0.92rem;
+                position: relative;
+            }
+            .card.waiting {
+                opacity: 0.56;
+                filter: grayscale(6%);
+                cursor: default;
+            }
+            .card .title {
+                font-weight: 700;
+                margin-bottom: 4px;
+                font-size: 0.96rem;
+                display: block;
+            }
+            .card .claimer {
+                font-size: 0.82rem;
+                color: var(--muted);
+                margin-bottom: 8px;
+            }
+            .card .meta {
+                font-size: 0.84rem;
+                color: var(--muted);
+                margin-bottom: 6px;
+            }
+            .recurrence-icon {
+                display: inline-block;
+                font-size: 14px;
+                color: var(--accent-2);
+                margin-bottom: 6px;
+            }
+            .small {
+                font-size: 12px;
+                color: var(--muted);
+                margin-bottom: 6px;
+            }
+            .col.drop-target {
+                box-shadow: inset 0 0 0 2px rgba(96, 165, 250, 0.1);
+            }
+            #toast {
+                position: fixed;
+                right: 12px;
+                bottom: 12px;
+                background: #041827;
+                color: #bfe7ff;
+                padding: 8px 12px;
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.02);
+                display: none;
+                box-shadow: 0 6px 30px rgba(2, 6, 23, 0.6);
+                font-size: 0.95rem;
+            }
+            .prio-pill {
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                display: inline-block;
+                width: 28px;
+                height: 20px;
+                padding: 0 6px;
+                border-radius: 12px;
+                line-height: 20px;
+                text-align: center;
+                font-weight: 700;
+                color: white;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+                font-size: 0.78rem;
+            }
+            .owner-inline {
+                font-weight: 700;
+                color: var(--accent-2);
+                font-size: 0.84rem;
+            }
+            .sidebar {
+                position: fixed;
+                right: 0;
+                top: 0;
+                height: 100%;
+                width: 360px;
+                max-width: 92vw;
+                background: linear-gradient(180deg, #071226, #041121);
+                border-left: 1px solid rgba(255, 255, 255, 0.03);
+                box-shadow: -12px 0 30px rgba(0, 0, 0, 0.6);
+                padding: 16px;
+                z-index: 100;
+                display: none;
+                color: #e8f7ff;
+                overflow-y: auto;
+                max-height: 100vh;
+            }
+            .sidebar h3 {
+                margin: 0 0 8px 0;
+            }
+            .sidebar label {
+                display: block;
+                margin-top: 8px;
+                color: var(--muted);
+                font-size: 0.85rem;
+            }
+            .sidebar input[type="text"],
+            .sidebar textarea,
+            .sidebar input[type="datetime-local"],
+            .sidebar input[type="number"],
+            .sidebar select {
+                width: 100%;
+                padding: 8px;
+                border-radius: 6px;
+                border: 1px solid rgba(255, 255, 255, 0.03);
+                background: rgba(255, 255, 255, 0.02);
+                color: inherit;
+                box-sizing: border-box;
+            }
+            .sidebar textarea {
+                min-height: 96px;
+                resize: vertical;
+            }
+            .sidebar .row {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+                margin-top: 8px;
+            }
+            .sidebar .actions {
+                margin-top: 12px;
+                display: flex;
+                gap: 8px;
+                justify-content: flex-end;
+            }
+            .muted-small {
+                color: var(--muted);
+                font-size: 0.9rem;
+                margin-top: 6px;
+            }
+            @media (max-width: 900px) {
+                :root {
+                    font-size: 12px;
+                }
+                .col {
+                    flex: 0 1 calc((100% - (5 * var(--gap))) / 6);
+                    min-width: 100px;
+                    max-width: 200px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="brand">Kanban</div>
+            <div class="topbar">
+                <div class="quick-add">
+                    <input
+                        id="quickTitle"
+                        type="text"
+                        placeholder="Quick add: task title (press Enter)"
+                        aria-label="Quick add task"
+                    />
+                    <button id="quickAddBtn" title="Add task">Add</button>
+                    <button
+                        id="openAdvanced"
+                        class="ghost"
+                        title="Open advanced builder"
+                    >
+                        Advanced
+                    </button>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center">
+                    <button
+                        id="openSettings"
+                        class="ghost"
+                        title="Manage WIP limits"
+                    >
+                        ⚙️ Settings
+                    </button>
+                    <div
+                        class="small"
+                        id="wsStatus"
+                        style="color: var(--muted)"
+                    >
+                        ● Connecting...
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="board" id="board">
+                <div class="col" data-state="Waiting">
+                    <h3>Waiting <span class="wip" id="wip-Waiting"></span></h3>
+                    <div class="list" id="col-Waiting"></div>
+                </div>
+                <div class="col" data-state="Ready">
+                    <h3>Ready <span class="wip" id="wip-Ready"></span></h3>
+                    <div class="list" id="col-Ready"></div>
+                </div>
+                <div class="col" data-state="InProgress">
+                    <h3>
+                        In Progress
+                        <span class="wip" id="wip-InProgress"></span>
+                    </h3>
+                    <div class="list" id="col-InProgress"></div>
+                </div>
+                <div class="col" data-state="Blocked">
+                    <h3>Blocked <span class="wip" id="wip-Blocked"></span></h3>
+                    <div class="list" id="col-Blocked"></div>
+                </div>
+                <div class="col" data-state="Suspended">
+                    <h3>
+                        Suspended <span class="wip" id="wip-Suspended"></span>
+                    </h3>
+                    <div class="list" id="col-Suspended"></div>
+                </div>
+                <div class="col" data-state="Done">
+                    <h3>Done <span class="wip" id="wip-Done"></span></h3>
+                    <div class="list" id="col-Done"></div>
+                </div>
+            </div>
+        </main>
+
+        <div id="toast" role="status" aria-live="polite"></div>
+
+        <!-- Sidebar editor -->
+        <div id="sidebar" class="sidebar" role="dialog" aria-hidden="true">
+            <button
+                id="closeSidebar"
+                style="
+                    float: right;
+                    background: transparent;
+                    border: 0;
+                    color: var(--muted);
+                    font-size: 1rem;
+                "
+            >
+                ✕
+            </button>
+            <h3 id="sbTitle">Edit Task</h3>
+
+            <label>Title</label>
+            <input id="sb_title" type="text" />
+
+            <label>Description</label>
+            <textarea id="sb_description"></textarea>
+
+            <label>Scheduled due (local)</label>
+            <input id="sb_scheduled" type="datetime-local" />
+
+            <div class="row">
+                <label style="flex: 1">Lead time (days)</label>
+                <input
+                    id="sb_lead"
+                    type="number"
+                    min="0"
+                    step="1"
+                    style="width: 80px"
+                />
+            </div>
+
+            <label style="margin-top: 12px">Recurrence</label>
+
+            <div class="row">
+                <label style="flex: 1">Type</label>
+                <select id="sb_recur_type">
+                    <option value="none">None</option>
+                    <option value="rolling">Rolling</option>
+                    <option value="anchored">Anchored</option>
+                </select>
+            </div>
+
+            <div class="row">
+                <label style="flex: 1">Interval (days)</label>
+                <input
+                    id="sb_recur_interval"
+                    type="number"
+                    min="1"
+                    step="1"
+                    style="width: 80px"
+                />
+            </div>
+
+            <div
+                class="row"
+                id="sb_weekdays_row"
+                style="display: none; align-items: center"
+            >
+                <label style="flex: 1">Weekdays</label>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap">
+                    <label style="font-size: 12px"
+                        ><input type="checkbox" value="1" class="sb_wd" />
+                        Mon</label
+                    >
+                    <label style="font-size: 12px"
+                        ><input type="checkbox" value="2" class="sb_wd" />
+                        Tue</label
+                    >
+                    <label style="font-size: 12px"
+                        ><input type="checkbox" value="3" class="sb_wd" />
+                        Wed</label
+                    >
+                    <label style="font-size: 12px"
+                        ><input type="checkbox" value="4" class="sb_wd" />
+                        Thu</label
+                    >
+                    <label style="font-size: 12px"
+                        ><input type="checkbox" value="5" class="sb_wd" />
+                        Fri</label
+                    >
+                    <label style="font-size: 12px"
+                        ><input type="checkbox" value="6" class="sb_wd" />
+                        Sat</label
+                    >
+                    <label style="font-size: 12px"
+                        ><input type="checkbox" value="0" class="sb_wd" />
+                        Sun</label
+                    >
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 8px; align-items: center">
+                <label style="flex: 1">Paused</label>
+                <input id="sb_paused" type="checkbox" />
+            </div>
+
+            <label style="margin-top: 10px">Claimed by</label>
+            <div id="sb_claimed" class="muted-small">—</div>
+
+            <label style="margin-top: 10px">Created</label>
+            <div id="sb_created" class="muted-small">—</div>
+
+            <label style="margin-top: 10px">Age</label>
+            <div id="sb_age" class="muted-small">—</div>
+
+            <label style="margin-top: 10px">Dependencies</label>
+            <div id="sb_dependencies" class="muted-small">None</div>
+
+            <label style="margin-top: 10px">Manage Dependencies</label>
+            <div style="margin-top: 4px">
+                <select
+                    id="sb_add_dependency"
+                    style="width: 100%; margin-bottom: 4px"
+                >
+                    <option value="">
+                        -- Select task to add as dependency --
+                    </option>
+                </select>
+                <button
+                    id="sb_add_dep_btn"
+                    style="width: 100%; margin-top: 4px"
+                >
+                    Add Dependency
+                </button>
+            </div>
+            <div id="sb_dep_list" style="margin-top: 8px"></div>
+
+            <div class="actions">
+                <button id="sbSave">Save</button>
+                <button id="sbCancel" class="ghost">Cancel</button>
+            </div>
+
+            <div class="muted-small">
+                Note: edits affect future occurrences. Recurrence edits
+                normalize next due date when allowed.
+            </div>
+        </div>
+
+        <!-- Settings modal for WIP limits -->
+        <div
+            id="settingsModal"
+            class="sidebar"
+            role="dialog"
+            aria-hidden="true"
+        >
+            <button
+                id="closeSettings"
+                style="
+                    float: right;
+                    background: transparent;
+                    border: 0;
+                    color: var(--muted);
+                    font-size: 1rem;
+                "
+            >
+                ✕
+            </button>
+            <h3>Settings</h3>
+
+            <label style="margin-top: 12px">WIP Limits</label>
+            <div class="muted-small" style="margin-bottom: 8px">
+                Set maximum number of tasks per column (null = no limit)
+            </div>
+
+            <div class="row">
+                <label style="flex: 1">Waiting</label>
+                <input
+                    id="wip_Waiting"
+                    type="number"
+                    min="0"
+                    step="1"
+                    placeholder="No limit"
+                    style="width: 100px"
+                />
+            </div>
+
+            <div class="row">
+                <label style="flex: 1">Ready</label>
+                <input
+                    id="wip_Ready"
+                    type="number"
+                    min="0"
+                    step="1"
+                    placeholder="No limit"
+                    style="width: 100px"
+                />
+            </div>
+
+            <div class="row">
+                <label style="flex: 1">In Progress</label>
+                <input
+                    id="wip_InProgress"
+                    type="number"
+                    min="0"
+                    step="1"
+                    placeholder="No limit"
+                    style="width: 100px"
+                />
+            </div>
+
+            <div class="row">
+                <label style="flex: 1">Blocked</label>
+                <input
+                    id="wip_Blocked"
+                    type="number"
+                    min="0"
+                    step="1"
+                    placeholder="No limit"
+                    style="width: 100px"
+                />
+            </div>
+
+            <div class="row">
+                <label style="flex: 1">Suspended</label>
+                <input
+                    id="wip_Suspended"
+                    type="number"
+                    min="0"
+                    step="1"
+                    placeholder="No limit"
+                    style="width: 100px"
+                />
+            </div>
+
+            <div class="row">
+                <label style="flex: 1">Done</label>
+                <input
+                    id="wip_Done"
+                    type="number"
+                    min="0"
+                    step="1"
+                    placeholder="No limit"
+                    style="width: 100px"
+                />
+            </div>
+
+            <div class="actions">
+                <button id="saveSettings">Save</button>
+                <button id="cancelSettings" class="ghost">Cancel</button>
+            </div>
+        </div>
+
+        <script>
+            /* ---------------- Utilities ---------------- */
+            const API_ROOT = "";
+            let tasksCache = [];
+            let fetchInFlight = false;
+            let sidebarTaskId = null;
+
+            function toast(msg, timeout = 2600) {
+                const t = document.getElementById("toast");
+                t.textContent = msg;
+                t.style.display = "block";
+                clearTimeout(t._to);
+                t._to = setTimeout(() => (t.style.display = "none"), timeout);
+            }
+
+            /* ---------------- Date helpers ---------------- */
+            function calculateAge(createdAt) {
+                if (!createdAt) return "Unknown";
+                const created = new Date(createdAt);
+                if (isNaN(created.getTime())) return "Unknown";
+                const now = new Date();
+                const diffMs = now - created;
+                const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+                if (diffDays > 0)
+                    return `${diffDays} day${diffDays === 1 ? "" : "s"} old`;
+                if (diffHours > 0)
+                    return `${diffHours} hour${diffHours === 1 ? "" : "s"} old`;
+                if (diffMinutes > 0)
+                    return `${diffMinutes} minute${diffMinutes === 1 ? "" : "s"} old`;
+                return "Just created";
+            }
+
+            function fmtDate(iso) {
+                if (!iso) return "—";
+                const d = new Date(iso);
+                if (isNaN(d.getTime())) return "—";
+                return d.toLocaleDateString(undefined, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                });
+            }
+            function isoToInputLocal(iso) {
+                if (!iso) return "";
+                const d = new Date(iso);
+                if (isNaN(d.getTime())) return "";
+                const off = d.getTimezoneOffset();
+                const local = new Date(d.getTime() - off * 60000);
+                return local.toISOString().slice(0, 16);
+            }
+            function inputLocalToIso(val) {
+                if (!val) return null;
+
+                // Trim whitespace
+                val = val.trim();
+
+                // Handle date-only format (YYYY-MM-DD) - append midnight time
+                if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+                    val = val + "T00:00:00";
+                }
+                // Handle space-separated datetime (YYYY-MM-DD HH:MM)
+                else if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}$/.test(val)) {
+                    val = val.replace(" ", "T") + ":00";
+                }
+                // Handle datetime-local format without seconds (YYYY-MM-DDTHH:MM)
+                else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(val)) {
+                    val = val + ":00";
+                }
+
+                const d = new Date(val);
+                if (isNaN(d.getTime())) return null;
+
+                // toISOString() automatically converts from local time to UTC
+                return d.toISOString();
+            }
+
+            /* ---------------- Low-level helpers for derivation ---------------- */
+            function parseDateSafe(v) {
+                if (!v) return null;
+                const d = new Date(v);
+                return isNaN(d.getTime()) ? null : d;
+            }
+            function calcReadyAtIso(task) {
+                const sd = parseDateSafe(task.scheduledDueAt);
+                if (!sd) return null;
+                const lead =
+                    Number(
+                        task.recurrence &&
+                            Number.isFinite(
+                                Number(task.recurrence.leadTimeDays),
+                            )
+                            ? Number(task.recurrence.leadTimeDays)
+                            : Number.isFinite(Number(task.leadTimeDays))
+                              ? Number(task.leadTimeDays)
+                              : 0,
+                    ) || 0;
+                const readyMs =
+                    sd.getTime() - Math.round(lead * 24 * 60 * 60 * 1000);
+                return new Date(readyMs).toISOString();
+            }
+            function anyDependencyUnresolvedLocal(allTasks, task) {
+                if (
+                    !Array.isArray(task.dependencies) ||
+                    task.dependencies.length === 0
+                )
+                    return false;
+                const byId = new Map((allTasks || []).map((t) => [t.id, t]));
+                return task.dependencies.some((did) => {
+                    const dt = byId.get(did);
+                    return !dt || dt.state !== "Done";
+                });
+            }
+
+            /* ---------------- deriveEffectiveState (client-side) ----------------
+               Mirrors server logic but runs in browser. Returns object:
+               { effectiveState, readyAt, scheduledDueAt, overdue }
+            -------------------------------------------------------------------- */
+            function deriveEffectiveState(
+                task,
+                allTasks = tasksCache,
+                now = new Date(),
+            ) {
+                const scheduledAt = parseDateSafe(task.scheduledDueAt);
+                const readyAtIso = calcReadyAtIso(task);
+                const readyAt = parseDateSafe(readyAtIso);
+                const overdue = scheduledAt
+                    ? now.getTime() >= scheduledAt.getTime()
+                    : false;
+
+                // Honor explicit stored states first
+                if (task.state === "Done") {
+                    return {
+                        effectiveState: "Done",
+                        readyAt: readyAtIso,
+                        scheduledDueAt: scheduledAt
+                            ? scheduledAt.toISOString()
+                            : null,
+                        overdue: false,
+                    };
+                }
+                if (task.state === "Blocked") {
+                    return {
+                        effectiveState: "Blocked",
+                        readyAt: readyAtIso,
+                        scheduledDueAt: scheduledAt
+                            ? scheduledAt.toISOString()
+                            : null,
+                        overdue,
+                    };
+                }
+                if (task.state === "InProgress") {
+                    return {
+                        effectiveState: "InProgress",
+                        readyAt: readyAtIso,
+                        scheduledDueAt: scheduledAt
+                            ? scheduledAt.toISOString()
+                            : null,
+                        overdue,
+                    };
+                }
+                if (task.state === "Suspended") {
+                    return {
+                        effectiveState: "Suspended",
+                        readyAt: readyAtIso,
+                        scheduledDueAt: scheduledAt
+                            ? scheduledAt.toISOString()
+                            : null,
+                        overdue,
+                    };
+                }
+
+                // recurrence pause forces Suspended
+                if (task.recurrence && task.recurrence.paused) {
+                    return {
+                        effectiveState: "Suspended",
+                        readyAt: readyAtIso,
+                        scheduledDueAt: scheduledAt
+                            ? scheduledAt.toISOString()
+                            : null,
+                        overdue,
+                    };
+                }
+
+                // unresolved dependencies => Suspended
+                if (anyDependencyUnresolvedLocal(allTasks, task)) {
+                    return {
+                        effectiveState: "Suspended",
+                        readyAt: readyAtIso,
+                        scheduledDueAt: scheduledAt
+                            ? scheduledAt.toISOString()
+                            : null,
+                        overdue,
+                    };
+                }
+
+                // no scheduled date => fallback to stored state or Ready
+                if (!scheduledAt) {
+                    const fallback = task.state || "Ready";
+                    return {
+                        effectiveState: fallback,
+                        readyAt: readyAtIso,
+                        scheduledDueAt: null,
+                        overdue: false,
+                    };
+                }
+
+                // time gates: waiting until readyAt
+                if (readyAt && now.getTime() < readyAt.getTime()) {
+                    return {
+                        effectiveState: "Waiting",
+                        readyAt: readyAtIso,
+                        scheduledDueAt: scheduledAt.toISOString(),
+                        overdue: false,
+                    };
+                }
+
+                // otherwise actionable
+                return {
+                    effectiveState: "Ready",
+                    readyAt: readyAtIso,
+                    scheduledDueAt: scheduledAt.toISOString(),
+                    overdue,
+                };
+            }
+
+            /* ---------------- Priority color helper ---------------- */
+            function prioColor(n) {
+                const v = Number(n) || 0;
+                if (v <= 33) return "#16a34a";
+                if (v <= 66) return "#f59e0b";
+                return "#ef4444";
+            }
+
+            /* ---------------- Effective-state wrapper used by UI ---------------- */
+            function getTaskState(task) {
+                // use server-provided effectiveState if available, otherwise derive client-side
+                if (task && task.effectiveState) {
+                    return task.effectiveState;
+                }
+                // fallback: derive effective state client-side using current tasksCache
+                try {
+                    const eff = deriveEffectiveState(
+                        task,
+                        tasksCache,
+                        new Date(),
+                    );
+                    return eff.effectiveState;
+                } catch (e) {
+                    // fallback: stored state
+                    return task && task.state ? task.state : "Ready";
+                }
+            }
+
+            /* ---------------- DOM helpers ---------------- */
+            function el(tag, attrs = {}, ...children) {
+                const e = document.createElement(tag);
+                for (const k in attrs) {
+                    if (k === "class") e.className = attrs[k];
+                    else if (k === "dataset")
+                        Object.assign(e.dataset, attrs[k]);
+                    else e.setAttribute(k, attrs[k]);
+                }
+                for (const c of children)
+                    if (c != null)
+                        e.appendChild(
+                            typeof c === "string"
+                                ? document.createTextNode(c)
+                                : c,
+                        );
+                return e;
+            }
+
+            /* ---------------- Render ---------------- */
+            function clearColumns() {
+                const cols = document.querySelectorAll(".col .list");
+                cols.forEach((c) => (c.innerHTML = ""));
+                [
+                    "Waiting",
+                    "Ready",
+                    "InProgress",
+                    "Blocked",
+                    "Suspended",
+                    "Done",
+                ].forEach((s) => {
+                    const elw = document.getElementById("wip-" + s);
+                    if (elw) elw.textContent = "";
+                });
+            }
+
+            function renderTasks(list) {
+                tasksCache = list.slice();
+                clearColumns();
+                const groups = {
+                    Waiting: [],
+                    Ready: [],
+                    InProgress: [],
+                    Blocked: [],
+                    Suspended: [],
+                    Done: [],
+                };
+                for (const t of list) {
+                    const s = getTaskState(t);
+                    groups[s] = groups[s] || [];
+                    groups[s].push(t);
+                }
+                for (const st of Object.keys(groups)) {
+                    const listEl = document.getElementById("col-" + st);
+                    if (!listEl) {
+                        continue;
+                    }
+                    groups[st].sort(
+                        (a, b) => (b.priority || 0) - (a.priority || 0),
+                    );
+                    groups[st].forEach((task) =>
+                        listEl.appendChild(makeCard(task)),
+                    );
+                    const w = document.getElementById("wip-" + st);
+                    if (w) {
+                        const count = groups[st].length;
+                        const limit = WIP_LIMITS[st];
+                        if (limit !== null && limit !== undefined) {
+                            w.textContent = `(${count} / ${limit})`;
+                            // Color red if over limit
+                            if (count > limit) {
+                                w.style.color = "#fb7185"; // danger color
+                            } else {
+                                w.style.color = ""; // reset to default
+                            }
+                        } else {
+                            w.textContent = `(${count})`;
+                            w.style.color = ""; // reset to default
+                        }
+                    }
+                }
+            }
+
+            /* ---------------- Card creation ---------------- */
+            function makeCard(task) {
+                const derived = deriveEffectiveState(
+                    task,
+                    tasksCache,
+                    new Date(),
+                );
+                const s = derived.effectiveState;
+                const draggable =
+                    s === "Ready" || s === "InProgress" || s === "Blocked";
+                const card = el("div", {
+                    class: "card" + (s === "Waiting" ? " waiting" : ""),
+                    draggable,
+                });
+                card.dataset.id = task.id;
+
+                const title = el("div", { class: "title" }, task.title);
+
+                // claimer line shown only if picker exists
+                let claimer = null;
+                if (task.picker) {
+                    claimer = el(
+                        "div",
+                        { class: "claimer" },
+                        el(
+                            "span",
+                            { class: "owner-inline" },
+                            `Claimed by: ${String(task.picker)}`,
+                        ),
+                    );
+                } else {
+                    claimer = null;
+                }
+
+                const recurrenceLine = task.recurrence
+                    ? el(
+                          "div",
+                          {},
+                          el(
+                              "span",
+                              {
+                                  class: "recurrence-icon",
+                                  title: "Recurring task",
+                              },
+                              "🔁",
+                          ),
+                      )
+                    : null;
+                const desc = task.description
+                    ? el("div", { class: "meta" }, task.description)
+                    : null;
+
+                const times = el(
+                    "div",
+                    { class: "small" },
+                    el(
+                        "span",
+                        {},
+                        `Due ${fmtDate(derived.scheduledDueAt || task.scheduledDueAt)}`,
+                    ),
+                    derived.readyAt
+                        ? el(
+                              "span",
+                              { style: "margin-left:8px" },
+                              `Ready ${fmtDate(derived.readyAt)}`,
+                          )
+                        : null,
+                );
+
+                const badges = el(
+                    "div",
+                    {
+                        style: "margin-top:6px;display:flex;gap:6px;align-items:center;",
+                    },
+                    derived.overdue
+                        ? el(
+                              "div",
+                              { class: "small", style: "color:#ffb4b8" },
+                              "Overdue",
+                          )
+                        : null,
+                );
+
+                const actions = el("div", { class: "actions" });
+
+                if (s === "Ready") {
+                    const claim = el("button", {}, "Claim");
+                    claim.onclick = (ev) => {
+                        ev.stopPropagation();
+                        onClaimClicked(task);
+                    };
+                    actions.appendChild(claim);
+                }
+
+                if (s === "Blocked") {
+                    const remedy = el("button", {}, "Remedy");
+                    remedy.onclick = (ev) => {
+                        ev.stopPropagation();
+                        onRemedyClicked(task);
+                    };
+                    actions.appendChild(remedy);
+                }
+
+                if (s === "InProgress") {
+                    const done = el("button", {}, "Complete");
+                    done.onclick = (ev) => {
+                        ev.stopPropagation();
+                        onCompleteClicked(task);
+                    };
+                    actions.appendChild(done);
+                }
+
+                const del = el("button", {}, "Delete");
+                del.onclick = (ev) => {
+                    ev.stopPropagation();
+                    onDeleteClicked(task);
+                };
+                actions.appendChild(del);
+
+                // priority pill: hide for Done and Waiting
+                if (s !== "Done" && s !== "Waiting") {
+                    const prio = document.createElement("div");
+                    prio.className = "prio-pill";
+                    const pval = Number(task.priority) || 0;
+                    prio.textContent = String(pval);
+                    prio.style.background = prioColor(pval);
+                    card.appendChild(prio);
+                }
+
+                card.appendChild(title);
+                if (claimer) card.appendChild(claimer);
+                if (recurrenceLine) card.appendChild(recurrenceLine);
+                if (desc) card.appendChild(desc);
+                card.appendChild(times);
+                card.appendChild(badges);
+                card.appendChild(actions);
+
+                card.addEventListener("dragstart", (ev) => {
+                    if (!draggable) {
+                        ev.preventDefault();
+                        toast(`Not draggable from this column`);
+                        return false;
+                    }
+                    ev.dataTransfer.setData("text/plain", task.id);
+                    ev.dataTransfer.effectAllowed = "move";
+                });
+
+                card.addEventListener("click", () => {
+                    openSidebar(task);
+                });
+
+                return card;
+            }
+
+            /* ---------------- Column drops ---------------- */
+            function enableColumnDrops() {
+                document.querySelectorAll(".col").forEach((col) => {
+                    col.addEventListener("dragover", (ev) => {
+                        ev.preventDefault();
+                        col.classList.add("drop-target");
+                    });
+                    col.addEventListener("dragleave", () =>
+                        col.classList.remove("drop-target"),
+                    );
+                    col.addEventListener("drop", async (ev) => {
+                        ev.preventDefault();
+                        col.classList.remove("drop-target");
+                        const id = ev.dataTransfer.getData("text/plain");
+                        const dstState = col.dataset.state;
+                        const task = tasksCache.find((t) => t.id === id);
+                        if (!task) return toast("Task not found");
+                        const s = getTaskState(task);
+                        if (
+                            !(
+                                s === "Ready" ||
+                                s === "InProgress" ||
+                                s === "Blocked"
+                            )
+                        ) {
+                            return toast(`Cannot move this task from ${s}`);
+                        }
+
+                        // Build request body
+                        const body = { state: dstState };
+
+                        // Handle unclaiming when moving to Ready
+                        if (dstState === "Ready" && task.picker) {
+                            body.picker = null;
+                        }
+
+                        // Handle claiming when moving to InProgress
+                        if (dstState === "InProgress") {
+                            // Only prompt if task doesn't already have a picker
+                            if (!task.picker) {
+                                const picker = prompt(
+                                    "Who is picking this task?",
+                                    "you",
+                                );
+                                if (!picker) return; // User cancelled
+                                body.picker = picker;
+                            }
+                            // If task already has picker, keep it (don't prompt)
+                        }
+
+                        // Handle blocking - prompt for note
+                        if (dstState === "Blocked") {
+                            const note = prompt(
+                                "Why is this task blocked?",
+                                task.meta?.block_note || "",
+                            );
+                            if (note === null) return; // User cancelled
+                            body.note = note;
+                        }
+
+                        try {
+                            const r = await fetch(
+                                `${API_ROOT}/tasks/${encodeURIComponent(id)}/state`,
+                                {
+                                    method: "PATCH",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify(body),
+                                },
+                            );
+                            if (!r.ok) {
+                                const err = await r
+                                    .json()
+                                    .catch(() => ({ error: "unknown" }));
+                                return toast(
+                                    err.error || "Server rejected move",
+                                );
+                            }
+                            await fetchAndRender();
+                        } catch (err) {
+                            console.error(err);
+                            toast("Network error");
+                        }
+                    });
+                });
+            }
+
+            /* ---------------- Claim / Complete / Remedy / Delete ---------------- */
+            async function onClaimClicked(task) {
+                if (getTaskState(task) !== "Ready") {
+                    // show the derived readyAt if available
+                    const derived = deriveEffectiveState(
+                        task,
+                        tasksCache,
+                        new Date(),
+                    );
+                    return toast(
+                        `Task not actionable until ${derived.readyAt ? fmtDate(derived.readyAt) : derived.scheduledDueAt ? fmtDate(derived.scheduledDueAt) : "scheduled time"}`,
+                    );
+                }
+                const picker = prompt("Who is picking this task?", "you");
+                if (!picker) return;
+                try {
+                    const res = await fetch(
+                        `${API_ROOT}/tasks/${encodeURIComponent(task.id)}/state`,
+                        {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                state: "InProgress",
+                                picker,
+                            }),
+                        },
+                    );
+                    if (!res.ok) {
+                        const j = await res
+                            .json()
+                            .catch(() => ({ error: "unknown" }));
+                        return toast(j.error || "Could not claim");
+                    }
+                    toast("Claimed");
+                    await fetchAndRender();
+                } catch (err) {
+                    console.error(err);
+                    toast("Network error");
+                }
+            }
+
+            async function onCompleteClicked(task) {
+                const st = getTaskState(task);
+                if (st !== "InProgress") {
+                    return toast(`Cannot complete until In Progress`);
+                }
+                try {
+                    const res = await fetch(
+                        `${API_ROOT}/tasks/${encodeURIComponent(task.id)}/state`,
+                        {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ state: "Done" }),
+                        },
+                    );
+                    if (!res.ok) {
+                        const j = await res
+                            .json()
+                            .catch(() => ({ error: "unknown" }));
+                        return toast(j.error || "Could not complete");
+                    }
+                    toast("Completed");
+                    await fetchAndRender();
+                } catch (err) {
+                    console.error(err);
+                    toast("Network error");
+                }
+            }
+
+            async function onRemedyClicked(task) {
+                const title = prompt(
+                    "Remedy title (leave empty to auto-generate):",
+                    `Remedy for ${task.title}`,
+                );
+                if (title === null) return;
+                try {
+                    const body = {
+                        title: title || undefined,
+                    };
+                    const res = await fetch(
+                        `${API_ROOT}/tasks/${encodeURIComponent(task.id)}/remedy`,
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(body),
+                        },
+                    );
+                    if (!res.ok) {
+                        const j = await res
+                            .json()
+                            .catch(() => ({ error: "unknown" }));
+                        return toast(j.error || "Could not create remedy");
+                    }
+                    toast("Remedy created");
+                    await fetchAndRender();
+                } catch (err) {
+                    console.error(err);
+                    toast("Network error");
+                }
+            }
+
+            async function onDeleteClicked(task) {
+                if (
+                    !confirm(
+                        `Delete task "${task.title}"? This cannot be undone.`,
+                    )
+                )
+                    return;
+                try {
+                    const r = await fetch(
+                        `${API_ROOT}/tasks/${encodeURIComponent(task.id)}`,
+                        { method: "DELETE" },
+                    );
+                    if (!r.ok) {
+                        const j = await r
+                            .json()
+                            .catch(() => ({ error: "unknown" }));
+                        return toast(j.error || "Delete failed");
+                    }
+                    toast("Deleted");
+                    await fetchAndRender();
+                } catch (err) {
+                    console.error(err);
+                    toast("Network error");
+                }
+            }
+
+            /* ---------------- Fetch & render ---------------- */
+            async function fetchTasks() {
+                if (fetchInFlight) return;
+                fetchInFlight = true;
+                try {
+                    const res = await fetch(`${API_ROOT}/tasks`);
+                    if (!res.ok) throw new Error("fetch failed");
+                    const data = await res.json();
+                    fetchInFlight = false;
+                    return data;
+                } catch (err) {
+                    fetchInFlight = false;
+                    console.error(err);
+                    return [];
+                }
+            }
+
+            async function fetchAndRender() {
+                const data = await fetchTasks();
+                if (!Array.isArray(data)) return;
+                renderTasks(data);
+            }
+
+            /* ---------------- Quick add ---------------- */
+            document
+                .getElementById("quickAddBtn")
+                .addEventListener("click", quickAdd);
+            document
+                .getElementById("quickTitle")
+                .addEventListener("keydown", (ev) => {
+                    if (ev.key === "Enter") quickAdd();
+                });
+            async function quickAdd() {
+                const title = document
+                    .getElementById("quickTitle")
+                    .value.trim();
+                if (!title) return toast("Enter a title");
+                try {
+                    const res = await fetch(`${API_ROOT}/tasks`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ title, description: "" }),
+                    });
+                    if (!res.ok) {
+                        const j = await res
+                            .json()
+                            .catch(() => ({ error: "unknown" }));
+                        return toast(j.error || "Create failed");
+                    }
+                    document.getElementById("quickTitle").value = "";
+                    toast("Created");
+                    await fetchAndRender();
+                } catch (err) {
+                    console.error(err);
+                    toast("Network error");
+                }
+            }
+
+            /* ---------------- Sidebar editor ---------------- */
+            function openSidebar(task) {
+                sidebarTaskId = task.id;
+                const sb = document.getElementById("sidebar");
+                document.getElementById("sbTitle").textContent =
+                    `Edit: ${task.title || ""}`;
+                document.getElementById("sb_title").value = task.title || "";
+                document.getElementById("sb_description").value =
+                    task.description || "";
+                // For text input, show in readable format
+                if (task.scheduledDueAt) {
+                    const d = new Date(task.scheduledDueAt);
+                    if (!isNaN(d.getTime())) {
+                        const year = d.getFullYear();
+                        const month = String(d.getMonth() + 1).padStart(2, "0");
+                        const day = String(d.getDate()).padStart(2, "0");
+                        const hour = String(d.getHours()).padStart(2, "0");
+                        const minute = String(d.getMinutes()).padStart(2, "0");
+                        document.getElementById("sb_scheduled").value =
+                            `${year}-${month}-${day}T${hour}:${minute}`;
+                    } else {
+                        document.getElementById("sb_scheduled").value = "";
+                    }
+                } else {
+                    document.getElementById("sb_scheduled").value = "";
+                }
+                document.getElementById("sb_lead").value =
+                    task.recurrence &&
+                    Number.isFinite(task.recurrence.leadTimeDays)
+                        ? task.recurrence.leadTimeDays
+                        : task.leadTimeDays || 0;
+                document.getElementById("sb_paused").checked = !!(
+                    task.recurrence && task.recurrence.paused
+                );
+
+                const r = task.recurrence || { type: "none" };
+                document.getElementById("sb_recur_type").value =
+                    r.type || "none";
+                document.getElementById("sb_recur_interval").value =
+                    r.intervalDays || "";
+                const wd = new Set((r.weekdays || []).map((n) => Number(n)));
+                document.querySelectorAll(".sb_wd").forEach((cb) => {
+                    cb.checked = wd.has(Number(cb.value));
+                });
+                document.getElementById("sb_weekdays_row").style.display =
+                    r.type === "anchored" ? "flex" : "none";
+
+                document.getElementById("sb_claimed").textContent = task.picker
+                    ? String(task.picker)
+                    : "—";
+
+                // Show created date and age
+                document.getElementById("sb_created").textContent =
+                    task.created_at ? fmtDate(task.created_at) : "—";
+                document.getElementById("sb_age").textContent = calculateAge(
+                    task.created_at,
+                );
+
+                // Show dependencies with clickable links
+                const depsEl = document.getElementById("sb_dependencies");
+                if (!task.dependencies || task.dependencies.length === 0) {
+                    depsEl.textContent = "None";
+                } else {
+                    depsEl.innerHTML = "";
+                    task.dependencies.forEach((depId, index) => {
+                        const depTask = tasksCache.find((t) => t.id === depId);
+                        const link = document.createElement("a");
+                        link.href = "#";
+                        link.style.color = "var(--accent)";
+                        link.style.textDecoration = "underline";
+                        link.style.cursor = "pointer";
+                        link.textContent = depTask
+                            ? depTask.title
+                            : `Task ${depId}`;
+                        link.onclick = (e) => {
+                            e.preventDefault();
+                            if (depTask) {
+                                openSidebar(depTask);
+                            }
+                        };
+                        depsEl.appendChild(link);
+                        if (index < task.dependencies.length - 1) {
+                            depsEl.appendChild(document.createTextNode(", "));
+                        }
+                    });
+                }
+
+                // Populate dependency management UI
+                const addDepSelect =
+                    document.getElementById("sb_add_dependency");
+                addDepSelect.innerHTML =
+                    '<option value="">-- Select task to add as dependency --</option>';
+                tasksCache.forEach((t) => {
+                    if (
+                        t.id !== task.id &&
+                        (!task.dependencies ||
+                            !task.dependencies.includes(t.id))
+                    ) {
+                        const option = document.createElement("option");
+                        option.value = t.id;
+                        option.textContent = t.title;
+                        addDepSelect.appendChild(option);
+                    }
+                });
+
+                // Show current dependencies with remove buttons
+                const depListEl = document.getElementById("sb_dep_list");
+                depListEl.innerHTML = "";
+                if (task.dependencies && task.dependencies.length > 0) {
+                    task.dependencies.forEach((depId) => {
+                        const depTask = tasksCache.find((t) => t.id === depId);
+                        const depItem = document.createElement("div");
+                        depItem.style.display = "flex";
+                        depItem.style.justifyContent = "space-between";
+                        depItem.style.alignItems = "center";
+                        depItem.style.padding = "4px 0";
+                        depItem.style.borderBottom =
+                            "1px solid rgba(255,255,255,0.05)";
+
+                        const depText = document.createElement("span");
+                        depText.textContent = depTask
+                            ? depTask.title
+                            : `Task ${depId}`;
+                        depText.style.flex = "1";
+                        depText.style.fontSize = "0.9rem";
+
+                        const removeBtn = document.createElement("button");
+                        removeBtn.textContent = "Remove";
+                        removeBtn.style.padding = "2px 8px";
+                        removeBtn.style.fontSize = "0.8rem";
+                        removeBtn.className = "ghost";
+                        removeBtn.onclick = async () => {
+                            const newDeps = task.dependencies.filter(
+                                (d) => d !== depId,
+                            );
+                            try {
+                                const res = await fetch(
+                                    `${API_ROOT}/tasks/${encodeURIComponent(task.id)}`,
+                                    {
+                                        method: "PATCH",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                        },
+                                        body: JSON.stringify({
+                                            dependencies: newDeps,
+                                        }),
+                                    },
+                                );
+                                if (res.ok) {
+                                    toast("Dependency removed");
+                                    // Refresh sidebar with updated task
+                                    const updatedTask = await res.json();
+                                    openSidebar(updatedTask);
+                                } else {
+                                    toast("Failed to remove dependency");
+                                }
+                            } catch (err) {
+                                console.error(err);
+                                toast("Network error");
+                            }
+                        };
+
+                        depItem.appendChild(depText);
+                        depItem.appendChild(removeBtn);
+                        depListEl.appendChild(depItem);
+                    });
+                }
+
+                sb.style.display = "block";
+                sb.setAttribute("aria-hidden", "false");
+            }
+
+            function closeSidebar() {
+                const sb = document.getElementById("sidebar");
+                sb.style.display = "none";
+                sb.setAttribute("aria-hidden", "true");
+                sidebarTaskId = null;
+            }
+
+            document
+                .getElementById("closeSidebar")
+                .addEventListener("click", closeSidebar);
+            document
+                .getElementById("sbCancel")
+                .addEventListener("click", (e) => {
+                    e.preventDefault();
+                    closeSidebar();
+                });
+
+            // Add dependency button handler
+            document
+                .getElementById("sb_add_dep_btn")
+                .addEventListener("click", async () => {
+                    const currentTask = tasksCache.find(
+                        (t) => t.id === sidebarTaskId,
+                    );
+                    if (!currentTask) return;
+
+                    const depId =
+                        document.getElementById("sb_add_dependency").value;
+                    if (!depId) return toast("Please select a task");
+
+                    const newDeps = [
+                        ...(currentTask.dependencies || []),
+                        depId,
+                    ];
+                    try {
+                        const res = await fetch(
+                            `${API_ROOT}/tasks/${encodeURIComponent(currentTask.id)}`,
+                            {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ dependencies: newDeps }),
+                            },
+                        );
+                        if (res.ok) {
+                            toast("Dependency added");
+                            const updatedTask = await res.json();
+                            openSidebar(updatedTask);
+                        } else {
+                            const err = await res
+                                .json()
+                                .catch(() => ({ error: "unknown" }));
+                            toast(err.error || "Failed to add dependency");
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        toast("Network error");
+                    }
+                });
+
+            document
+                .getElementById("sb_recur_type")
+                .addEventListener("change", (e) => {
+                    document.getElementById("sb_weekdays_row").style.display =
+                        e.target.value === "anchored" ? "flex" : "none";
+                });
+
+            /* Unified Save handler — create vs update.
+               Important: only send recurrence when the user selected something other than 'none'.
+            */
+            document
+                .getElementById("sbSave")
+                .addEventListener("click", async (e) => {
+                    e.preventDefault();
+
+                    const payload = {};
+                    payload.title = document
+                        .getElementById("sb_title")
+                        .value.trim();
+                    payload.description = document
+                        .getElementById("sb_description")
+                        .value.trim();
+                    const schedVal =
+                        document.getElementById("sb_scheduled").value;
+                    payload.scheduledDueAt = inputLocalToIso(schedVal);
+
+                    const rtype =
+                        document.getElementById("sb_recur_type").value;
+                    const interval = Number(
+                        document.getElementById("sb_recur_interval").value || 0,
+                    );
+                    const weekdays = Array.from(
+                        document.querySelectorAll(".sb_wd"),
+                    )
+                        .filter((cb) => cb.checked)
+                        .map((cb) => Number(cb.value));
+
+                    if (rtype && rtype !== "none") {
+                        payload.recurrence = {
+                            leadTimeDays: Number(
+                                document.getElementById("sb_lead").value || 0,
+                            ),
+                            paused: !!document.getElementById("sb_paused")
+                                .checked,
+                            type: rtype,
+                        };
+                        if (interval > 0)
+                            payload.recurrence.intervalDays = interval;
+                        if (rtype === "anchored")
+                            payload.recurrence.weekdays = weekdays;
+                    } else {
+                        if (sidebarTaskId)
+                            payload.recurrence = { type: "none" };
+                    }
+
+                    try {
+                        if (!sidebarTaskId) {
+                            const r = await fetch(`${API_ROOT}/tasks`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(payload),
+                            });
+                            if (!r.ok) {
+                                const j = await r
+                                    .json()
+                                    .catch(() => ({ error: "unknown" }));
+                                return toast(j.error || "Create failed");
+                            }
+                            toast("Created");
+                            closeSidebar();
+                            await fetchAndRender();
+                            return;
+                        } else {
+                            const r = await fetch(
+                                `${API_ROOT}/tasks/${encodeURIComponent(sidebarTaskId)}`,
+                                {
+                                    method: "PATCH",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify(payload),
+                                },
+                            );
+                            if (!r.ok) {
+                                const j = await r
+                                    .json()
+                                    .catch(() => ({ error: "unknown" }));
+                                return toast(j.error || "Save failed");
+                            }
+                            toast("Saved");
+                            closeSidebar();
+                            await fetchAndRender();
+                            return;
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        toast("Network error");
+                    }
+                });
+
+            /* ---------------- Advanced button: open in Create mode ---------------- */
+            document
+                .getElementById("openAdvanced")
+                .addEventListener("click", (e) => {
+                    e.preventDefault();
+                    sidebarTaskId = null;
+
+                    document.getElementById("sbTitle").textContent =
+                        "Create task";
+                    document.getElementById("sb_title").value = "";
+                    document.getElementById("sb_description").value = "";
+                    document.getElementById("sb_scheduled").value = "";
+                    document.getElementById("sb_lead").value = "0";
+                    document.getElementById("sb_paused").checked = false;
+                    document.getElementById("sb_recur_type").value = "none";
+                    document.getElementById("sb_recur_interval").value = "";
+                    document
+                        .querySelectorAll(".sb_wd")
+                        .forEach((cb) => (cb.checked = false));
+                    document.getElementById("sb_weekdays_row").style.display =
+                        "none";
+
+                    const sb = document.getElementById("sidebar");
+                    sb.style.display = "block";
+                    sb.setAttribute("aria-hidden", "false");
+                });
+
+            /* ---------------- Client WIP mirror ---------------- */
+            const WIP_LIMITS = {
+                Ready: null,
+                InProgress: 5,
+                Blocked: 10,
+                Suspended: null,
+                Done: null,
+                Waiting: null,
+            };
+
+            /* ---------------- WebSocket Setup ---------------- */
+            let ws = null;
+            let reconnectTimeout = null;
+
+            function connectWebSocket() {
+                const protocol =
+                    window.location.protocol === "https:" ? "wss:" : "ws:";
+                const wsUrl = `${protocol}//${window.location.host}`;
+
+                console.log("Connecting to WebSocket:", wsUrl);
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = () => {
+                    console.log("WebSocket connected");
+                    const statusEl = document.getElementById("wsStatus");
+                    if (statusEl) {
+                        statusEl.textContent = "● Connected";
+                        statusEl.style.color = "var(--ok)";
+                    }
+                    // Clear any reconnect timeout
+                    if (reconnectTimeout) {
+                        clearTimeout(reconnectTimeout);
+                        reconnectTimeout = null;
+                    }
+                };
+
+                ws.onmessage = (event) => {
+                    try {
+                        const message = JSON.parse(event.data);
+                        if (
+                            message.type === "tasks" &&
+                            Array.isArray(message.data)
+                        ) {
+                            renderTasks(message.data);
+                        }
+                    } catch (err) {
+                        console.error("Error parsing WebSocket message:", err);
+                    }
+                };
+
+                ws.onerror = (error) => {
+                    console.error("WebSocket error:", error);
+                };
+
+                ws.onclose = () => {
+                    console.log("WebSocket disconnected");
+                    const statusEl = document.getElementById("wsStatus");
+                    if (statusEl) {
+                        statusEl.textContent = "● Disconnected";
+                        statusEl.style.color = "var(--danger)";
+                    }
+                    // Attempt to reconnect after 3 seconds
+                    reconnectTimeout = setTimeout(() => {
+                        console.log("Attempting to reconnect...");
+                        const statusEl = document.getElementById("wsStatus");
+                        if (statusEl) {
+                            statusEl.textContent = "● Reconnecting...";
+                            statusEl.style.color = "var(--muted)";
+                        }
+                        connectWebSocket();
+                    }, 3000);
+                };
+            }
+
+            /* ---------------- Settings Modal for WIP Limits ---------------- */
+            async function loadWipLimits() {
+                try {
+                    const res = await fetch(`${API_ROOT}/wip-limits`);
+                    if (res.ok) {
+                        const limits = await res.json();
+                        Object.assign(WIP_LIMITS, limits);
+                    }
+                } catch (err) {
+                    console.error("Error loading WIP limits:", err);
+                }
+            }
+
+            function openSettings() {
+                const modal = document.getElementById("settingsModal");
+
+                // Populate current WIP limits
+                document.getElementById("wip_Waiting").value =
+                    WIP_LIMITS.Waiting ?? "";
+                document.getElementById("wip_Ready").value =
+                    WIP_LIMITS.Ready ?? "";
+                document.getElementById("wip_InProgress").value =
+                    WIP_LIMITS.InProgress ?? "";
+                document.getElementById("wip_Blocked").value =
+                    WIP_LIMITS.Blocked ?? "";
+                document.getElementById("wip_Suspended").value =
+                    WIP_LIMITS.Suspended ?? "";
+                document.getElementById("wip_Done").value =
+                    WIP_LIMITS.Done ?? "";
+
+                modal.style.display = "block";
+                modal.setAttribute("aria-hidden", "false");
+            }
+
+            function closeSettings() {
+                const modal = document.getElementById("settingsModal");
+                modal.style.display = "none";
+                modal.setAttribute("aria-hidden", "true");
+            }
+
+            async function saveSettings() {
+                const payload = {};
+
+                const getValue = (id) => {
+                    const val = document.getElementById(id).value.trim();
+                    return val === "" ? null : parseInt(val, 10);
+                };
+
+                payload.Waiting = getValue("wip_Waiting");
+                payload.Ready = getValue("wip_Ready");
+                payload.InProgress = getValue("wip_InProgress");
+                payload.Blocked = getValue("wip_Blocked");
+                payload.Suspended = getValue("wip_Suspended");
+                payload.Done = getValue("wip_Done");
+
+                try {
+                    const res = await fetch(`${API_ROOT}/wip-limits`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                    });
+
+                    if (res.ok) {
+                        const updated = await res.json();
+                        Object.assign(WIP_LIMITS, updated);
+                        toast("WIP limits updated");
+                        closeSettings();
+                        await fetchAndRender(); // Re-render to show updated limits
+                    } else {
+                        toast("Failed to update WIP limits");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    toast("Network error");
+                }
+            }
+
+            // Settings button handlers
+            document
+                .getElementById("openSettings")
+                .addEventListener("click", openSettings);
+            document
+                .getElementById("closeSettings")
+                .addEventListener("click", closeSettings);
+            document
+                .getElementById("cancelSettings")
+                .addEventListener("click", closeSettings);
+            document
+                .getElementById("saveSettings")
+                .addEventListener("click", saveSettings);
+
+            /* ---------------- Init ---------------- */
+            enableColumnDrops();
+            loadWipLimits().then(() => {
+                fetchAndRender(); // Initial load via HTTP after WIP limits loaded
+            });
+            connectWebSocket(); // Connect WebSocket for real-time updates
+        </script>
+    </body>
+</html>
