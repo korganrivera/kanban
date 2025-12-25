@@ -312,7 +312,13 @@
                         id="currentUser"
                         style="color: var(--accent-2); display: none"
                     >
-                        👤 <span id="username"></span>
+                        👤 <span id="username"></span> •
+                        <span
+                            id="userPoints"
+                            style="color: var(--ok); font-weight: 600"
+                            >0</span
+                        >
+                        pts
                     </div>
                     <button
                         id="logoutBtn"
@@ -475,6 +481,9 @@
 
             <label style="margin-top: 10px">Created by</label>
             <div id="sb_created_by" class="muted-small">—</div>
+
+            <label style="margin-top: 10px">Points Snapshot</label>
+            <div id="sb_points_snapshot" class="muted-small">—</div>
 
             <label style="margin-top: 10px">Created</label>
             <div id="sb_created" class="muted-small">—</div>
@@ -1248,6 +1257,7 @@
                     }
                     toast("Completed");
                     await fetchAndRender();
+                    await refreshUserPoints(); // Update points display
                 } catch (err) {
                     console.error(err);
                     toast("Network error");
@@ -1424,6 +1434,19 @@
                 // Show created by
                 document.getElementById("sb_created_by").textContent =
                     task.created_by ? String(task.created_by) : "—";
+
+                // Show points snapshot
+                const pointsSnapshot = task.points_snapshot;
+                if (typeof pointsSnapshot === "number") {
+                    const awarded = task.points_snapshot_awarded
+                        ? " ✓ awarded"
+                        : " (in progress)";
+                    document.getElementById("sb_points_snapshot").textContent =
+                        pointsSnapshot + " pts" + awarded;
+                } else {
+                    document.getElementById("sb_points_snapshot").textContent =
+                        "—";
+                }
 
                 // Show created date and age
                 document.getElementById("sb_created").textContent =
@@ -1897,6 +1920,20 @@
                 .getElementById("saveSettings")
                 .addEventListener("click", saveSettings);
 
+            /* ---------------- User points refresh ---------------- */
+            async function refreshUserPoints() {
+                try {
+                    const res = await fetch(`${API_ROOT}/auth/whoami`);
+                    const data = await res.json();
+                    if (data.authenticated && data.points !== undefined) {
+                        document.getElementById("userPoints").textContent =
+                            data.points || 0;
+                    }
+                } catch (err) {
+                    console.error("Failed to refresh user points:", err);
+                }
+            }
+
             /* ---------------- Auth check and init ---------------- */
             async function checkAuthAndInit() {
                 try {
@@ -1911,6 +1948,8 @@
                     // Show user info
                     document.getElementById("username").textContent =
                         data.username;
+                    document.getElementById("userPoints").textContent =
+                        data.points || 0;
                     document.getElementById("currentUser").style.display =
                         "block";
                     document.getElementById("logoutBtn").style.display =
