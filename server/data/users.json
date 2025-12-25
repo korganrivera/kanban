@@ -1,0 +1,168 @@
+{
+  "Alice": {
+    "id": "Alice",
+    "name": "Alice",
+    "points": 72,
+    "history": [
+      {
+        "ts": "2025-12-12T19:09:26.388Z",
+        "points": 32,
+        "reason": "Completed task 1765484544486 (High Priority Task)"
+      },
+      {
+        "ts": "2025-12-12T19:55:31.680Z",
+        "points": 40,
+        "reason": "Completed task 1765569321000 (Alice's test task)"
+      }
+    ]
+  },
+  "Korgan": {
+    "id": "Korgan",
+    "name": "Korgan",
+    "points": 1104,
+    "history": [
+      {
+        "ts": "2025-12-12T19:09:36.994Z",
+        "points": 16,
+        "reason": "Completed task 1765550610792 (Priority Test 2)"
+      },
+      {
+        "ts": "2025-12-12T19:10:28.999Z",
+        "points": 20,
+        "reason": "Completed task 1765566619123 (get sdfsdf)"
+      },
+      {
+        "ts": "2025-12-13T00:45:30.503Z",
+        "points": 56,
+        "reason": "Completed task 1765586627472 (get money)"
+      },
+      {
+        "ts": "2025-12-13T00:45:53.654Z",
+        "points": 56,
+        "reason": "Completed task 1765585976798 (buy a new bug-catching net)"
+      },
+      {
+        "ts": "2025-12-14T00:15:25.719Z",
+        "points": 33,
+        "reason": "Completed task 1765670413167-58531 (eat the water)"
+      },
+      {
+        "ts": "2025-12-14T00:23:19.427Z",
+        "points": 92,
+        "reason": "Completed task 1765671766291-64705 (fix dish washer)"
+      },
+      {
+        "ts": "2025-12-14T00:23:24.449Z",
+        "points": 60,
+        "reason": "Completed task 1765583301333 (empty dish washer)"
+      },
+      {
+        "ts": "2025-12-15T12:23:20.981Z",
+        "points": 92,
+        "reason": "Completed task 1765671766291-64705 (fix dish washer)"
+      },
+      {
+        "ts": "2025-12-17T13:43:38.337Z",
+        "points": 49,
+        "reason": "Completed task 1765979004851-60160 (buy more farts at the fart store.)"
+      },
+      {
+        "ts": "2025-12-17T13:43:45.356Z",
+        "points": 34,
+        "reason": "Completed task 1765978957601-41837 (eat the farts)"
+      },
+      {
+        "ts": "2025-12-25T00:36:25.274Z",
+        "points": 73,
+        "reason": "Completed task 1765801371585-21028 (wash dishes)"
+      },
+      {
+        "ts": "2025-12-25T00:45:02.141Z",
+        "points": 50,
+        "reason": "Completed task 1766623485075-2055 (get new compost fork)"
+      },
+      {
+        "ts": "2025-12-25T00:45:12.117Z",
+        "points": 34,
+        "reason": "Completed task test-compost-1 (Turn compost (Bay1→Bay2))"
+      },
+      {
+        "ts": "2025-12-25T00:45:17.939Z",
+        "points": 35,
+        "reason": "Completed task 1766622193076-40238 (Make a quiche)"
+      },
+      {
+        "ts": "2025-12-25T00:49:04.216Z",
+        "points": 34,
+        "reason": "Completed task 1766623631350-48727 (make a worm explode)"
+      },
+      {
+        "ts": "2025-12-25T14:32:08.937Z",
+        "points": 38,
+        "reason": "Completed task 1766672211298-50001 (test task)"
+      },
+      {
+        "ts": "2025-12-25T14:48:25.615Z",
+        "points": 38,
+        "reason": "Completed task 1766672453365-46234 (Browser Test)"
+      },
+      {
+        "ts": "2025-12-25T14:48:35.794Z",
+        "points": 38,
+        "reason": "Completed task 1766623792357-85711 (eat the thing)"
+      },
+      {
+        "ts": "2025-12-25T14:57:08.604Z",
+        "points": 38,
+        "reason": "Completed task 1766672362796-82121 (Test Task)"
+      },
+      {
+        "ts": "2025-12-25T15:02:18.879Z",
+        "points": 38,
+        "reason": "Completed task 1766672569325-24990 (console test)"
+      },
+      {
+        "ts": "2025-12-25T15:02:26.087Z",
+        "points": 38,
+        "reason": "Completed task 1766674874178-77450 (WebSocket Test)"
+      },
+      {
+        "ts": "2025-12-25T16:22:07.167Z",
+        "points": 53,
+        "reason": "Completed task 1766675993467-27500 (get pizza.)"
+      },
+      {
+        "ts": "2025-12-25T16:22:17.255Z",
+        "points": 51,
+        "reason": "Completed task 1766675501479-74550 (need to eat pizza first)"
+      },
+      {
+        "ts": "2025-12-25T16:22:45.771Z",
+        "points": 38,
+        "reason": "Completed task 1766672274035-7766 (test task 2)"
+      }
+    ]
+  },
+  "unknown": {
+    "id": "unknown",
+    "name": "unknown",
+    "points": 32,
+    "history": [
+      {
+        "ts": "2025-12-12T19:31:09.844Z",
+        "points": 20,
+        "reason": "Completed task 1765567808586 (buy onions)"
+      },
+      {
+        "ts": "2025-12-12T19:54:21.174Z",
+        "points": 8,
+        "reason": "Completed task 1765485161712 (Blocking Task)"
+      },
+      {
+        "ts": "2025-12-12T19:55:03.910Z",
+        "points": 4,
+        "reason": "Completed task 1765484544475 (Low Priority Task)"
+      }
+    ]
+  }
+}

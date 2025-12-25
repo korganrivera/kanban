@@ -1,0 +1,589 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Kanban Board — Cleaner UI</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  :root {
+    --col-bg: #f3f4f6;
+    --card-bg: #fff;
+    --muted: #666;
+    --accent: #0ea5a4;
+    --gap: 10px;
+    --col-w: 190px;
+  }
+  html,body { height:100%; }
+  body {
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    margin:12px;
+    background:#fafafa;
+    color:#111;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .topbar { display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap }
+  input[type=text], input[type=datetime-local], select { padding:6px 8px; border-radius:6px; border:1px solid #ddd }
+  .points { font-weight:600; color:var(--accent); margin-left:8px }
+
+  .board {
+    display:flex;
+    gap: var(--gap);
+    align-items:flex-start;
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    padding-bottom:8px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .col {
+    flex: 0 0 var(--col-w);
+    width: var(--col-w);
+    background: var(--col-bg);
+    padding:8px;
+    border-radius:8px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.04);
+  }
+  @media (max-width:1200px) { :root { --col-w: 170px; } }
+  @media (max-width:900px)  { :root { --col-w: 150px; } }
+
+  .col h3 { margin:6px 0 8px; font-size:14px; display:flex; justify-content:space-between; align-items:center }
+  .wip { font-size:12px; color:var(--muted) }
+  .list { min-height:40px }
+
+  .card {
+    background:var(--card-bg);
+    padding:8px;
+    margin:8px 0;
+    border-radius:6px;
+    cursor:grab;
+    box-shadow:0 1px 2px rgba(0,0,0,0.06);
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .card .row { display:flex; align-items:center; justify-content:space-between; gap:8px }
+  .card .title { font-weight:600; font-size:13px; cursor:pointer; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+  .card .meta { font-size:11px; color:var(--muted); display:flex; gap:6px; align-items:center; justify-content:space-between }
+  .card .left-meta { display:flex; gap:6px; align-items:center; flex:1; min-width:0 }
+  .card .right-meta { font-size:11px; color:var(--muted); min-width:0; text-align:right }
+
+  .actions { display:flex; gap:6px; align-items:center; margin-left:6px }
+  .icon-btn {
+    width:28px; height:28px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center;
+    background:#fff; border:1px solid #eee; cursor:pointer; padding:0;
+  }
+  .icon-btn:hover { box-shadow:0 1px 4px rgba(0,0,0,0.08) }
+  .icon-btn svg { width:16px; height:16px; fill:var(--muted) }
+
+  .panel {
+    position:fixed; right:0; top:0; height:100%; width:420px; max-width:92vw;
+    background:#fff; box-shadow:-12px 0 24px rgba(0,0,0,0.12); transform:translateX(100%); transition:transform .22s ease;
+    z-index:1200; display:flex; flex-direction:column;
+  }
+  .panel.open { transform:translateX(0); }
+  .panel .header { padding:16px; border-bottom:1px solid #eee; display:flex; gap:8px; align-items:center; justify-content:space-between }
+  .panel .body { padding:12px; overflow:auto; flex:1 }
+  .panel .footer { padding:12px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end }
+
+  .panel label { display:block; font-size:12px; color:var(--muted); margin-top:8px }
+  .panel input[type=text], .panel textarea { width:100%; padding:8px; border-radius:6px; border:1px solid #ddd; font-size:13px }
+  .panel textarea { min-height:100px; resize:vertical }
+
+  .btn { padding:8px 10px; border-radius:6px; border:1px solid #ddd; background:#fff; cursor:pointer }
+  .btn.primary { background:var(--accent); color:#fff; border-color:transparent }
+  .btn.warn { background:#fff3f2; color:#b91c1c; border-color:#ffd6d3 }
+
+  .muted { color:var(--muted) }
+  .toast { position:fixed; right:12px; bottom:12px; background:#111; color:#fff; padding:8px 12px; border-radius:8px; opacity:0.95; font-size:13px; z-index:1300 }
+  .col.dragover { outline:3px dashed rgba(14,165,164,0.18) }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <label class="small">User</label>
+    <input id="userName" type="text" placeholder="Your name" />
+    <div class="points small muted" id="userPoints">Pts: —</div>
+    <button id="refreshBtn" class="btn">Refresh</button>
+
+    <form id="newTaskForm" style="margin-left:8px; display:flex; align-items:center; gap:8px;">
+      <input id="newTitle" type="text" placeholder="New task title" required style="min-width:140px" />
+      <input id="newDeadline" type="datetime-local" title="Optional deadline" />
+      <!-- Hidden-by-default dependency picker -->
+      <button id="toggleDeps" type="button" class="btn">Add dependencies</button>
+      <select id="newDeps" multiple size="3" title="Optional dependencies" style="display:none; margin-left:6px;"></select>
+      <button type="submit" class="btn">Add</button>
+    </form>
+
+    <div style="margin-left:auto" class="muted small">Board updates every 3s</div>
+  </div>
+
+  <div class="board" id="board">
+    <div class="col" data-state="Ready"><h3>Ready <span class="limit" id="limit-Ready"></span> <span class="wip" id="wip-Ready">0</span></h3><div class="list" id="col-Ready"></div></div>
+    <div class="col" data-state="InProgress"><h3>In Progress <span class="limit" id="limit-InProgress"></span> <span class="wip" id="wip-InProgress">0</span></h3><div class="list" id="col-InProgress"></div></div>
+    <div class="col" data-state="Blocked"><h3>Blocked <span class="limit" id="limit-Blocked"></span> <span class="wip" id="wip-Blocked">0</span></h3><div class="list" id="col-Blocked"></div></div>
+    <div class="col" data-state="Suspended"><h3>Suspended <span class="limit" id="limit-Suspended"></span> <span class="wip" id="wip-Suspended">0</span></h3><div class="list" id="col-Suspended"></div></div>
+    <div class="col" data-state="Review"><h3>Review <span class="limit" id="limit-Review"></span> <span class="wip" id="wip-Review">0</span></h3><div class="list" id="col-Review"></div></div>
+    <div class="col" data-state="Done"><h3>Done <span class="limit" id="limit-Done"></span> <span class="wip" id="wip-Done">0</span></h3><div class="list" id="col-Done"></div></div>
+  </div>
+
+  <!-- Details panel -->
+  <div id="detailsPanel" class="panel" aria-hidden="true">
+    <div class="header">
+      <div>
+        <div id="panelTitle" style="font-weight:700"></div>
+        <div id="panelSub" class="muted" style="font-size:12px"></div>
+      </div>
+      <div>
+        <button id="panelClose" class="btn" aria-label="Close panel">Close</button>
+      </div>
+    </div>
+    <div class="body">
+      <label>Title</label>
+      <input id="panelTitleInput" type="text" />
+
+      <label>Description</label>
+      <textarea id="panelDescInput"></textarea>
+
+      <label>Dependencies</label>
+      <div id="panelDeps" class="muted" style="font-size:13px"></div>
+
+      <label>Block note</label>
+      <input id="panelBlockNote" type="text" placeholder="Optional block note" />
+
+      <label>Points snapshot</label>
+      <div id="panelPoints" class="muted" style="margin-top:6px"></div>
+    </div>
+    <div class="footer" id="panelFooter">
+      <button id="panelBlock" class="btn warn">Block</button>
+      <button id="panelRemedy" class="btn" style="display:none">Create Remedy</button>
+    </div>
+  </div>
+
+<script>
+/* Client configuration */
+const API = '';
+const WIP_LIMITS = { Ready: null, InProgress: 5, Blocked: 10, Suspended: null, Review: 3, Done: null };
+
+/* State */
+let tasks = [];
+let currentUser = '';
+let activeTask = null;
+
+/* Elements */
+const refreshBtn = document.getElementById('refreshBtn');
+const userNameInput = document.getElementById('userName');
+const userPointsEl = document.getElementById('userPoints');
+const detailsPanel = document.getElementById('detailsPanel');
+const panelTitle = document.getElementById('panelTitle');
+const panelSub = document.getElementById('panelSub');
+const panelTitleInput = document.getElementById('panelTitleInput');
+const panelDescInput = document.getElementById('panelDescInput');
+const panelDeps = document.getElementById('panelDeps');
+const panelBlockNote = document.getElementById('panelBlockNote');
+const panelPoints = document.getElementById('panelPoints');
+const panelClose = document.getElementById('panelClose');
+const panelRemedy = document.getElementById('panelRemedy');
+const panelBlock = document.getElementById('panelBlock');
+
+const toggleDepsBtn = document.getElementById('toggleDeps');
+const newDepsSelect = document.getElementById('newDeps');
+
+refreshBtn.onclick = () => fetchAndRender();
+userNameInput.oninput = (e) => { currentUser = e.target.value.trim(); fetchAndShowUserPoints(); };
+
+/* Helpers */
+async function fetchTasks() {
+  try { const res = await fetch('/tasks'); return await res.json(); }
+  catch (err) { console.error('fetchTasks error', err); return []; }
+}
+async function fetchUser(name) {
+  if (!name) return null;
+  try { const res = await fetch(`/users/${encodeURIComponent(name)}`); if (!res.ok) return null; return await res.json(); }
+  catch { return null; }
+}
+async function fetchAndShowUserPoints() {
+  const name = currentUser;
+  if (!name) { userPointsEl.textContent = 'Pts: —'; return; }
+  const u = await fetchUser(name);
+  userPointsEl.textContent = u ? `Pts: ${u.points || 0}` : 'Pts: 0';
+}
+function sortByPriority(a,b){ return (b.priority||0) - (a.priority||0); }
+function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* Render card with inline actions (start/pick removed) */
+function makeCard(t){
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.draggable = true;
+  el.dataset.id = t.id;
+
+  const row = document.createElement('div');
+  row.className = 'row';
+
+  const titleEl = document.createElement('div');
+  titleEl.className = 'title';
+  titleEl.textContent = t.title || '(untitled)';
+  titleEl.title = t.title || '';
+  titleEl.addEventListener('click', ()=> openDetails(t.id));
+  row.appendChild(titleEl);
+
+  const actions = document.createElement('div');
+  actions.className = 'actions';
+
+  // Block icon (always available)
+  const blockBtn = document.createElement('button');
+  blockBtn.className = 'icon-btn';
+  blockBtn.title = 'Block';
+  blockBtn.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-2h2v2zm0-4h-2V6h2v6z"/></svg>`;
+  blockBtn.addEventListener('click', (ev)=> { ev.stopPropagation(); quickBlock(t.id); });
+  actions.appendChild(blockBtn);
+
+  // Details icon
+  const moreBtn = document.createElement('button');
+  moreBtn.className = 'icon-btn';
+  moreBtn.title = 'Details';
+  moreBtn.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a2 2 0 110-4 2 2 0 010 4zm0 6a2 2 0 110-4 2 2 0 010 4zm0 6a2 2 0 110-4 2 2 0 010 4z"/></svg>`;
+  moreBtn.addEventListener('click', (ev)=> { ev.stopPropagation(); openDetails(t.id); });
+  actions.appendChild(moreBtn);
+
+  row.appendChild(actions);
+  el.appendChild(row);
+
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+
+  const leftMeta = document.createElement('div');
+  leftMeta.className = 'left-meta';
+  const prio = `P:${t.priority||0}`;
+  const urgency = (typeof t.urgency === 'number') ? `U:${t.urgency}` : '';
+  const imp = (typeof t.importancePercentile === 'number') ? `I:${Math.round(t.importancePercentile)}` : '';
+  leftMeta.textContent = [prio, urgency, imp].filter(Boolean).join(' • ');
+  meta.appendChild(leftMeta);
+
+  const rightMeta = document.createElement('div');
+  rightMeta.className = 'right-meta';
+  let ownerLabel = '';
+  if (t.picker && String(t.picker).trim() !== '' && String(t.picker).trim().toLowerCase() !== 'unknown') {
+    ownerLabel = `Owner: ${t.picker}`;
+  }
+  let ptsSnap = '';
+  if (typeof t.points_snapshot === 'number') {
+    ptsSnap = `Pts: ${t.points_snapshot}`;
+  }
+  const depText = (t.dependencies && t.dependencies.length) ? `${t.dependencies.length} dep` : '0 dep';
+  rightMeta.textContent = [ownerLabel, ptsSnap, depText].filter(Boolean).join(' • ');
+  meta.appendChild(rightMeta);
+
+  el.appendChild(meta);
+
+  el.addEventListener('dragstart', (ev)=> { ev.dataTransfer.setData('text/task', t.id); });
+  return el;
+}
+
+/* Board rendering and WIP display */
+function getCurrentCountByState(list, state) { return list.filter(t => t.state === state).length; }
+function updateLimitDisplays(list) {
+  for (const state of Object.keys(WIP_LIMITS)) {
+    const limitEl = document.getElementById('limit-' + state);
+    const limit = WIP_LIMITS[state];
+    const count = getCurrentCountByState(list, state);
+    limitEl.textContent = (limit && limit > 0) ? `(${count} / ${limit})` : `(${count})`;
+  }
+}
+
+function wouldExceedWipClient(list, targetState, excludeTaskId = null) {
+  const limit = WIP_LIMITS[targetState];
+  if (!limit || limit <= 0) return false;
+  const count = list.filter(t => t.state === targetState && t.id !== excludeTaskId).length;
+  return (count + 1) > limit;
+}
+
+async function fetchAndRender(){
+  tasks = await fetchTasks();
+  populateDependencyPicker(tasks);
+  await fetchAndShowUserPoints();
+  updateLimitDisplays(tasks);
+
+  const columns = ['Ready','InProgress','Blocked','Suspended','Review','Done'];
+  const byState = {};
+  columns.forEach(c => byState[c] = []);
+  tasks.forEach(t => {
+    const st = t.state || 'Ready';
+    if (!byState[st]) byState[st] = [];
+    byState[st].push(t);
+  });
+
+  columns.forEach(c => {
+    const container = document.getElementById('col-' + c);
+    container.innerHTML = '';
+    const list = byState[c] || [];
+    list.sort(sortByPriority).forEach(t => container.appendChild(makeCard(t)));
+    const wip = list.reduce((s,x)=> s + (x.priority||0), 0);
+    const wipEl = document.getElementById('wip-' + c);
+    wipEl.textContent = wip;
+  });
+}
+
+/* Drag & drop with client-side WIP check */
+document.querySelectorAll('.col').forEach(col=>{
+  col.addEventListener('dragover', (e)=> { e.preventDefault(); col.classList.add('dragover'); });
+  col.addEventListener('dragleave', ()=> col.classList.remove('dragover'));
+  col.addEventListener('drop', async (e)=> {
+    e.preventDefault();
+    col.classList.remove('dragover');
+    const id = e.dataTransfer.getData('text/task');
+    if (!id) return;
+    const targetState = col.dataset.state;
+    const sourceTask = tasks.find(x=>x.id===id);
+    if (!sourceTask) return;
+
+    if (sourceTask.state === 'Done' && targetState !== 'Done') {
+      if (!confirm('This task is Done. Move it back to ' + targetState + '?')) return;
+    }
+
+    if (wouldExceedWipClient(tasks, targetState, id)) {
+      const limit = WIP_LIMITS[targetState];
+      alert(`Cannot move task. WIP limit for ${targetState} is ${limit}. Reduce items in that column first.`);
+      return;
+    }
+
+    await moveTask(id, targetState);
+    await fetchAndRender();
+  });
+});
+
+/* Quick actions (block only) */
+async function quickBlock(taskId) {
+  const note = prompt('Block note (optional):', '');
+  if (note === null) return;
+  const res = await fetch(`/tasks/${taskId}/block`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ note }) });
+  if (!res.ok) {
+    const err = await res.json().catch(()=>({error:'unknown'}));
+    alert('Error blocking: ' + (err.error || res.status));
+  } else {
+    await fetchAndRender();
+  }
+}
+
+/* Move task (used by drag/drop and panel) */
+async function moveTask(taskId, targetState) {
+  const t = tasks.find(x=>x.id===taskId);
+  if (!t) return;
+  try {
+    if (targetState === 'Blocked') {
+      const note = prompt('Block note (optional):', t.meta && t.meta.block_note ? t.meta.block_note : '');
+      if (note === null) return;
+      const res = await fetch(`/tasks/${taskId}/block`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ note }) });
+      if (!res.ok) { const err = await res.json().catch(()=>({error:'unknown'})); alert('Error blocking: ' + (err.error || res.status)); }
+      return;
+    }
+    if (targetState === 'Suspended') {
+      await fetch(`/tasks/${taskId}/suspend`, { method:'PATCH' });
+      return;
+    }
+    if (targetState === 'InProgress') {
+      const body = { state: 'InProgress' };
+      if (currentUser) body.picker = currentUser;
+      const res = await fetch(`/tasks/${taskId}/state`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      if (!res.ok) {
+        const err = await res.json().catch(()=>({error:'unknown'}));
+        alert('Cannot pick task: ' + (err.error || res.status));
+      }
+      return;
+    }
+    if (targetState === 'Done') {
+      const res = await fetch(`/tasks/${taskId}/state`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ state:'Done' }) });
+      if (!res.ok) {
+        const err = await res.json().catch(()=>({error:'unknown'}));
+        alert('Cannot complete: ' + (err.error||'unknown'));
+      } else {
+        const updated = await res.json();
+        if (updated.awarded && updated.awarded.points > 0) {
+          showToast(`Awarded ${updated.awarded.points} pts to ${updated.awarded.to}`);
+          await fetchAndShowUserPoints();
+        } else {
+          await fetchAndShowUserPoints();
+        }
+      }
+      return;
+    }
+    const res = await fetch(`/tasks/${taskId}/state`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ state: targetState }) });
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({error:'unknown'}));
+      alert('Cannot change state: ' + (err.error || res.status));
+    }
+  } catch (err) {
+    console.error('moveTask error', err);
+    alert('Error moving task: ' + err.message);
+  }
+}
+
+/* Details panel logic (simplified) */
+function openDetails(taskId) {
+  activeTask = tasks.find(t => t.id === taskId);
+  if (!activeTask) return;
+  panelTitle.textContent = activeTask.title || '(untitled)';
+  panelSub.textContent = `${activeTask.state || 'Ready'} • P:${activeTask.priority || 0}`;
+  panelTitleInput.value = activeTask.title || '';
+  panelDescInput.value = activeTask.description || '';
+  panelBlockNote.value = (activeTask.meta && activeTask.meta.block_note) ? activeTask.meta.block_note : '';
+  panelPoints.textContent = (typeof activeTask.points_snapshot === 'number') ? `Points snapshot: ${activeTask.points_snapshot}` : 'Points snapshot: —';
+  panelDeps.innerHTML = renderDeps(activeTask);
+
+  // Show remedy button only when task is Blocked
+  if (activeTask.state === 'Blocked') {
+    panelRemedy.style.display = 'inline-block';
+  } else {
+    panelRemedy.style.display = 'none';
+  }
+
+  detailsPanel.classList.add('open');
+  detailsPanel.setAttribute('aria-hidden','false');
+}
+
+function closeDetails() {
+  activeTask = null;
+  detailsPanel.classList.remove('open');
+  detailsPanel.setAttribute('aria-hidden','true');
+}
+
+panelClose.addEventListener('click', ()=> closeDetails());
+
+panelRemedy.addEventListener('click', async ()=> {
+  if (!activeTask) return;
+  const title = prompt('Remedy title:', 'Remedy for ' + (activeTask.title || 'task'));
+  if (!title) return;
+  const res = await fetch(`/tasks/${activeTask.id}/remedy`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ title }) });
+  if (!res.ok) {
+    const err = await res.json().catch(()=>({error:'unknown'}));
+    alert('Error creating remedy: ' + (err.error || res.status));
+  } else {
+    await fetchAndRender();
+    closeDetails();
+  }
+});
+
+panelBlock.addEventListener('click', async ()=> {
+  if (!activeTask) return;
+  const note = panelBlockNote.value || '';
+  const res = await fetch(`/tasks/${activeTask.id}/block`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ note }) });
+  if (!res.ok) {
+    const err = await res.json().catch(()=>({error:'unknown'}));
+    alert('Error blocking: ' + (err.error || res.status));
+  } else {
+    await fetchAndRender();
+    closeDetails();
+  }
+});
+
+/* Render dependencies (simple) */
+function renderDeps(t) {
+  if (!t.dependencies || !t.dependencies.length) return '<div class="muted">No dependencies</div>';
+  const names = t.dependencies.map(id => {
+    const dep = tasks.find(x=>x.id===id);
+    return dep ? escapeHtml(dep.title) : escapeHtml(id);
+  });
+  return `<div>${names.join('<br/>')}</div>`;
+}
+
+/* Dependency picker population + toggle */
+toggleDepsBtn.addEventListener('click', () => {
+  const sel = document.getElementById('newDeps');
+  if (!sel) return;
+  const isHidden = sel.style.display === 'none' || sel.style.display === '';
+  sel.style.display = isHidden ? 'inline-block' : 'none';
+  if (isHidden) populateDependencyPicker(tasks);
+});
+
+function populateDependencyPicker(currentTasks) {
+  const sel = document.getElementById('newDeps');
+  if (!sel) return;
+  const fill = (list) => {
+    sel.innerHTML = '';
+    // show tasks that are not Done
+    list.filter(t => t.state !== 'Done').forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.id;
+      opt.textContent = `${t.title} (${t.id.slice(-6)})`;
+      opt.title = t.id; // full id on hover
+      sel.appendChild(opt);
+    });
+  };
+  if (Array.isArray(currentTasks)) fill(currentTasks);
+  else fetchTasks().then(fill).catch(()=>{ sel.innerHTML = ''; });
+}
+
+/* New task form */
+const newForm = document.getElementById('newTaskForm');
+if (newForm) {
+  newForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = document.getElementById('newTitle').value.trim();
+    if (!title) { alert('Please enter a title'); return; }
+
+    const dlInput = document.getElementById('newDeadline').value;
+    const deadline = dlInput ? new Date(dlInput).toISOString() : undefined;
+    const depsSel = Array.from(document.getElementById('newDeps').selectedOptions).map(o => o.value);
+
+    const btn = newForm.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Adding...';
+
+    try {
+      const body = { title };
+      if (deadline) body.deadline = deadline;
+      const res = await fetch('/tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!res.ok) {
+        const err = await res.json().catch(()=>({ error: 'unknown' }));
+        alert('Failed to add task: ' + (err.error || res.status));
+        return;
+      }
+      const created = await res.json();
+
+      // attach dependencies (server will suspend the dependent if deps unresolved)
+      for (const depId of depsSel) {
+        if (depId === created.id) continue;
+        await fetch(`/tasks/${created.id}/dependencies`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dependencyId: depId })
+        });
+      }
+
+      await fetch('/recompute', { method: 'POST' });
+
+      document.getElementById('newTitle').value = '';
+      document.getElementById('newDeadline').value = '';
+      document.getElementById('newDeps').selectedIndex = -1;
+      // hide the dependency picker after submit to reduce clutter
+      document.getElementById('newDeps').style.display = 'none';
+      await fetchAndRender();
+
+      showToast(`Created: ${created.title} (P:${created.priority ?? '—'})`);
+    } catch (err) {
+      console.error('Add task error', err);
+      alert('Error adding task: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Add';
+    }
+  });
+}
+
+/* Toast helper */
+function showToast(msg, ms = 3000) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=> t.remove(), ms);
+}
+
+/* Start */
+fetchAndRender();
+setInterval(fetchAndRender, 3000);
+setInterval(() => populateDependencyPicker(), 5000);
+</script>
+</body>
+</html>
+

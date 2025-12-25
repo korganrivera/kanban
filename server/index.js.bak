@@ -1,0 +1,548 @@
+// index.js
+const express = require("express");
+const app = express();
+const fs = require("fs");
+const path = require("path");
+
+const DATA_DIR = path.join(__dirname, "data");
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
+
+const TASKS_FILE = path.join(DATA_DIR, "tasks.json");
+const USERS_FILE = path.join(DATA_DIR, "users.json");
+
+app.use(express.static("static"));
+app.use(express.json());
+
+/* -------------------- configuration -------------------- */
+
+// Server-side WIP limits per column (null means no limit)
+const WIP_LIMITS = {
+  Ready: null,
+  InProgress: 5,
+  Blocked: 10,
+  Suspended: null,
+  Review: 3,
+  Done: null
+};
+
+/* -------------------- simple file-backed stores -------------------- */
+
+function loadJson(filePath, fallback) {
+  try {
+    const raw = fs.readFileSync(filePath, "utf8");
+    return JSON.parse(raw || JSON.stringify(fallback));
+  } catch (err) {
+    if (err && err.code === "ENOENT") return fallback;
+    console.error(`Error loading ${filePath}:`, err);
+    return fallback;
+  }
+}
+
+function saveJson(filePath, obj) {
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(obj, null, 2), "utf8");
+  } catch (err) {
+    console.error(`Error saving ${filePath}:`, err);
+  }
+}
+
+function loadTasks() { return loadJson(TASKS_FILE, []); }
+function saveTasks(tasks) { saveJson(TASKS_FILE, tasks); }
+
+function loadUsers() { return loadJson(USERS_FILE, {}); }
+function saveUsers(users) { saveJson(USERS_FILE, users); }
+
+/* -------------------- user points helpers -------------------- */
+
+/**
+ * awardPoints(userKey, points, reason)
+ * - userKey: string (we normalize by trimming)
+ * - points: integer >= 0
+ * - reason: optional string for audit
+ * Returns the updated user record.
+ */
+function awardPoints(userKey, points, reason = '') {
+  if (!userKey) return null;
+  const users = loadUsers();
+  // Normalize key: trim whitespace (do not force lowercase to preserve display name)
+  const key = String(userKey).trim();
+  if (!key) return null;
+  if (!users[key]) users[key] = { id: key, name: key, points: 0, history: [] };
+  const u = users[key];
+  const pts = Math.max(0, Math.round(points || 0));
+  u.points = (u.points || 0) + pts;
+  u.history = u.history || [];
+  u.history.push({ ts: new Date().toISOString(), points: pts, reason });
+  saveUsers(users);
+  return u;
+}
+
+/* -------------------- WIP helpers -------------------- */
+
+function wouldExceedWip(tasks, targetState, excludeTaskId = null) {
+  const limit = WIP_LIMITS[targetState];
+  if (!limit || limit <= 0) return false;
+  const count = tasks.filter(t => t.state === targetState && t.id !== excludeTaskId).length;
+  return (count + 1) > limit;
+}
+
+/* -------------------- priority engine --------------------
+   - importance is computed by back-propagation over dependency graph
+   - urgency is derived from deadline (0..100)
+   - priority = w_u * urgency + w_i * importancePercentile
+-----------------------------------------------------------------*/
+
+function computePriorities(tasks, nowIso = new Date(), config = {}) {
+  const cfg = {
+    MAX_WINDOW: config.MAX_WINDOW_days ?? 30,
+    decay: config.decay ?? 0.5,
+    w_u: config.w_u ?? 0.4,
+    w_i: config.w_i ?? 0.6
+  };
+
+  const now = (nowIso instanceof Date) ? nowIso : new Date(nowIso);
+
+  // build maps
+  const byId = new Map(tasks.map(t => [t.id, t]));
+  const dependents = new Map(); // prereqId -> [dependentId,...]
+  for (const t of tasks) dependents.set(t.id, []);
+  for (const t of tasks) {
+    (t.dependencies || []).forEach(dep => {
+      if (dependents.has(dep)) dependents.get(dep).push(t.id);
+    });
+  }
+
+  // topo sort (Kahn)
+  const inDegree = new Map();
+  for (const t of tasks) inDegree.set(t.id, 0);
+  for (const t of tasks) {
+    for (const dep of (t.dependencies || [])) {
+      if (inDegree.has(t.id)) inDegree.set(t.id, inDegree.get(t.id) + 1);
+    }
+  }
+  const q = [];
+  for (const [id, deg] of inDegree.entries()) if (deg === 0) q.push(id);
+  const topo = [];
+  while (q.length) {
+    const id = q.shift();
+    topo.push(id);
+    for (const kid of (dependents.get(id) || [])) {
+      if (!inDegree.has(kid)) continue;
+      inDegree.set(kid, inDegree.get(kid) - 1);
+      if (inDegree.get(kid) === 0) q.push(kid);
+    }
+  }
+
+  const topoSet = new Set(topo);
+  const cycleNodes = tasks.filter(t => !topoSet.has(t.id)).map(t => t.id);
+  const deadlockSet = new Set(cycleNodes);
+
+  // compute raw importance R (reverse topo)
+  const rawR = new Map();
+  for (const t of tasks) rawR.set(t.id, 0);
+  for (let i = topo.length - 1; i >= 0; --i) {
+    const id = topo[i];
+    let sum = 0;
+    for (const childId of (dependents.get(id) || [])) {
+      const childRaw = rawR.get(childId) || 0;
+      sum += 1 + cfg.decay * childRaw;
+    }
+    rawR.set(id, sum);
+  }
+  for (const id of cycleNodes) rawR.set(id, 0);
+
+  // map raw importance to percentile
+  const rawValues = Array.from(new Set(Array.from(rawR.values()))).sort((a, b) => a - b);
+  const uniqueCount = rawValues.length;
+  function rawToPercentile(val) {
+    if (uniqueCount <= 1) return 0;
+    const idx = rawValues.indexOf(val);
+    if (idx < 0) return 0;
+    return (idx / (uniqueCount - 1)) * 100;
+  }
+
+  function computeUrgency(task) {
+    if (typeof task.urgency === "number" && !isNaN(task.urgency)) {
+      return Math.max(0, Math.min(100, Math.round(task.urgency)));
+    }
+    const dl = task.deadline;
+    if (!dl) return 0;
+    const d = new Date(dl);
+    if (isNaN(d.getTime())) return 0;
+    const msLeft = d.getTime() - now.getTime();
+    const daysLeft = msLeft / (1000 * 60 * 60 * 24);
+    if (daysLeft <= 0) return 100;
+    if (daysLeft >= cfg.MAX_WINDOW) return 0;
+    return Math.max(0, Math.min(100, Math.round(100 * (1 - daysLeft / cfg.MAX_WINDOW))));
+  }
+
+  return tasks.map(t => {
+    const r = rawR.get(t.id) || 0;
+    const I = rawToPercentile(r);
+    const U = computeUrgency(t);
+    const P = Math.max(0, Math.min(100, Math.round(cfg.w_u * U + cfg.w_i * I)));
+    return Object.assign({}, t, {
+      importanceRaw: r,
+      importancePercentile: I,
+      urgency: U,
+      priority: P,
+      deadlock: deadlockSet.has(t.id)
+    });
+  });
+}
+
+/* -------------------- recompute wrapper -------------------- */
+
+function recomputeAllPriorities(tasks = null) {
+  const cfg = { MAX_WINDOW_days: 30, decay: 0.5, w_u: 0.4, w_i: 0.6 };
+  const ts = tasks ?? loadTasks();
+  const updated = computePriorities(ts, new Date(), cfg);
+  const changed = [];
+  for (const u of updated) {
+    const t = ts.find(x => x.id === u.id);
+    if (!t) continue;
+    const before = { priority: t.priority, urgency: t.urgency, importancePercentile: t.importancePercentile };
+    t.priority = u.priority;
+    t.urgency = u.urgency;
+    t.importancePercentile = u.importancePercentile;
+    t.importanceRaw = u.importanceRaw;
+    t.deadlock = u.deadlock;
+    if (before.priority !== t.priority || before.urgency !== t.urgency || before.importancePercentile !== t.importancePercentile) {
+      changed.push({ id: t.id, before, after: { priority: t.priority, urgency: t.urgency, importancePercentile: t.importancePercentile } });
+    }
+  }
+  if (changed.length) console.log("Priorities/metrics changed:", changed);
+  saveTasks(ts);
+  return ts;
+}
+
+/* -------------------- HTTP API -------------------- */
+
+app.get("/", (req, res) => res.send("Server running."));
+
+/* tasks list/create */
+
+app.get("/tasks", (req, res) => {
+  res.json(loadTasks());
+});
+
+app.post("/tasks", (req, res) => {
+  const tasks = loadTasks();
+  const newTask = {
+    id: Date.now().toString(),
+    title: req.body.title || "Untitled Task",
+    description: req.body.description || "",
+    state: "Ready",
+    deadline: req.body.deadline || undefined,
+    dependencies: req.body.dependencies || [],
+    picker: null,
+    points_snapshot: undefined,
+    picked_at: undefined,
+    awarded: undefined,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    meta: {}
+  };
+  tasks.push(newTask);
+  recomputeAllPriorities(tasks);
+  res.status(201).json(newTask);
+});
+
+/* state transitions with points snapshot/award logic */
+
+app.patch("/tasks/:id/state", (req, res) => {
+  const tasks = loadTasks();
+  const task = tasks.find(t => t.id === req.params.id);
+  if (!task) return res.status(404).json({ error: "Task not found" });
+
+  const newState = req.body.state;
+  // Only set picker if provided by client (prevents sending "unknown")
+  const newPickerRaw = ('picker' in req.body) ? req.body.picker : undefined;
+  const newPicker = (typeof newPickerRaw === 'string') ? newPickerRaw.trim() : newPickerRaw;
+  const note = req.body.note || "";
+
+  // Server-side WIP enforcement
+  if (wouldExceedWip(tasks, newState, task.id)) {
+    return res.status(400).json({ error: `WIP limit exceeded for ${newState}. Limit: ${WIP_LIMITS[newState]}` });
+  }
+
+  function persistAndReturn() {
+    recomputeAllPriorities(tasks);
+    saveTasks(tasks);
+    return res.json(task);
+  }
+
+  // Pick / InProgress: snapshot points if not already snapshotted
+  if (newState === "InProgress") {
+    // Only allow picking if task is Ready (server-side guard)
+    if (task.state !== "Ready") {
+      console.log(`Picking task ${task.id} from state ${task.state}`);
+    }
+
+    task.state = "InProgress";
+    if (newPicker !== undefined && newPicker !== '') {
+      task.picker = newPicker;
+      task.picker_history = task.picker_history || [];
+      task.picker_history.push({ ts: new Date().toISOString(), picker: newPicker, action: "picked" });
+    }
+
+    if (typeof task.points_snapshot !== "number") {
+      const updated = computePriorities(tasks, new Date(), { MAX_WINDOW_days: 30, decay: 0.5, w_u: 0.4, w_i: 0.6 });
+      const u = updated.find(x => x.id === task.id);
+      const snap = (u && typeof u.priority === "number") ? u.priority : (task.priority || 0);
+      task.points_snapshot = snap;
+      task.points_snapshot_created_at = new Date().toISOString();
+      task.points_snapshot_created_by = task.picker || newPicker || null;
+      task.picked_at = new Date().toISOString();
+      task.points_history = task.points_history || [];
+      task.points_history.push({ ts: task.points_snapshot_created_at, snapshot: snap, by: task.points_snapshot_created_by });
+    }
+    task.updated_at = new Date().toISOString();
+    return persistAndReturn();
+  }
+
+  // Blocked: set note, do not award points
+  if (newState === "Blocked") {
+    task.state = "Blocked";
+    if (newPicker !== undefined && newPicker !== '') {
+      task.picker = newPicker;
+      task.picker_history = task.picker_history || [];
+      task.picker_history.push({ ts: new Date().toISOString(), picker: newPicker, action: "blocked" });
+    }
+    task.meta = task.meta || {};
+    task.meta.block_note = note;
+    task.updated_at = new Date().toISOString();
+    return persistAndReturn();
+  }
+
+  // Done: check deps, award snapshot points if applicable
+  if (newState === "Done") {
+    const depsNotDone = (task.dependencies || []).some(depId => {
+      const depTask = tasks.find(t => t.id === depId);
+      return !depTask || depTask.state !== "Done";
+    });
+    if (depsNotDone) return res.status(400).json({ error: "Cannot complete task: dependencies not done" });
+
+    const wasBlocked = task.state === "Blocked";
+    const pointsToAward = (typeof task.points_snapshot === "number") ? Math.max(0, Math.round(task.points_snapshot)) : 0;
+    const pickerKeyRaw = task.picker;
+    const pickerKey = (typeof pickerKeyRaw === 'string') ? pickerKeyRaw.trim() : pickerKeyRaw;
+
+    task.state = "Done";
+    task.picker = null;
+    task.updated_at = new Date().toISOString();
+
+    // Reactivate suspended dependents whose dependencies are all done
+    tasks.forEach(t => {
+      if (t.state === "Suspended" && (t.dependencies || []).includes(task.id)) {
+        const allDepsDone = (t.dependencies || []).every(depId => {
+          const depTask = tasks.find(x => x.id === depId);
+          return depTask && depTask.state === "Done";
+        });
+        if (allDepsDone) {
+          t.state = "Ready";
+          t.updated_at = new Date().toISOString();
+        }
+      }
+    });
+
+    if (!wasBlocked && pickerKey && pointsToAward > 0) {
+      const user = awardPoints(pickerKey, pointsToAward, `Completed task ${task.id} (${task.title})`);
+      console.log(`Awarded ${pointsToAward} points to ${pickerKey}`, user);
+      task.awarded = { to: pickerKey, points: pointsToAward, ts: new Date().toISOString() };
+      task.points_snapshot_awarded = true;
+    } else {
+      task.awarded = { to: null, points: 0, reason: wasBlocked ? "blocked" : "none", ts: new Date().toISOString() };
+      task.points_snapshot_awarded = false;
+    }
+
+    recomputeAllPriorities(tasks);
+    saveTasks(tasks);
+    return res.json(task);
+  }
+
+  // Normal state change (Ready, Suspended, Review, etc.)
+  task.state = newState;
+  if (newPicker !== undefined && newPicker !== '') {
+    task.picker = newPicker;
+    task.picker_history = task.picker_history || [];
+    task.picker_history.push({ ts: new Date().toISOString(), picker: newPicker, action: "state-change" });
+  }
+  task.updated_at = new Date().toISOString();
+
+  recomputeAllPriorities(tasks);
+  saveTasks(tasks);
+  res.json(task);
+});
+
+/* compatibility endpoints */
+
+app.patch("/tasks/:id/block", (req, res) => {
+  const tasks = loadTasks();
+  const task = tasks.find(t => t.id === req.params.id);
+  if (!task) return res.status(404).json({ error: "Task not found" });
+  // server-side WIP check for Blocked
+  if (wouldExceedWip(tasks, "Blocked", task.id)) {
+    return res.status(400).json({ error: `WIP limit exceeded for Blocked. Limit: ${WIP_LIMITS["Blocked"]}` });
+  }
+  task.state = "Blocked";
+  task.meta = task.meta || {};
+  task.meta.block_note = req.body.note || "";
+  task.updated_at = new Date().toISOString();
+  recomputeAllPriorities(tasks);
+  saveTasks(tasks);
+  res.json(task);
+});
+
+app.patch("/tasks/:id/suspend", (req, res) => {
+  const tasks = loadTasks();
+  const task = tasks.find(t => t.id === req.params.id);
+  if (!task) return res.status(404).json({ error: "Task not found" });
+  // server-side WIP check for Suspended (if configured)
+  if (wouldExceedWip(tasks, "Suspended", task.id)) {
+    return res.status(400).json({ error: `WIP limit exceeded for Suspended. Limit: ${WIP_LIMITS["Suspended"]}` });
+  }
+  task.state = "Suspended";
+  task.updated_at = new Date().toISOString();
+  recomputeAllPriorities(tasks);
+  saveTasks(tasks);
+  res.json(task);
+});
+
+/* Add dependency and suspend dependent if unresolved deps exist */
+app.post("/tasks/:id/dependencies", (req, res) => {
+  const tasks = loadTasks();
+  const task = tasks.find(t => t.id === req.params.id);
+  if (!task) return res.status(404).json({ error: "Task not found" });
+
+  const depId = req.body.dependencyId;
+  if (!depId || !tasks.find(t => t.id === depId)) return res.status(400).json({ error: "Dependency task not found" });
+  if (!task.dependencies) task.dependencies = [];
+  if (depId === task.id) return res.status(400).json({ error: "Task cannot depend on itself" });
+
+  if (!task.dependencies.includes(depId)) {
+    task.dependencies.push(depId);
+    task.updated_at = new Date().toISOString();
+
+    // If the task now has any dependencies that are not Done, suspend it
+    const hasUnresolvedDeps = (task.dependencies || []).some(did => {
+      const depTask = tasks.find(x => x.id === did);
+      return !depTask || depTask.state !== "Done";
+    });
+
+    if (hasUnresolvedDeps && task.state !== "Done") {
+      task.state = "Suspended";
+      task.updated_at = new Date().toISOString();
+    }
+
+    recomputeAllPriorities(tasks);
+    saveTasks(tasks);
+  }
+
+  res.json(task);
+});
+
+/* remedy: create a new task that will unblock the blocked task
+   - inherit deadline by default
+   - auto-copy description: "Remedy for: <blockedTask.title>" when client doesn't provide description
+   - add remedy_for: blockedTask.id to make the link explicit
+*/
+app.post("/tasks/:id/remedy", (req, res) => {
+  const tasks = loadTasks();
+  const blockedTask = tasks.find(t => t.id === req.params.id);
+  if (!blockedTask) return res.status(404).json({ error: "Blocked task not found" });
+
+  // inherit blocked task deadline unless client explicitly provided one
+  const deadline = (req.body.deadline !== undefined && req.body.deadline !== null) ? req.body.deadline : blockedTask.deadline;
+
+  // description: use provided description if present, otherwise auto-fill
+  const description = (req.body.description && String(req.body.description).trim() !== '') ?
+    req.body.description :
+    `Remedy for: ${blockedTask.title}`;
+
+  const newTask = {
+    id: Date.now().toString(),
+    title: req.body.title || `Remedy for ${blockedTask.title}`,
+    description: description,
+    state: "Ready",
+    deadline: deadline,
+    dependencies: [],
+    picker: null,
+    points_snapshot: undefined,
+    picked_at: undefined,
+    awarded: undefined,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    meta: {},
+    // explicit link back to the blocked task
+    remedy_for: blockedTask.id
+  };
+
+  tasks.push(newTask);
+
+  // attach remedy as a dependency of the blocked task and suspend the blocked task
+  blockedTask.dependencies = blockedTask.dependencies || [];
+  if (!blockedTask.dependencies.includes(newTask.id)) blockedTask.dependencies.push(newTask.id);
+  blockedTask.state = "Suspended";
+  blockedTask.updated_at = new Date().toISOString();
+
+  recomputeAllPriorities(tasks);
+  saveTasks(tasks);
+
+  res.json({ blockedTask, remedyTask: newTask });
+});
+
+/* active tasks endpoint (computed snapshot) */
+
+app.get("/tasks/active", (req, res) => {
+  const tasks = loadTasks();
+  const updated = computePriorities(tasks, new Date(), { MAX_WINDOW_days: 30, decay: 0.5, w_u: 0.4, w_i: 0.6 });
+  const activeTasks = updated.filter(t => ["Ready", "InProgress"].includes(t.state)).sort((a, b) => b.priority - a.priority);
+  res.json(activeTasks);
+});
+
+/* delete & recompute */
+
+app.delete("/tasks/:id", (req, res) => {
+  let tasks = loadTasks();
+  const initial = tasks.length;
+  tasks = tasks.filter(t => t.id !== req.params.id);
+  if (tasks.length === initial) return res.status(404).json({ error: "Task not found" });
+  recomputeAllPriorities(tasks);
+  saveTasks(tasks);
+  res.json({ message: "Task deleted" });
+});
+
+app.post("/recompute", (req, res) => {
+  const tasks = recomputeAllPriorities();
+  res.json({ message: "recomputed", count: tasks.length });
+});
+
+/* users endpoints */
+
+app.get("/users", (req, res) => {
+  res.json(Object.values(loadUsers()));
+});
+
+app.get("/users/:id", (req, res) => {
+  const users = loadUsers();
+  const key = String(req.params.id).trim();
+  const u = users[key];
+  if (!u) return res.status(404).json({ error: "User not found" });
+  res.json(u);
+});
+
+/* -------------------- server start & periodic recompute -------------------- */
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+
+setInterval(() => {
+  try {
+    recomputeAllPriorities();
+    console.log("Periodic recompute done:", new Date().toISOString());
+  } catch (err) {
+    console.error("Periodic recompute error:", err);
+  }
+}, 10 * 60 * 1000);
+

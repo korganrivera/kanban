@@ -1,0 +1,1461 @@
+[
+  {
+    "id": "1765483266105",
+    "title": "Test Task",
+    "description": "",
+    "state": "Done",
+    "urgency": 50,
+    "importance": 50,
+    "dependencies": [
+      "1765483528685"
+    ],
+    "picker": null,
+    "points_snapshot": null,
+    "created_at": "2025-12-11T20:01:06.105Z",
+    "updated_at": "2025-12-11T20:42:12.515Z",
+    "meta": {},
+    "priority": 53,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1765483528685",
+    "title": "Dependency Task",
+    "description": "",
+    "state": "Done",
+    "urgency": 50,
+    "importance": 50,
+    "dependencies": [
+      "1765484426009"
+    ],
+    "picker": "Alice",
+    "points_snapshot": null,
+    "created_at": "2025-12-11T20:05:28.685Z",
+    "updated_at": "2025-12-11T20:41:34.678Z",
+    "meta": {
+      "block_note": "Waiting on supplies"
+    },
+    "priority": 69,
+    "importancePercentile": 81,
+    "importanceRaw": 1,
+    "deadlock": false
+  },
+  {
+    "id": "1765484426009",
+    "title": "Low Priority Task",
+    "description": "",
+    "state": "Done",
+    "urgency": 50,
+    "importance": 50,
+    "dependencies": [
+      "1765484426018"
+    ],
+    "picker": null,
+    "points_snapshot": null,
+    "created_at": "2025-12-11T20:20:26.009Z",
+    "updated_at": "2025-12-11T20:41:15.620Z",
+    "meta": {},
+    "priority": 72,
+    "importancePercentile": 86,
+    "importanceRaw": 1.5,
+    "deadlock": false
+  },
+  {
+    "id": "1765484426018",
+    "title": "High Priority Task",
+    "description": "",
+    "state": "Done",
+    "urgency": 50,
+    "importance": 50,
+    "dependencies": [],
+    "picker": null,
+    "points_snapshot": null,
+    "created_at": "2025-12-11T20:20:26.018Z",
+    "updated_at": "2025-12-11T20:40:55.292Z",
+    "meta": {},
+    "priority": 74,
+    "importancePercentile": 90,
+    "importanceRaw": 1.75,
+    "deadlock": false
+  },
+  {
+    "id": "1765484544475",
+    "title": "Low Priority Task",
+    "description": "",
+    "state": "Done",
+    "urgency": 10,
+    "importance": 10,
+    "dependencies": [],
+    "picker": null,
+    "points_snapshot": 4,
+    "created_at": "2025-12-11T20:22:24.475Z",
+    "updated_at": "2025-12-12T19:55:03.910Z",
+    "meta": {},
+    "priority": 37,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2025-12-12T19:17:15.473Z",
+        "picker": "unknown",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_at": "2025-12-12T19:17:15.474Z",
+    "points_snapshot_created_by": "unknown",
+    "points_snapshot_locked": true,
+    "picked_at": "2025-12-12T19:17:15.474Z",
+    "points_history": [
+      {
+        "ts": "2025-12-12T19:17:15.474Z",
+        "snapshot": 4,
+        "by": "unknown"
+      }
+    ],
+    "awarded": {
+      "to": "unknown",
+      "points": 4,
+      "ts": "2025-12-12T19:55:03.910Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1765484544486",
+    "title": "High Priority Task",
+    "description": "",
+    "state": "Done",
+    "urgency": 80,
+    "importance": 90,
+    "dependencies": [],
+    "picker": null,
+    "points_snapshot": 32,
+    "created_at": "2025-12-11T20:22:24.486Z",
+    "updated_at": "2025-12-12T19:09:26.387Z",
+    "meta": {},
+    "priority": 65,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2025-12-12T19:09:22.002Z",
+        "picker": "Alice",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_at": "2025-12-12T19:09:22.002Z",
+    "points_snapshot_created_by": "Alice",
+    "points_snapshot_locked": true,
+    "picked_at": "2025-12-12T19:09:22.002Z",
+    "points_history": [
+      {
+        "ts": "2025-12-12T19:09:22.002Z",
+        "snapshot": 32,
+        "by": "Alice"
+      }
+    ],
+    "awarded": {
+      "to": "Alice",
+      "points": 32,
+      "ts": "2025-12-12T19:09:26.389Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1765484710207",
+    "title": "Fix Supplies",
+    "description": "",
+    "state": "Done",
+    "urgency": 50,
+    "importance": 50,
+    "dependencies": [],
+    "picker": null,
+    "points_snapshot": null,
+    "created_at": "2025-12-11T20:25:10.207Z",
+    "updated_at": "2025-12-11T20:26:10.743Z",
+    "meta": {},
+    "priority": 53,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1765485161712",
+    "title": "Blocking Task",
+    "description": "",
+    "state": "Done",
+    "urgency": 20,
+    "importance": 20,
+    "dependencies": [],
+    "picker": null,
+    "points_snapshot": 8,
+    "created_at": "2025-12-11T20:32:41.712Z",
+    "updated_at": "2025-12-12T19:54:21.174Z",
+    "meta": {},
+    "priority": 41,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2025-12-12T19:17:11.638Z",
+        "picker": "unknown",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_at": "2025-12-12T19:17:11.638Z",
+    "points_snapshot_created_by": "unknown",
+    "points_snapshot_locked": true,
+    "picked_at": "2025-12-12T19:17:11.638Z",
+    "points_history": [
+      {
+        "ts": "2025-12-12T19:17:11.638Z",
+        "snapshot": 8,
+        "by": "unknown"
+      }
+    ],
+    "awarded": {
+      "to": "unknown",
+      "points": 8,
+      "ts": "2025-12-12T19:54:21.175Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1765550610792",
+    "title": "Priority Test 2",
+    "description": "",
+    "state": "Done",
+    "urgency": 40,
+    "importance": 10,
+    "dependencies": [],
+    "picker": null,
+    "points_snapshot": 16,
+    "created_at": "2025-12-12T14:43:30.792Z",
+    "updated_at": "2025-12-12T19:09:36.994Z",
+    "meta": {},
+    "priority": 49,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2025-12-12T19:09:33.091Z",
+        "picker": "Korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_at": "2025-12-12T19:09:33.092Z",
+    "points_snapshot_created_by": "Korgan",
+    "points_snapshot_locked": true,
+    "picked_at": "2025-12-12T19:09:33.092Z",
+    "points_history": [
+      {
+        "ts": "2025-12-12T19:09:33.092Z",
+        "snapshot": 16,
+        "by": "Korgan"
+      }
+    ],
+    "awarded": {
+      "to": "Korgan",
+      "points": 16,
+      "ts": "2025-12-12T19:09:36.995Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1765551020366",
+    "title": "Priority Test 2",
+    "description": "",
+    "state": "Done",
+    "urgency": 40,
+    "importance": 10,
+    "dependencies": [
+      "1765566619123"
+    ],
+    "picker": null,
+    "points_snapshot": 16,
+    "created_at": "2025-12-12T14:50:20.366Z",
+    "updated_at": "2025-12-12T19:52:19.384Z",
+    "meta": {
+      "block_note": "needs grease"
+    },
+    "priority": 49,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2025-12-12T19:09:47.881Z",
+        "picker": "Korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2025-12-12T19:17:08.633Z",
+        "picker": "unknown",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_at": "2025-12-12T19:09:47.881Z",
+    "points_snapshot_created_by": "Korgan",
+    "points_snapshot_locked": true,
+    "picked_at": "2025-12-12T19:09:47.881Z",
+    "points_history": [
+      {
+        "ts": "2025-12-12T19:09:47.881Z",
+        "snapshot": 16,
+        "by": "Korgan"
+      }
+    ],
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "blocked",
+      "ts": "2025-12-12T19:52:19.384Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765564284099",
+    "title": "Do the thing",
+    "description": "",
+    "state": "Done",
+    "urgency": 50,
+    "importance": 50,
+    "dependencies": [],
+    "picker": null,
+    "points_snapshot": null,
+    "created_at": "2025-12-12T18:31:24.099Z",
+    "updated_at": "2025-12-12T18:33:18.424Z",
+    "meta": {
+      "block_note": ""
+    },
+    "priority": 53,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1765565336753",
+    "title": "Water the garden",
+    "description": "",
+    "state": "Done",
+    "urgency": 0,
+    "dependencies": [
+      "1765565548000"
+    ],
+    "picker": null,
+    "points_snapshot": null,
+    "created_at": "2025-12-12T18:48:56.753Z",
+    "updated_at": "2025-12-12T18:55:39.982Z",
+    "meta": {
+      "block_note": "hose fucked"
+    },
+    "priority": 33,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1765565349875",
+    "title": "Fix the hose",
+    "description": "",
+    "state": "Done",
+    "urgency": 0,
+    "dependencies": [],
+    "picker": null,
+    "points_snapshot": 0,
+    "created_at": "2025-12-12T18:49:09.875Z",
+    "updated_at": "2025-12-12T20:05:14.242Z",
+    "meta": {},
+    "priority": 33,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2025-12-12T19:17:13.290Z",
+        "picker": "unknown",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_at": "2025-12-12T19:17:13.290Z",
+    "points_snapshot_created_by": "unknown",
+    "points_snapshot_locked": true,
+    "picked_at": "2025-12-12T19:17:13.290Z",
+    "points_history": [
+      {
+        "ts": "2025-12-12T19:17:13.290Z",
+        "snapshot": 0,
+        "by": "unknown"
+      }
+    ],
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-12T20:05:14.242Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765565548000",
+    "title": "Fix the hose",
+    "description": "",
+    "state": "Done",
+    "urgency": 0,
+    "dependencies": [],
+    "picker": null,
+    "points_snapshot": null,
+    "created_at": "2025-12-12T18:52:28.000Z",
+    "updated_at": "2025-12-12T18:55:07.016Z",
+    "meta": {},
+    "priority": 49,
+    "importancePercentile": 81,
+    "importanceRaw": 1,
+    "deadlock": false
+  },
+  {
+    "id": "1765566619123",
+    "title": "get sdfsdf",
+    "description": "",
+    "state": "Done",
+    "urgency": 0,
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-12T19:10:19.123Z",
+    "updated_at": "2025-12-12T19:10:28.998Z",
+    "meta": {},
+    "priority": 49,
+    "importancePercentile": 81,
+    "importanceRaw": 1,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2025-12-12T19:10:27.176Z",
+        "picker": "Korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 20,
+    "points_snapshot_created_at": "2025-12-12T19:10:27.176Z",
+    "points_snapshot_created_by": "Korgan",
+    "points_snapshot_locked": true,
+    "picked_at": "2025-12-12T19:10:27.177Z",
+    "points_history": [
+      {
+        "ts": "2025-12-12T19:10:27.176Z",
+        "snapshot": 20,
+        "by": "Korgan"
+      }
+    ],
+    "awarded": {
+      "to": "Korgan",
+      "points": 20,
+      "ts": "2025-12-12T19:10:29.000Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1765567759989",
+    "title": "Peel the onions",
+    "description": "",
+    "state": "Done",
+    "dependencies": [
+      "1765567808586",
+      "1765571048991"
+    ],
+    "picker": null,
+    "created_at": "2025-12-12T19:29:19.989Z",
+    "updated_at": "2025-12-12T20:24:41.232Z",
+    "meta": {
+      "block_note": ""
+    },
+    "priority": 33,
+    "urgency": 0,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2025-12-12T19:29:38.843Z",
+        "picker": "unknown",
+        "action": "picked"
+      },
+      {
+        "ts": "2025-12-12T20:24:34.203Z",
+        "picker": "Korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 0,
+    "points_snapshot_created_at": "2025-12-12T19:29:38.843Z",
+    "points_snapshot_created_by": "unknown",
+    "picked_at": "2025-12-12T19:29:38.843Z",
+    "points_history": [
+      {
+        "ts": "2025-12-12T19:29:38.843Z",
+        "snapshot": 0,
+        "by": "unknown"
+      }
+    ],
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-12T20:24:41.232Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765567808586",
+    "title": "buy onions",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-12T19:30:08.586Z",
+    "updated_at": "2025-12-12T20:23:46.886Z",
+    "meta": {},
+    "priority": 49,
+    "urgency": 0,
+    "importancePercentile": 81,
+    "importanceRaw": 1,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2025-12-12T19:31:01.970Z",
+        "picker": "unknown",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 20,
+    "points_snapshot_created_at": "2025-12-12T19:31:01.971Z",
+    "points_snapshot_created_by": "unknown",
+    "picked_at": "2025-12-12T19:31:01.971Z",
+    "points_history": [
+      {
+        "ts": "2025-12-12T19:31:01.971Z",
+        "snapshot": 20,
+        "by": "unknown"
+      }
+    ],
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-12T20:23:46.886Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765569177832",
+    "title": "Grease the monkey",
+    "description": "",
+    "state": "Done",
+    "dependencies": [
+      "1765569215677"
+    ],
+    "picker": null,
+    "created_at": "2025-12-12T19:52:57.832Z",
+    "updated_at": "2025-12-12T19:54:06.440Z",
+    "meta": {
+      "block_note": "no grease"
+    },
+    "priority": 33,
+    "urgency": 0,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "points_snapshot": 0,
+    "points_snapshot_created_at": "2025-12-12T19:53:19.010Z",
+    "points_snapshot_created_by": null,
+    "picked_at": "2025-12-12T19:53:19.010Z",
+    "points_history": [
+      {
+        "ts": "2025-12-12T19:53:19.010Z",
+        "snapshot": 0,
+        "by": null
+      }
+    ],
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-12T19:54:06.440Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765569215677",
+    "title": "buy grease",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-12T19:53:35.677Z",
+    "updated_at": "2025-12-12T19:53:51.191Z",
+    "meta": {},
+    "priority": 49,
+    "urgency": 0,
+    "importancePercentile": 81,
+    "importanceRaw": 1,
+    "deadlock": false,
+    "points_snapshot": 20,
+    "points_snapshot_created_at": "2025-12-12T19:53:41.527Z",
+    "points_snapshot_created_by": null,
+    "picked_at": "2025-12-12T19:53:41.527Z",
+    "points_history": [
+      {
+        "ts": "2025-12-12T19:53:41.527Z",
+        "snapshot": 20,
+        "by": null
+      }
+    ],
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-12T19:53:51.191Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765569321000",
+    "title": "Alice's test task",
+    "description": "",
+    "state": "Done",
+    "deadline": "2025-12-12T20:55:00.000Z",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-12T19:55:21.000Z",
+    "updated_at": "2025-12-12T19:55:31.679Z",
+    "meta": {},
+    "priority": 73,
+    "urgency": 100,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2025-12-12T19:55:25.719Z",
+        "picker": "Alice",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 40,
+    "points_snapshot_created_at": "2025-12-12T19:55:25.719Z",
+    "points_snapshot_created_by": "Alice",
+    "picked_at": "2025-12-12T19:55:25.719Z",
+    "points_history": [
+      {
+        "ts": "2025-12-12T19:55:25.719Z",
+        "snapshot": 40,
+        "by": "Alice"
+      }
+    ],
+    "awarded": {
+      "to": "Alice",
+      "points": 40,
+      "ts": "2025-12-12T19:55:31.680Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1765571048991",
+    "title": "buy onions",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-12T20:24:08.991Z",
+    "updated_at": "2025-12-12T20:24:30.413Z",
+    "meta": {},
+    "priority": 49,
+    "urgency": 0,
+    "importancePercentile": 81,
+    "importanceRaw": 1,
+    "deadlock": false,
+    "points_snapshot": 20,
+    "points_snapshot_created_at": "2025-12-12T20:24:21.073Z",
+    "points_snapshot_created_by": null,
+    "picked_at": "2025-12-12T20:24:21.073Z",
+    "points_history": [
+      {
+        "ts": "2025-12-12T20:24:21.073Z",
+        "snapshot": 20,
+        "by": null
+      }
+    ],
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-12T20:24:30.414Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765582221224",
+    "title": "Fill dish washer",
+    "description": "",
+    "state": "Done",
+    "deadline": "2025-12-12T06:00:00.000Z",
+    "dependencies": [
+      "1765582268685"
+    ],
+    "picker": null,
+    "created_at": "2025-12-12T23:30:21.224Z",
+    "updated_at": "2025-12-12T23:47:38.639Z",
+    "meta": {
+      "block_note": "dish washer full"
+    },
+    "priority": 73,
+    "urgency": 100,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-12T23:47:38.639Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765582268685",
+    "title": "Empty the dish washer",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-12T23:31:08.685Z",
+    "updated_at": "2025-12-12T23:47:36.628Z",
+    "meta": {},
+    "priority": 49,
+    "urgency": 0,
+    "importancePercentile": 81,
+    "importanceRaw": 1,
+    "deadlock": false,
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-12T23:47:36.628Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765583276736",
+    "title": "Fill dish washer",
+    "description": "",
+    "state": "Done",
+    "deadline": "2025-12-12T06:00:00.000Z",
+    "dependencies": [
+      "1765583301333"
+    ],
+    "picker": null,
+    "created_at": "2025-12-12T23:47:56.736Z",
+    "updated_at": "2025-12-12T23:48:42.366Z",
+    "meta": {
+      "block_note": "dish washer full"
+    },
+    "priority": 73,
+    "urgency": 100,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "points_snapshot": 40,
+    "points_snapshot_created_at": "2025-12-12T23:47:58.822Z",
+    "points_snapshot_created_by": null,
+    "picked_at": "2025-12-12T23:47:58.822Z",
+    "points_history": [
+      {
+        "ts": "2025-12-12T23:47:58.822Z",
+        "snapshot": 40,
+        "by": null
+      }
+    ],
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-12T23:48:42.366Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765583301333",
+    "title": "empty dish washer",
+    "description": "Remedy for: Fill dish washer",
+    "state": "Done",
+    "deadline": "2025-12-12T06:00:00.000Z",
+    "dependencies": [
+      "1765671766291-64705"
+    ],
+    "picker": null,
+    "created_at": "2025-12-12T23:48:21.333Z",
+    "updated_at": "2025-12-14T00:23:24.449Z",
+    "meta": {
+      "block_note": "Dish washer exploded"
+    },
+    "remedy_for": "1765583276736",
+    "priority": 89,
+    "urgency": 100,
+    "importancePercentile": 81,
+    "importanceRaw": 1,
+    "deadlock": false,
+    "points_snapshot": 60,
+    "points_snapshot_created_at": "2025-12-12T23:48:27.423Z",
+    "points_snapshot_created_by": null,
+    "picked_at": "2025-12-12T23:48:27.423Z",
+    "points_history": [
+      {
+        "ts": "2025-12-12T23:48:27.423Z",
+        "snapshot": 60,
+        "by": null
+      }
+    ],
+    "awarded": {
+      "to": "Korgan",
+      "points": 60,
+      "ts": "2025-12-14T00:23:24.450Z"
+    },
+    "points_snapshot_awarded": true,
+    "picker_history": [
+      {
+        "ts": "2025-12-14T00:15:53.261Z",
+        "picker": "Korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2025-12-14T00:23:21.732Z",
+        "picker": "Korgan",
+        "action": "picked"
+      }
+    ]
+  },
+  {
+    "id": "1765583345084",
+    "title": "eat bugs",
+    "description": "",
+    "state": "Done",
+    "dependencies": [
+      "1765583389837"
+    ],
+    "picker": null,
+    "created_at": "2025-12-12T23:49:05.084Z",
+    "updated_at": "2025-12-13T00:17:30.335Z",
+    "meta": {
+      "block_note": "no bugs to eat"
+    },
+    "priority": 33,
+    "urgency": 0,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "points_snapshot": 0,
+    "points_snapshot_created_at": "2025-12-12T23:49:35.626Z",
+    "points_snapshot_created_by": null,
+    "picked_at": "2025-12-12T23:49:35.626Z",
+    "points_history": [
+      {
+        "ts": "2025-12-12T23:49:35.626Z",
+        "snapshot": 0,
+        "by": null
+      }
+    ],
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-13T00:17:30.335Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765583389837",
+    "title": "find bugs",
+    "description": "Remedy for: eat bugs",
+    "state": "Done",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-12T23:49:49.837Z",
+    "updated_at": "2025-12-12T23:49:55.199Z",
+    "meta": {},
+    "remedy_for": "1765583345084",
+    "priority": 49,
+    "urgency": 0,
+    "importancePercentile": 81,
+    "importanceRaw": 1,
+    "deadlock": false,
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-12T23:49:55.199Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765583619281",
+    "title": "find bugs",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-12T23:53:39.281Z",
+    "updated_at": "2025-12-13T00:17:32.761Z",
+    "meta": {},
+    "priority": 33,
+    "urgency": 0,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-13T00:17:32.762Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765585065265",
+    "title": "eat bugs",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-13T00:17:45.265Z",
+    "updated_at": "2025-12-13T00:18:00.956Z",
+    "meta": {},
+    "priority": 33,
+    "urgency": 0,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-13T00:18:00.956Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765585092493",
+    "title": "find bugs",
+    "description": "",
+    "state": "Done",
+    "dependencies": [
+      "1765585976798"
+    ],
+    "picker": null,
+    "created_at": "2025-12-13T00:18:12.493Z",
+    "updated_at": "2025-12-13T00:45:57.189Z",
+    "meta": {
+      "block_note": "need my bug-catching net"
+    },
+    "priority": 59,
+    "urgency": 0,
+    "importancePercentile": 98,
+    "importanceRaw": 2,
+    "deadlock": false,
+    "points_snapshot": 38,
+    "points_snapshot_created_at": "2025-12-13T00:31:17.845Z",
+    "points_snapshot_created_by": null,
+    "picked_at": "2025-12-13T00:31:17.845Z",
+    "points_history": [
+      {
+        "ts": "2025-12-13T00:31:17.845Z",
+        "snapshot": 38,
+        "by": null
+      }
+    ],
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-13T00:45:57.189Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765585098892",
+    "title": "eat bugs",
+    "description": "",
+    "state": "Done",
+    "dependencies": [
+      "1765585092493"
+    ],
+    "picker": null,
+    "created_at": "2025-12-13T00:18:18.892Z",
+    "updated_at": "2025-12-13T00:46:02.711Z",
+    "meta": {},
+    "priority": 33,
+    "urgency": 0,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-13T00:46:02.711Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765585904249",
+    "title": "find bug net",
+    "description": "",
+    "state": "Done",
+    "dependencies": [
+      "1765585092493"
+    ],
+    "picker": null,
+    "created_at": "2025-12-13T00:31:44.249Z",
+    "updated_at": "2025-12-13T00:46:00.441Z",
+    "meta": {},
+    "priority": 33,
+    "urgency": 0,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-13T00:46:00.441Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765585976798",
+    "title": "buy a new bug-catching net",
+    "description": "Remedy for: find bugs",
+    "state": "Done",
+    "dependencies": [
+      "1765586627472"
+    ],
+    "picker": null,
+    "created_at": "2025-12-13T00:32:56.798Z",
+    "updated_at": "2025-12-13T00:45:53.653Z",
+    "meta": {
+      "block_note": "no money"
+    },
+    "remedy_for": "1765585092493",
+    "priority": 59,
+    "urgency": 0,
+    "importancePercentile": 98,
+    "importanceRaw": 2,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2025-12-13T00:45:36.011Z",
+        "picker": "Korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 56,
+    "points_snapshot_created_at": "2025-12-13T00:45:36.012Z",
+    "points_snapshot_created_by": "Korgan",
+    "picked_at": "2025-12-13T00:45:36.012Z",
+    "points_history": [
+      {
+        "ts": "2025-12-13T00:45:36.012Z",
+        "snapshot": 56,
+        "by": "Korgan"
+      }
+    ],
+    "awarded": {
+      "to": "Korgan",
+      "points": 56,
+      "ts": "2025-12-13T00:45:53.655Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1765586627472",
+    "title": "get money",
+    "description": "Remedy for: buy a new bug-catching net",
+    "state": "Done",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-13T00:43:47.472Z",
+    "updated_at": "2025-12-13T00:45:30.502Z",
+    "meta": {},
+    "remedy_for": "1765585976798",
+    "priority": 59,
+    "urgency": 0,
+    "importancePercentile": 98,
+    "importanceRaw": 2,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2025-12-13T00:43:53.089Z",
+        "picker": "Korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 56,
+    "points_snapshot_created_at": "2025-12-13T00:43:53.090Z",
+    "points_snapshot_created_by": "Korgan",
+    "picked_at": "2025-12-13T00:43:53.090Z",
+    "points_history": [
+      {
+        "ts": "2025-12-13T00:43:53.090Z",
+        "snapshot": 56,
+        "by": "Korgan"
+      }
+    ],
+    "awarded": {
+      "to": "Korgan",
+      "points": 56,
+      "ts": "2025-12-13T00:45:30.504Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1765587128086",
+    "title": "eat cake",
+    "description": "",
+    "state": "Done",
+    "dependencies": [
+      "1765587146274"
+    ],
+    "picker": null,
+    "created_at": "2025-12-13T00:52:08.086Z",
+    "updated_at": "2025-12-13T01:15:01.385Z",
+    "meta": {},
+    "priority": 49,
+    "urgency": 0,
+    "importancePercentile": 81,
+    "importanceRaw": 1,
+    "deadlock": false,
+    "points_snapshot": 0,
+    "points_snapshot_created_at": "2025-12-13T01:04:58.518Z",
+    "points_snapshot_created_by": null,
+    "picked_at": "2025-12-13T01:04:58.518Z",
+    "points_history": [
+      {
+        "ts": "2025-12-13T01:04:58.518Z",
+        "snapshot": 0,
+        "by": null
+      }
+    ],
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-13T01:15:01.385Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765587146274",
+    "title": "bake cake",
+    "description": "",
+    "state": "Done",
+    "dependencies": [
+      "1765587850008"
+    ],
+    "picker": null,
+    "created_at": "2025-12-13T00:52:26.274Z",
+    "updated_at": "2025-12-13T01:04:49.917Z",
+    "meta": {},
+    "priority": 52,
+    "urgency": 0,
+    "importancePercentile": 86,
+    "importanceRaw": 1.5,
+    "deadlock": false,
+    "points_snapshot": 36,
+    "points_snapshot_created_at": "2025-12-13T01:03:16.677Z",
+    "points_snapshot_created_by": null,
+    "picked_at": "2025-12-13T01:03:16.677Z",
+    "points_history": [
+      {
+        "ts": "2025-12-13T01:03:16.677Z",
+        "snapshot": 36,
+        "by": null
+      }
+    ],
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-13T01:04:49.917Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765587850008",
+    "title": "buy cake ingredients",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-13T01:04:10.008Z",
+    "updated_at": "2025-12-13T01:04:45.732Z",
+    "meta": {},
+    "priority": 54,
+    "urgency": 0,
+    "importancePercentile": 90,
+    "importanceRaw": 1.75,
+    "deadlock": false,
+    "points_snapshot": 52,
+    "points_snapshot_created_at": "2025-12-13T01:04:32.223Z",
+    "points_snapshot_created_by": null,
+    "picked_at": "2025-12-13T01:04:32.223Z",
+    "points_history": [
+      {
+        "ts": "2025-12-13T01:04:32.223Z",
+        "snapshot": 52,
+        "by": null
+      }
+    ],
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-13T01:04:45.732Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765588451328",
+    "title": "poop cake",
+    "description": "",
+    "state": "Done",
+    "dependencies": [
+      "1765587128086"
+    ],
+    "picker": null,
+    "created_at": "2025-12-13T01:14:11.328Z",
+    "updated_at": "2025-12-13T01:15:21.900Z",
+    "meta": {},
+    "priority": 33,
+    "urgency": 0,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "points_snapshot": 0,
+    "points_snapshot_created_at": "2025-12-13T01:15:16.359Z",
+    "points_snapshot_created_by": null,
+    "picked_at": "2025-12-13T01:15:16.359Z",
+    "points_history": [
+      {
+        "ts": "2025-12-13T01:15:16.359Z",
+        "snapshot": 0,
+        "by": null
+      }
+    ],
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2025-12-13T01:15:21.900Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1765670413167-58531",
+    "title": "eat the water",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-14T00:00:13.167Z",
+    "updated_at": "2025-12-14T00:15:25.718Z",
+    "meta": {},
+    "priority": 33,
+    "urgency": 0,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2025-12-14T00:00:30.365Z",
+        "picker": "Korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 33,
+    "points_snapshot_created_at": "2025-12-14T00:00:30.366Z",
+    "points_snapshot_created_by": "Korgan",
+    "picked_at": "2025-12-14T00:00:30.366Z",
+    "points_history": [
+      {
+        "ts": "2025-12-14T00:00:30.366Z",
+        "snapshot": 33,
+        "by": "Korgan"
+      }
+    ],
+    "awarded": {
+      "to": "Korgan",
+      "points": 33,
+      "ts": "2025-12-14T00:15:25.720Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1765671766291-64705",
+    "title": "fix dish washer",
+    "description": "Remedy for: empty dish washer",
+    "state": "Done",
+    "deadline": "2025-12-12T06:00:00.000Z",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-14T00:22:46.291Z",
+    "updated_at": "2025-12-15T12:23:20.980Z",
+    "meta": {},
+    "remedy_for": "1765583301333",
+    "priority": 100,
+    "urgency": 100,
+    "importancePercentile": 100,
+    "importanceRaw": 2.5,
+    "deadlock": false,
+    "points_snapshot": 92,
+    "points_snapshot_created_at": "2025-12-14T00:23:06.750Z",
+    "points_snapshot_created_by": null,
+    "picked_at": "2025-12-14T00:23:06.750Z",
+    "points_history": [
+      {
+        "ts": "2025-12-14T00:23:06.750Z",
+        "snapshot": 92,
+        "by": null
+      }
+    ],
+    "picker_history": [
+      {
+        "ts": "2025-12-14T00:23:16.747Z",
+        "picker": "Korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2025-12-14T23:31:07.680Z",
+        "picker": "Korgan",
+        "action": "picked"
+      }
+    ],
+    "awarded": {
+      "to": "Korgan",
+      "points": 92,
+      "ts": "2025-12-15T12:23:20.983Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1765801371585-21028",
+    "title": "wash dishes",
+    "description": "",
+    "state": "Ready",
+    "deadline": "2025-12-16T06:00:00.000Z",
+    "dependencies": [
+      "1765671766291-64705"
+    ],
+    "picker": null,
+    "created_at": "2025-12-15T12:22:51.585Z",
+    "updated_at": "2025-12-15T12:23:20.980Z",
+    "meta": {},
+    "priority": 72,
+    "urgency": 98,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1765978957601-41837",
+    "title": "eat the farts",
+    "description": "",
+    "state": "Done",
+    "dependencies": [
+      "1765979004851-60160"
+    ],
+    "picker": null,
+    "created_at": "2025-12-17T13:42:37.601Z",
+    "updated_at": "2025-12-17T13:43:45.356Z",
+    "meta": {
+      "block_note": "no farts to eat"
+    },
+    "priority": 33,
+    "urgency": 0,
+    "importancePercentile": 55,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2025-12-17T13:42:44.763Z",
+        "picker": "Korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2025-12-17T13:43:43.065Z",
+        "picker": "Korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 34,
+    "points_snapshot_created_at": "2025-12-17T13:42:44.764Z",
+    "points_snapshot_created_by": "Korgan",
+    "picked_at": "2025-12-17T13:42:44.764Z",
+    "points_history": [
+      {
+        "ts": "2025-12-17T13:42:44.764Z",
+        "snapshot": 34,
+        "by": "Korgan"
+      }
+    ],
+    "awarded": {
+      "to": "Korgan",
+      "points": 34,
+      "ts": "2025-12-17T13:43:45.357Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1765979004851-60160",
+    "title": "buy more farts at the fart store.",
+    "description": "Remedy for: eat the farts",
+    "state": "Done",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-17T13:43:24.851Z",
+    "updated_at": "2025-12-17T13:43:38.336Z",
+    "meta": {},
+    "remedy_for": "1765978957601-41837",
+    "priority": 49,
+    "urgency": 0,
+    "importancePercentile": 81,
+    "importanceRaw": 1,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2025-12-17T13:43:34.047Z",
+        "picker": "Korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 49,
+    "points_snapshot_created_at": "2025-12-17T13:43:34.047Z",
+    "points_snapshot_created_by": "Korgan",
+    "picked_at": "2025-12-17T13:43:34.047Z",
+    "points_history": [
+      {
+        "ts": "2025-12-17T13:43:34.047Z",
+        "snapshot": 49,
+        "by": "Korgan"
+      }
+    ],
+    "awarded": {
+      "to": "Korgan",
+      "points": 49,
+      "ts": "2025-12-17T13:43:38.338Z"
+    },
+    "points_snapshot_awarded": true
+  }
+]
