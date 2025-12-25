@@ -399,10 +399,7 @@ function computePriorities(tasks, nowIso = new Date(), config = {}) {
   }
 
   function computeUrgency(task) {
-    if (typeof task.urgency === "number" && !isNaN(task.urgency)) {
-      return Math.max(0, Math.min(100, Math.round(task.urgency)));
-    }
-    // Use deadline or scheduledDueAt for urgency calculation
+    // Always recalculate urgency based on deadline/scheduledDueAt
     const dl = task.deadline || task.scheduledDueAt;
     if (!dl) return 0;
     const d = new Date(dl);
