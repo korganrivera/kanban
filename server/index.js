@@ -560,6 +560,7 @@ app.get("/auth/whoami", (req, res) => {
         authenticated: true,
         username: user.username,
         created_at: user.created_at,
+        points: user.points || 0,
       });
     } else {
       req.session.destroy();
