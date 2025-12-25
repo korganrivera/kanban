@@ -5,6 +5,8 @@ const app = express();
 const fs = require("fs");
 const path = require("path");
 const { WebSocketServer } = require("ws");
+const session = require("express-session");
+const bcrypt = require("bcrypt");
 
 const DATA_DIR = path.join(__dirname, "data");
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
@@ -13,8 +15,23 @@ const TASKS_FILE = path.join(DATA_DIR, "tasks.json");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const WIP_LIMITS_FILE = path.join(DATA_DIR, "wip_limits.json");
 
-app.use(express.static("static"));
 app.use(express.json());
+
+// Session configuration
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "kanban-secret-change-in-production",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+      httpOnly: true,
+    },
+  })
+);
+
+// Serve static files AFTER session setup
+app.use(express.static("static"));
 
 /* -------------------- configuration -------------------- */
 
@@ -28,6 +45,20 @@ const DEFAULT_WIP_LIMITS = {
 };
 
 let WIP_LIMITS = null;
+
+/* -------------------- authentication middleware -------------------- */
+
+function requireAuth(req, res, next) {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  next();
+}
+
+function optionalAuth(req, res, next) {
+  // Just pass through - used for endpoints that work better with auth but don't require it
+  next();
+}
 
 /* -------------------- file-backed stores -------------------- */
 
@@ -73,6 +104,24 @@ function loadWipLimits() {
 }
 function saveWipLimits(limits) {
   saveJson(WIP_LIMITS_FILE, limits);
+}
+
+/* -------------------- user management helpers -------------------- */
+
+async function hashPassword(password) {
+  return await bcrypt.hash(password, 10);
+}
+
+async function verifyPassword(password, hash) {
+  return await bcrypt.compare(password, hash);
+}
+
+function createUser(username, hashedPassword) {
+  return {
+    username,
+    password: hashedPassword,
+    created_at: new Date().toISOString(),
+  };
 }
 
 /* -------------------- mutation queue -------------------- */
@@ -423,7 +472,101 @@ function recomputeAllPriorities(tasks = null) {
   return ts;
 }
 
-/* -------------------- HTTP API -------------------- */
+/* -------------------- Authentication API -------------------- */
+
+app.post("/auth/register", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ error: "Username and password required" });
+    }
+
+    if (username.length < 3) {
+      return res.status(400).json({ error: "Username must be at least 3 characters" });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: "Password must be at least 6 characters" });
+    }
+
+    const users = loadUsers();
+
+    if (users[username]) {
+      return res.status(400).json({ error: "Username already exists" });
+    }
+
+    const hashedPassword = await hashPassword(password);
+    users[username] = createUser(username, hashedPassword);
+    saveUsers(users);
+
+    req.session.userId = username;
+    res.json({ success: true, username });
+  } catch (err) {
+    console.error("Register error:", err);
+    res.status(500).json({ error: "Registration failed" });
+  }
+});
+
+app.post("/auth/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ error: "Username and password required" });
+    }
+
+    const users = loadUsers();
+    const user = users[username];
+
+    if (!user) {
+      return res.status(401).json({ error: "Invalid username or password" });
+    }
+
+    const valid = await verifyPassword(password, user.password);
+
+    if (!valid) {
+      return res.status(401).json({ error: "Invalid username or password" });
+    }
+
+    req.session.userId = username;
+    res.json({ success: true, username });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ error: "Login failed" });
+  }
+});
+
+app.post("/auth/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Logout error:", err);
+      return res.status(500).json({ error: "Logout failed" });
+    }
+    res.json({ success: true });
+  });
+});
+
+app.get("/auth/whoami", (req, res) => {
+  if (req.session.userId) {
+    const users = loadUsers();
+    const user = users[req.session.userId];
+    if (user) {
+      res.json({
+        authenticated: true,
+        username: user.username,
+        created_at: user.created_at,
+      });
+    } else {
+      req.session.destroy();
+      res.json({ authenticated: false });
+    }
+  } else {
+    res.json({ authenticated: false });
+  }
+});
+
+/* -------------------- API handlers -------------------- */
 
 app.get("/", (req, res) => res.send("Server running."));
 
@@ -447,7 +590,7 @@ app.get("/tasks", (req, res) => {
   }
 });
 
-app.post("/tasks", async (req, res) => {
+app.post("/tasks", requireAuth, async (req, res) => {
   try {
     const created = await enqueueMutation(async () => {
       const tasks = loadTasks();
@@ -477,6 +620,7 @@ app.post("/tasks", async (req, res) => {
         awarded: undefined,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        created_by: req.session.userId,
         meta: {},
       };
 
@@ -520,7 +664,7 @@ app.post("/tasks", async (req, res) => {
 });
 
 /* PATCH state handler — unchanged except recurrence-advancement remains on completion */
-app.patch("/tasks/:id/state", async (req, res) => {
+app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
   try {
     const result = await enqueueMutation(async () => {
       const tasks = loadTasks();
@@ -535,7 +679,13 @@ app.patch("/tasks/:id/state", async (req, res) => {
         };
       }
 
-      const newPickerRaw = "picker" in req.body ? req.body.picker : undefined;
+      let newPickerRaw = "picker" in req.body ? req.body.picker : undefined;
+
+      // Auto-set picker to logged-in user when claiming task (moving to InProgress)
+      if (newState === "InProgress" && newPickerRaw === undefined) {
+        newPickerRaw = req.session.userId;
+      }
+
       const newPicker =
         typeof newPickerRaw === "string" ? newPickerRaw.trim() : newPickerRaw;
       const note = req.body.note || "";
@@ -805,7 +955,11 @@ app.patch("/tasks/:id/state", async (req, res) => {
 
 /* block/suspend/dependencies/remedy/delete handlers unchanged (keep existing semantics) */
 
-app.patch("/tasks/:id/block", async (req, res) => {
+app.patch("/tasks/:id/block", requireAuth, async (req, res) => {
+</text>
+
+<old_text line=827>
+app.patch("/tasks/:id/block", requireAuth, async (req, res) => {
   try {
     const updated = await enqueueMutation(async () => {
       const tasks = loadTasks();
@@ -837,7 +991,7 @@ app.patch("/tasks/:id/block", async (req, res) => {
   }
 });
 
-app.patch("/tasks/:id/suspend", async (req, res) => {
+app.patch("/tasks/:id/suspend", requireAuth, async (req, res) => {
   try {
     const updated = await enqueueMutation(async () => {
       const tasks = loadTasks();
@@ -867,7 +1021,11 @@ app.patch("/tasks/:id/suspend", async (req, res) => {
   }
 });
 
-app.post("/tasks/:id/dependencies", async (req, res) => {
+app.post("/tasks/:id/dependencies", requireAuth, async (req, res) => {
+</text>
+
+<old_text line=899>
+app.post("/tasks/:id/remedy", requireAuth, async (req, res) => {
   try {
     const updated = await enqueueMutation(async () => {
       const tasks = loadTasks();
@@ -941,9 +1099,9 @@ app.post("/tasks/:id/remedy", async (req, res) => {
       const newTask = {
         id: genId(),
         title: title || `Remedy for ${blockedTask.title}`,
-        description: description,
+        description: description || `Created to unblock: ${blockedTask.title}`,
         state: "Ready",
-        deadline: deadline,
+        deadline: deadline || undefined,
         dependencies: [],
         picker: null,
         points_snapshot: undefined,
@@ -951,8 +1109,9 @@ app.post("/tasks/:id/remedy", async (req, res) => {
         awarded: undefined,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        created_by: req.session.userId,
         meta: {},
-        remedy_for: blockedTask.id,
+        remedy_for: req.params.id,
       };
 
       tasks.push(newTask);
@@ -992,7 +1151,11 @@ app.get("/tasks/active", (req, res) => {
   res.json(activeTasks);
 });
 
-app.delete("/tasks/:id", async (req, res) => {
+app.delete("/tasks/:id", requireAuth, async (req, res) => {
+</text>
+
+<old_text line=1015>
+app.delete("/tasks/:id", requireAuth, async (req, res) => {
   try {
     const result = await enqueueMutation(async () => {
       let tasks = loadTasks();
@@ -1025,7 +1188,7 @@ app.delete("/tasks/:id", async (req, res) => {
 });
 
 /* PATCH /tasks/:id edits. Important: support recurrence type 'none' */
-app.patch("/tasks/:id", async (req, res) => {
+app.patch("/tasks/:id", requireAuth, async (req, res) => {
   try {
     const updated = await enqueueMutation(async () => {
       const tasks = loadTasks();
@@ -1185,7 +1348,9 @@ app.get("/wip-limits", (req, res) => {
   }
 });
 
-app.patch("/wip-limits", async (req, res) => {
+app.patch("/wip-limits", requireAuth, async (req, res) => {
+</text>
+
   try {
     const updated = await enqueueMutation(async () => {
       const limits = loadWipLimits();

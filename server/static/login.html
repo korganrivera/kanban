@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Login — Kanban</title>
+        <style>
+            :root {
+                --bg: #071428;
+                --card: #081826;
+                --muted: #97a6b6;
+                --accent: #60a5fa;
+                --accent-2: #7dd3fc;
+                --danger: #fb7185;
+                --ok: #34d399;
+                font-family:
+                    Inter,
+                    system-ui,
+                    -apple-system,
+                    "Segoe UI",
+                    Roboto,
+                    "Helvetica Neue",
+                    Arial;
+                font-size: 14px;
+            }
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+                background: linear-gradient(180deg, #041025, #06122a);
+                color: #e6eef6;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .container {
+                width: 100%;
+                max-width: 400px;
+                padding: 20px;
+            }
+            .card {
+                background: linear-gradient(180deg, #071428, #061428);
+                border-radius: 12px;
+                padding: 32px;
+                box-shadow: 0 8px 20px rgba(2, 6, 23, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.03);
+            }
+            h1 {
+                margin: 0 0 8px 0;
+                font-size: 1.8rem;
+                color: var(--accent);
+                text-align: center;
+                letter-spacing: 0.5px;
+            }
+            .subtitle {
+                text-align: center;
+                color: var(--muted);
+                margin-bottom: 24px;
+                font-size: 0.95rem;
+            }
+            label {
+                display: block;
+                margin-top: 16px;
+                color: var(--muted);
+                font-size: 0.9rem;
+                margin-bottom: 6px;
+            }
+            input[type="text"],
+            input[type="password"] {
+                width: 100%;
+                padding: 12px;
+                border-radius: 6px;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                background: rgba(255, 255, 255, 0.03);
+                color: #e6eef6;
+                font-size: 1rem;
+                box-sizing: border-box;
+                transition: border-color 0.2s;
+            }
+            input[type="text"]:focus,
+            input[type="password"]:focus {
+                outline: none;
+                border-color: var(--accent);
+                background: rgba(255, 255, 255, 0.05);
+            }
+            button {
+                width: 100%;
+                padding: 12px;
+                margin-top: 20px;
+                border-radius: 6px;
+                border: 0;
+                background: var(--accent);
+                color: #06202b;
+                font-weight: 600;
+                cursor: pointer;
+                font-size: 1rem;
+                transition: background 0.2s;
+            }
+            button:hover {
+                background: var(--accent-2);
+            }
+            button:active {
+                transform: translateY(1px);
+            }
+            .error {
+                background: rgba(251, 113, 133, 0.1);
+                border: 1px solid var(--danger);
+                color: #ffb4b8;
+                padding: 12px;
+                border-radius: 6px;
+                margin-top: 16px;
+                font-size: 0.9rem;
+                display: none;
+            }
+            .success {
+                background: rgba(52, 211, 153, 0.1);
+                border: 1px solid var(--ok);
+                color: #a7f3d0;
+                padding: 12px;
+                border-radius: 6px;
+                margin-top: 16px;
+                font-size: 0.9rem;
+                display: none;
+            }
+            .toggle-mode {
+                text-align: center;
+                margin-top: 20px;
+                color: var(--muted);
+                font-size: 0.9rem;
+            }
+            .toggle-mode a {
+                color: var(--accent);
+                text-decoration: none;
+                cursor: pointer;
+                font-weight: 600;
+            }
+            .toggle-mode a:hover {
+                text-decoration: underline;
+            }
+            .form-container {
+                display: none;
+            }
+            .form-container.active {
+                display: block;
+            }
+            .info {
+                background: rgba(96, 165, 250, 0.1);
+                border: 1px solid var(--accent);
+                color: var(--accent-2);
+                padding: 10px;
+                border-radius: 6px;
+                margin-top: 16px;
+                font-size: 0.85rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="card">
+                <h1>Kanban</h1>
+                <div class="subtitle">Team Task Board</div>
+
+                <!-- Login Form -->
+                <div id="loginForm" class="form-container active">
+                    <label for="loginUsername">Username</label>
+                    <input
+                        type="text"
+                        id="loginUsername"
+                        placeholder="Enter your username"
+                        autocomplete="username"
+                    />
+
+                    <label for="loginPassword">Password</label>
+                    <input
+                        type="password"
+                        id="loginPassword"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                    />
+
+                    <button id="loginBtn">Log In</button>
+
+                    <div id="loginError" class="error"></div>
+                </div>
+
+                <!-- Register Form -->
+                <div id="registerForm" class="form-container">
+                    <label for="registerUsername">Username</label>
+                    <input
+                        type="text"
+                        id="registerUsername"
+                        placeholder="Choose a username (min 3 characters)"
+                        autocomplete="username"
+                    />
+
+                    <label for="registerPassword">Password</label>
+                    <input
+                        type="password"
+                        id="registerPassword"
+                        placeholder="Choose a password (min 6 characters)"
+                        autocomplete="new-password"
+                    />
+
+                    <label for="registerPasswordConfirm">Confirm Password</label>
+                    <input
+                        type="password"
+                        id="registerPasswordConfirm"
+                        placeholder="Confirm your password"
+                        autocomplete="new-password"
+                    />
+
+                    <button id="registerBtn">Register</button>
+
+                    <div id="registerError" class="error"></div>
+                    <div id="registerSuccess" class="success"></div>
+
+                    <div class="info">
+                        After registration, you'll be automatically logged in.
+                    </div>
+                </div>
+
+                <!-- Toggle between forms -->
+                <div class="toggle-mode">
+                    <span id="toggleText">Don't have an account?</span>
+                    <a id="toggleLink">Register</a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const API_ROOT = "";
+            let isLoginMode = true;
+
+            // Check if already logged in
+            async function checkAuth() {
+                try {
+                    const res = await fetch(`${API_ROOT}/auth/whoami`);
+                    const data = await res.json();
+                    if (data.authenticated) {
+                        window.location.href = "/";
+                    }
+                } catch (err) {
+                    console.error("Auth check failed:", err);
+                }
+            }
+
+            function showError(formId, message) {
+                const errorEl = document.getElementById(`${formId}Error`);
+                errorEl.textContent = message;
+                errorEl.style.display = "block";
+            }
+
+            function hideError(formId) {
+                const errorEl = document.getElementById(`${formId}Error`);
+                errorEl.style.display = "none";
+            }
+
+            function showSuccess(message) {
+                const successEl = document.getElementById("registerSuccess");
+                successEl.textContent = message;
+                successEl.style.display = "block";
+            }
+
+            function hideSuccess() {
+                const successEl = document.getElementById("registerSuccess");
+                successEl.style.display = "none";
+            }
+
+            function toggleMode() {
+                isLoginMode = !isLoginMode;
+
+                if (isLoginMode) {
+                    document.getElementById("loginForm").classList.add("active");
+                    document.getElementById("registerForm").classList.remove("active");
+                    document.getElementById("toggleText").textContent = "Don't have an account?";
+                    document.getElementById("toggleLink").textContent = "Register";
+                } else {
+                    document.getElementById("loginForm").classList.remove("active");
+                    document.getElementById("registerForm").classList.add("active");
+                    document.getElementById("toggleText").textContent = "Already have an account?";
+                    document.getElementById("toggleLink").textContent = "Log In";
+                }
+
+                hideError("login");
+                hideError("register");
+                hideSuccess();
+            }
+
+            async function handleLogin() {
+                const username = document.getElementById("loginUsername").value.trim();
+                const password = document.getElementById("loginPassword").value;
+
+                if (!username || !password) {
+                    showError("login", "Please enter username and password");
+                    return;
+                }
+
+                hideError("login");
+
+                try {
+                    const res = await fetch(`${API_ROOT}/auth/login`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ username, password }),
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        window.location.href = "/";
+                    } else {
+                        showError("login", data.error || "Login failed");
+                    }
+                } catch (err) {
+                    console.error("Login error:", err);
+                    showError("login", "Network error. Please try again.");
+                }
+            }
+
+            async function handleRegister() {
+                const username = document.getElementById("registerUsername").value.trim();
+                const password = document.getElementById("registerPassword").value;
+                const passwordConfirm = document.getElementById("registerPasswordConfirm").value;
+
+                hideError("register");
+                hideSuccess();
+
+                if (!username || !password || !passwordConfirm) {
+                    showError("register", "Please fill in all fields");
+                    return;
+                }
+
+                if (username.length < 3) {
+                    showError("register", "Username must be at least 3 characters");
+                    return;
+                }
+
+                if (password.length < 6) {
+                    showError("register", "Password must be at least 6 characters");
+                    return;
+                }
+
+                if (password !== passwordConfirm) {
+                    showError("register", "Passwords don't match");
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`${API_ROOT}/auth/register`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ username, password }),
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        showSuccess(`Welcome, ${username}! Redirecting...`);
+                        setTimeout(() => {
+                            window.location.href = "/";
+                        }, 1000);
+                    } else {
+                        showError("register", data.error || "Registration failed");
+                    }
+                } catch (err) {
+                    console.error("Register error:", err);
+                    showError("register", "Network error. Please try again.");
+                }
+            }
+
+            // Event listeners
+            document.getElementById("toggleLink").addEventListener("click", toggleMode);
+            document.getElementById("loginBtn").addEventListener("click", handleLogin);
+            document.getElementById("registerBtn").addEventListener("click", handleRegister);
+
+            // Enter key handlers
+            document.getElementById("loginPassword").addEventListener("keypress", (e) => {
+                if (e.key === "Enter") handleLogin();
+            });
+
+            document.getElementById("registerPasswordConfirm").addEventListener("keypress", (e) => {
+                if (e.key === "Enter") handleRegister();
+            });
+
+            // Check if already authenticated on page load
+            checkAuth();
+        </script>
+    </body>
+</html>
