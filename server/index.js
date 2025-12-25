@@ -402,7 +402,8 @@ function computePriorities(tasks, nowIso = new Date(), config = {}) {
     if (typeof task.urgency === "number" && !isNaN(task.urgency)) {
       return Math.max(0, Math.min(100, Math.round(task.urgency)));
     }
-    const dl = task.deadline;
+    // Use deadline or scheduledDueAt for urgency calculation
+    const dl = task.deadline || task.scheduledDueAt;
     if (!dl) return 0;
     const d = new Date(dl);
     if (isNaN(d.getTime())) return 0;
@@ -657,7 +658,10 @@ app.post("/tasks", requireAuth, async (req, res) => {
 
       recomputeAllPriorities(tasks);
       saveTasks(tasks);
-      return newTask;
+
+      // Return the updated task with computed priorities
+      const updatedTask = tasks.find((t) => t.id === newTask.id);
+      return updatedTask || newTask;
     });
     res.status(201).json(created);
   } catch (err) {
