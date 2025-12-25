@@ -27,7 +27,7 @@ app.use(
       maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
       httpOnly: true,
     },
-  })
+  }),
 );
 
 // Serve static files AFTER session setup
@@ -483,11 +483,15 @@ app.post("/auth/register", async (req, res) => {
     }
 
     if (username.length < 3) {
-      return res.status(400).json({ error: "Username must be at least 3 characters" });
+      return res
+        .status(400)
+        .json({ error: "Username must be at least 3 characters" });
     }
 
     if (password.length < 6) {
-      return res.status(400).json({ error: "Password must be at least 6 characters" });
+      return res
+        .status(400)
+        .json({ error: "Password must be at least 6 characters" });
     }
 
     const users = loadUsers();
@@ -956,10 +960,6 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
 /* block/suspend/dependencies/remedy/delete handlers unchanged (keep existing semantics) */
 
 app.patch("/tasks/:id/block", requireAuth, async (req, res) => {
-</text>
-
-<old_text line=827>
-app.patch("/tasks/:id/block", requireAuth, async (req, res) => {
   try {
     const updated = await enqueueMutation(async () => {
       const tasks = loadTasks();
@@ -1022,10 +1022,6 @@ app.patch("/tasks/:id/suspend", requireAuth, async (req, res) => {
 });
 
 app.post("/tasks/:id/dependencies", requireAuth, async (req, res) => {
-</text>
-
-<old_text line=899>
-app.post("/tasks/:id/remedy", requireAuth, async (req, res) => {
   try {
     const updated = await enqueueMutation(async () => {
       const tasks = loadTasks();
@@ -1151,10 +1147,6 @@ app.get("/tasks/active", (req, res) => {
   res.json(activeTasks);
 });
 
-app.delete("/tasks/:id", requireAuth, async (req, res) => {
-</text>
-
-<old_text line=1015>
 app.delete("/tasks/:id", requireAuth, async (req, res) => {
   try {
     const result = await enqueueMutation(async () => {
@@ -1349,8 +1341,6 @@ app.get("/wip-limits", (req, res) => {
 });
 
 app.patch("/wip-limits", requireAuth, async (req, res) => {
-</text>
-
   try {
     const updated = await enqueueMutation(async () => {
       const limits = loadWipLimits();

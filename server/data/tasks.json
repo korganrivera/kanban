@@ -15,7 +15,7 @@
     "updated_at": "2025-12-11T20:42:12.515Z",
     "meta": {},
     "priority": 57,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false
   },
@@ -56,8 +56,8 @@
     "created_at": "2025-12-11T20:20:26.009Z",
     "updated_at": "2025-12-11T20:41:15.620Z",
     "meta": {},
-    "priority": 73,
-    "importancePercentile": 89,
+    "priority": 74,
+    "importancePercentile": 90,
     "importanceRaw": 1.5,
     "deadlock": false
   },
@@ -93,7 +93,7 @@
     "updated_at": "2025-12-12T19:55:03.910Z",
     "meta": {},
     "priority": 41,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -135,7 +135,7 @@
     "updated_at": "2025-12-12T19:09:26.387Z",
     "meta": {},
     "priority": 69,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -177,7 +177,7 @@
     "updated_at": "2025-12-11T20:26:10.743Z",
     "meta": {},
     "priority": 57,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false
   },
@@ -195,7 +195,7 @@
     "updated_at": "2025-12-12T19:54:21.174Z",
     "meta": {},
     "priority": 45,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -237,7 +237,7 @@
     "updated_at": "2025-12-12T19:09:36.994Z",
     "meta": {},
     "priority": 53,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -283,7 +283,7 @@
       "block_note": "needs grease"
     },
     "priority": 53,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -333,7 +333,7 @@
       "block_note": ""
     },
     "priority": 57,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false
   },
@@ -354,7 +354,7 @@
       "block_note": "hose fucked"
     },
     "priority": 37,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false
   },
@@ -371,7 +371,7 @@
     "updated_at": "2025-12-12T20:05:14.242Z",
     "meta": {},
     "priority": 37,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -475,7 +475,7 @@
     },
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -566,7 +566,7 @@
     },
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "points_snapshot": 0,
@@ -635,7 +635,7 @@
     "meta": {},
     "priority": 77,
     "urgency": 100,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -714,7 +714,7 @@
     },
     "priority": 77,
     "urgency": 100,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "awarded": {
@@ -765,7 +765,7 @@
     },
     "priority": 77,
     "urgency": 100,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "points_snapshot": 40,
@@ -854,7 +854,7 @@
     },
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "points_snapshot": 0,
@@ -912,7 +912,7 @@
     "meta": {},
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "awarded": {
@@ -935,7 +935,7 @@
     "meta": {},
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "awarded": {
@@ -998,7 +998,7 @@
     "meta": {},
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "awarded": {
@@ -1023,7 +1023,7 @@
     "meta": {},
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "awarded": {
@@ -1168,9 +1168,9 @@
     "created_at": "2025-12-13T00:52:26.274Z",
     "updated_at": "2025-12-13T01:04:49.917Z",
     "meta": {},
-    "priority": 53,
+    "priority": 54,
     "urgency": 0,
-    "importancePercentile": 89,
+    "importancePercentile": 90,
     "importanceRaw": 1.5,
     "deadlock": false,
     "points_snapshot": 36,
@@ -1240,7 +1240,7 @@
     "meta": {},
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "points_snapshot": 0,
@@ -1274,7 +1274,7 @@
     "meta": {},
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -1353,18 +1353,18 @@
     "id": "1765801371585-21028",
     "title": "wash dishes",
     "description": "",
-    "state": "Ready",
+    "state": "InProgress",
     "deadline": "2025-12-16T06:00:00.000Z",
     "dependencies": [
       "1765671766291-64705"
     ],
-    "picker": null,
+    "picker": "alice",
     "created_at": "2025-12-15T12:22:51.585Z",
-    "updated_at": "2025-12-25T16:31:56.631Z",
+    "updated_at": "2025-12-25T17:13:50.838Z",
     "meta": {},
     "priority": 76,
     "urgency": 98,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "scheduledDueAt": "2025-12-25T12:36:00.000Z",
@@ -1374,12 +1374,17 @@
       "type": "rolling",
       "intervalDays": 7
     },
-    "points_snapshot_created_by": null,
+    "points_snapshot_created_by": "alice",
     "points_history": [
       {
         "ts": "2025-12-24T23:38:28.172Z",
         "snapshot": 73,
         "by": null
+      },
+      {
+        "ts": "2025-12-25T17:13:50.838Z",
+        "snapshot": 76,
+        "by": "alice"
       }
     ],
     "picker_history": [
@@ -1392,6 +1397,11 @@
         "ts": "2025-12-25T00:30:22.045Z",
         "picker": "Korgan",
         "action": "picked"
+      },
+      {
+        "ts": "2025-12-25T17:13:50.836Z",
+        "picker": "alice",
+        "action": "picked"
       }
     ],
     "lastCompletedAt": "2025-12-25T00:36:25.273Z",
@@ -1400,7 +1410,10 @@
       "points": 73,
       "ts": "2025-12-25T00:36:25.275Z"
     },
-    "points_snapshot_awarded": true
+    "points_snapshot_awarded": true,
+    "points_snapshot": 76,
+    "points_snapshot_created_at": "2025-12-25T17:13:50.838Z",
+    "picked_at": "2025-12-25T17:13:50.838Z"
   },
   {
     "id": "1765978957601-41837",
@@ -1418,7 +1431,7 @@
     },
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -1530,7 +1543,7 @@
     ],
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "meta": {
@@ -1562,7 +1575,7 @@
     "updated_at": "2025-12-24T12:41:35.449Z",
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false
   },
@@ -1578,7 +1591,7 @@
     "meta": {},
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -1661,7 +1674,7 @@
     "meta": {},
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "scheduledDueAt": "2025-12-23T19:00:00.000Z",
@@ -1708,7 +1721,7 @@
     "meta": {},
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "scheduledDueAt": null,
@@ -1750,7 +1763,7 @@
     "meta": {},
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -1795,7 +1808,7 @@
     },
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "points_snapshot": 38,
@@ -1842,7 +1855,7 @@
     "meta": {},
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -1883,7 +1896,7 @@
     "meta": {},
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -1924,7 +1937,7 @@
     "meta": {},
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -1965,7 +1978,7 @@
     "meta": {},
     "priority": 37,
     "urgency": 0,
-    "importancePercentile": 61,
+    "importancePercentile": 62,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -2061,9 +2074,9 @@
     "updated_at": "2025-12-25T16:22:07.162Z",
     "meta": {},
     "remedy_for": "1766675501479-74550",
-    "priority": 53,
+    "priority": 54,
     "urgency": 0,
-    "importancePercentile": 89,
+    "importancePercentile": 90,
     "importanceRaw": 1.5,
     "deadlock": false,
     "scheduledDueAt": "2025-12-25T14:00:00.000Z",
@@ -2092,5 +2105,58 @@
       "ts": "2025-12-25T16:22:07.168Z"
     },
     "points_snapshot_awarded": true
+  },
+  {
+    "id": "1766681875640-99686",
+    "title": "eat a bun",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-25T16:57:55.640Z",
+    "updated_at": "2025-12-25T16:58:17.710Z",
+    "created_by": "alice",
+    "meta": {},
+    "priority": 37,
+    "urgency": 0,
+    "importancePercentile": 62,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "scheduledDueAt": null
+  },
+  {
+    "id": "1766681972419-6500",
+    "title": "bob says hello",
+    "description": "",
+    "state": "InProgress",
+    "dependencies": [],
+    "picker": "alice",
+    "created_at": "2025-12-25T16:59:32.419Z",
+    "updated_at": "2025-12-25T17:14:01.111Z",
+    "created_by": "bob",
+    "meta": {},
+    "priority": 37,
+    "urgency": 0,
+    "importancePercentile": 62,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2025-12-25T17:14:01.110Z",
+        "picker": "alice",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 37,
+    "points_snapshot_created_at": "2025-12-25T17:14:01.111Z",
+    "points_snapshot_created_by": "alice",
+    "picked_at": "2025-12-25T17:14:01.111Z",
+    "points_history": [
+      {
+        "ts": "2025-12-25T17:14:01.111Z",
+        "snapshot": 37,
+        "by": "alice"
+      }
+    ]
   }
 ]
