@@ -309,6 +309,21 @@
                     </button>
                     <div
                         class="small"
+                        id="currentUser"
+                        style="color: var(--accent-2); display: none"
+                    >
+                        👤 <span id="username"></span>
+                    </div>
+                    <button
+                        id="logoutBtn"
+                        class="ghost"
+                        title="Logout"
+                        style="display: none"
+                    >
+                        Logout
+                    </button>
+                    <div
+                        class="small"
                         id="wsStatus"
                         style="color: var(--muted)"
                     >
@@ -457,6 +472,9 @@
 
             <label style="margin-top: 10px">Claimed by</label>
             <div id="sb_claimed" class="muted-small">—</div>
+
+            <label style="margin-top: 10px">Created by</label>
+            <div id="sb_created_by" class="muted-small">—</div>
 
             <label style="margin-top: 10px">Created</label>
             <div id="sb_created" class="muted-small">—</div>
@@ -1418,6 +1436,10 @@
                     ? String(task.picker)
                     : "—";
 
+                // Show created by
+                document.getElementById("sb_created_by").textContent =
+                    task.created_by ? String(task.created_by) : "—";
+
                 // Show created date and age
                 document.getElementById("sb_created").textContent =
                     task.created_at ? fmtDate(task.created_at) : "—";
@@ -1890,12 +1912,52 @@
                 .getElementById("saveSettings")
                 .addEventListener("click", saveSettings);
 
-            /* ---------------- Init ---------------- */
-            enableColumnDrops();
-            loadWipLimits().then(() => {
-                fetchAndRender(); // Initial load via HTTP after WIP limits loaded
-            });
-            connectWebSocket(); // Connect WebSocket for real-time updates
+            /* ---------------- Auth check and init ---------------- */
+            async function checkAuthAndInit() {
+                try {
+                    const res = await fetch(`${API_ROOT}/auth/whoami`);
+                    const data = await res.json();
+
+                    if (!data.authenticated) {
+                        window.location.href = "/login.html";
+                        return;
+                    }
+
+                    // Show user info
+                    document.getElementById("username").textContent =
+                        data.username;
+                    document.getElementById("currentUser").style.display =
+                        "block";
+                    document.getElementById("logoutBtn").style.display =
+                        "block";
+
+                    // Initialize app
+                    enableColumnDrops();
+                    await loadWipLimits();
+                    fetchAndRender();
+                    connectWebSocket();
+                } catch (err) {
+                    console.error("Auth check failed:", err);
+                    window.location.href = "/login.html";
+                }
+            }
+
+            // Logout handler
+            document
+                .getElementById("logoutBtn")
+                .addEventListener("click", async () => {
+                    try {
+                        await fetch(`${API_ROOT}/auth/logout`, {
+                            method: "POST",
+                        });
+                        window.location.href = "/login.html";
+                    } catch (err) {
+                        console.error("Logout error:", err);
+                        toast("Logout failed");
+                    }
+                });
+
+            checkAuthAndInit();
         </script>
     </body>
 </html>
