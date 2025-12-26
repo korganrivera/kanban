@@ -1,5 +1,7 @@
 # Kanban Board
 
+![Kanban Board Screenshot](kanban_screenshot.png)
+
 A real-time collaborative Kanban board with multi-user authentication, recurring tasks, dependency management, and intelligent priority calculation.
 
 ## Features

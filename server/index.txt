@@ -196,28 +196,7 @@ function computeEffectiveState(task, allTasks = [], now = new Date()) {
   const scheduledAt = parseDateSafe(task.scheduledDueAt);
   const readyAtIso = calcReadyAt(task);
   const readyAt = parseDateSafe(readyAtIso);
-
-  // Determine overdue:
-  // - For recurring tasks with a numeric intervalDays, consider overdue only
-  //   when now is past scheduledAt + (intervalDays / 2).
-  // - For non-recurring tasks, keep original behavior (now >= scheduledAt).
-  let overdue = false;
-  if (scheduledAt) {
-    overdue = false;
-    if (task.recurrence && typeof task.recurrence === "object") {
-      const intervalDays =
-        Number(task.recurrence.intervalDays ?? task.recurrence.interval ?? 0) || 0;
-      if (intervalDays > 0) {
-        const halfMs = (intervalDays / 2) * 24 * 60 * 60 * 1000;
-        overdue = now.getTime() >= scheduledAt.getTime() + halfMs;
-      } else {
-        // no interval -> fall back to strict due-time overdue
-        overdue = now.getTime() >= scheduledAt.getTime();
-      }
-    } else {
-      overdue = now.getTime() >= scheduledAt.getTime();
-    }
-  }
+  const overdue = scheduledAt ? now.getTime() >= scheduledAt.getTime() : false;
 
   if (task.state === "Done") {
     return {
@@ -297,11 +276,6 @@ function computeEffectiveState(task, allTasks = [], now = new Date()) {
     overdue,
   };
 }
-
-
-
-
-
 
 /* -------------------- user points -------------------- */
 
@@ -425,84 +399,69 @@ function computePriorities(tasks, nowIso = new Date(), config = {}) {
   const allRaw = Array.from(rawR.values()).sort((a, b) => a - b);
 
   function rawToPercentile(val) {
-    // If there is only one value, or none, return 0 (no meaningful percentile)
     if (allRaw.length <= 1) return 0;
-  
-    // Count how many values are strictly less than val
-    const lessCount = allRaw.filter((v) => v < val).length;
-  
-    // Use denom = allRaw.length - 1 so the max possible percentile is 100
+    const lessOrEqual = allRaw.filter((v) => v <= val).length;
     const denom = allRaw.length - 1;
-    const pct = denom > 0 ? (lessCount / denom) * 100 : 0;
-  
+    const pct = denom > 0 ? ((lessOrEqual - 1) / denom) * 100 : 0;
     return Math.max(0, Math.min(100, Math.round(pct)));
   }
 
   /* ---------- urgency calculation (UPDATED) ---------- */
 
-function computeUrgency(task) {
-  // 1. Hard deadline always wins
-  if (task.deadline) {
-    const d = new Date(task.deadline);
-    if (isNaN(d.getTime())) return 0;
-    const msLeft = d.getTime() - now.getTime();
-    const daysLeft = msLeft / (1000 * 60 * 60 * 24);
-    if (daysLeft <= 0) return 100;
-    if (daysLeft >= cfg.MAX_WINDOW) return 0;
-    return Math.max(
-      0,
-      Math.min(100, Math.round(100 * (1 - daysLeft / cfg.MAX_WINDOW))),
-    );
-  }
-
-  // 2. Rolling recurrence urgency grows as the due date approaches
-  if (task.scheduledDueAt) {
-    const d = new Date(task.scheduledDueAt);
-    if (isNaN(d.getTime())) return 0;
-
-    const isRolling =
-      task.recurrence &&
-      typeof task.recurrence === "object" &&
-      task.recurrence.type === "rolling";
-
-    const intervalDays =
-      Number(
-        (task.recurrence && task.recurrence.intervalDays) ??
-          (task.recurrence && task.recurrence.interval) ??
-          0,
-      ) || 0;
-
-    if (isRolling && intervalDays > 0) {
-      // urgency should grow during the interval *leading up to* scheduledDueAt
-      const msUntil = d.getTime() - now.getTime();
-      const daysUntil = msUntil / (1000 * 60 * 60 * 24);
-
-      if (daysUntil <= 0) return 100; // past due -> max urgency
-      if (daysUntil >= intervalDays) return 0; // far away -> no urgency
-      // scale from 0 -> 100 as we go from intervalDays -> 0
+  function computeUrgency(task) {
+    // 1. Hard deadline always wins
+    if (task.deadline) {
+      const d = new Date(task.deadline);
+      if (isNaN(d.getTime())) return 0;
+      const msLeft = d.getTime() - now.getTime();
+      const daysLeft = msLeft / (1000 * 60 * 60 * 24);
+      if (daysLeft <= 0) return 100;
+      if (daysLeft >= cfg.MAX_WINDOW) return 0;
       return Math.max(
         0,
-        Math.min(100, Math.round(100 * (1 - daysUntil / intervalDays))),
+        Math.min(100, Math.round(100 * (1 - daysLeft / cfg.MAX_WINDOW))),
       );
     }
 
-    // 3. Fallback: soft deadline behavior (non-rolling)
-    const msLeft = d.getTime() - now.getTime();
-    const daysLeft = msLeft / (1000 * 60 * 60 * 24);
-    if (daysLeft <= 0) return 100;
-    if (daysLeft >= cfg.MAX_WINDOW) return 0;
-    return Math.max(
-      0,
-      Math.min(100, Math.round(100 * (1 - daysLeft / cfg.MAX_WINDOW))),
-    );
+    // 2. Rolling recurrence urgency grows over its interval
+    if (task.scheduledDueAt) {
+      const d = new Date(task.scheduledDueAt);
+      if (isNaN(d.getTime())) return 0;
+
+      const isRolling =
+        task.recursionType === 'rolling' ||
+        task.recursion_type === 'rolling' ||
+        task.recurring === true;
+
+      const intervalDays = Number(task.interval_days ?? task.interval ?? 0);
+
+      if (isRolling && intervalDays > 0) {
+        const ageMs = now.getTime() - d.getTime();
+        const ageDays = ageMs / (1000 * 60 * 60 * 24);
+
+        if (ageDays <= 0) return 0;
+        if (ageDays < intervalDays) {
+          return Math.max(
+            0,
+            Math.min(100, Math.round(100 * (ageDays / intervalDays))),
+          );
+        }
+        return 100;
+      }
+
+      // 3. Fallback: soft deadline behavior
+      const msLeft = d.getTime() - now.getTime();
+      const daysLeft = msLeft / (1000 * 60 * 60 * 24);
+      if (daysLeft <= 0) return 100;
+      if (daysLeft >= cfg.MAX_WINDOW) return 0;
+      return Math.max(
+        0,
+        Math.min(100, Math.round(100 * (1 - daysLeft / cfg.MAX_WINDOW))),
+      );
+    }
+
+    return 0;
   }
-
-  return 0;
-}
-
-
-
-
 
   /* ---------- final priority ---------- */
 

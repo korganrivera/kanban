@@ -168,11 +168,42 @@
   "alice": {
     "username": "alice",
     "password": "$2b$10$F2bRy9b1kcG.BEHLVm2y5OXALS11Jzz1tVdtpIhGZ9hZCeC86UDfS",
-    "created_at": "2025-12-25T16:55:49.826Z"
+    "created_at": "2025-12-25T16:55:49.826Z",
+    "points": 140,
+    "history": [
+      {
+        "ts": "2025-12-25T18:40:14.274Z",
+        "points": 70,
+        "reason": "Completed task 1766687899798-27627 (another test)"
+      },
+      {
+        "ts": "2025-12-25T18:40:22.031Z",
+        "points": 70,
+        "reason": "Completed task 1766687484687-45034 (Do things)"
+      }
+    ]
   },
   "bob": {
     "username": "bob",
     "password": "$2b$10$0GOQz6IzIhYXWwa/xK3UaeosL0zBKm5EiPDnRJge3J/ACkru9RhQS",
     "created_at": "2025-12-25T16:59:04.926Z"
+  },
+  "korgan": {
+    "username": "korgan",
+    "password": "$2b$10$q01s7J.J9JemviWGZTjR.e9t/r7wqxNdK6V6sCJKB51Rv9nPqjWoK",
+    "created_at": "2025-12-25T22:00:39.874Z",
+    "points": 200,
+    "history": [
+      {
+        "ts": "2025-12-25T23:28:59.985Z",
+        "points": 100,
+        "reason": "Completed task 1766702114680-49141 (Check coop for eggs)"
+      },
+      {
+        "ts": "2025-12-26T00:53:35.774Z",
+        "points": 100,
+        "reason": "Completed task 1766706533093-22404 (Check coop for eggs)"
+      }
+    ]
   }
 }
