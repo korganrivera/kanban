@@ -1,13 +1,13 @@
 [
   {
     "id": "1766700156391-6172",
-    "title": "germinate celery",
+    "title": "sow celery outside",
     "description": "",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:02:36.391Z",
-    "updated_at": "2025-12-25T22:02:36.391Z",
+    "updated_at": "2025-12-26T12:46:20.278Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -17,7 +17,7 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-04-01T05:00:00.000Z",
+    "scheduledDueAt": "2026-04-08T05:00:00.000Z",
     "priority": 0,
     "urgency": 0,
     "importancePercentile": 0,
@@ -32,7 +32,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:03:16.887Z",
-    "updated_at": "2025-12-25T22:04:28.801Z",
+    "updated_at": "2025-12-26T13:02:20.695Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -42,7 +42,7 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-04-08T05:00:00.000Z",
+    "scheduledDueAt": "2026-03-15T05:00:00.000Z",
     "priority": 0,
     "urgency": 0,
     "importancePercentile": 0,
@@ -93,8 +93,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-01-22T06:00:00.000Z",
-    "priority": 4,
-    "urgency": 9,
+    "priority": 14,
+    "urgency": 34,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -132,7 +132,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:06:09.474Z",
-    "updated_at": "2025-12-25T22:06:09.474Z",
+    "updated_at": "2025-12-26T12:54:36.604Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -142,7 +142,7 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-02-15T06:00:00.000Z",
+    "scheduledDueAt": "2026-02-22T06:00:00.000Z",
     "priority": 0,
     "urgency": 0,
     "importancePercentile": 0,
@@ -157,7 +157,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:06:47.477Z",
-    "updated_at": "2025-12-25T22:06:47.477Z",
+    "updated_at": "2025-12-26T12:52:26.466Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -167,7 +167,7 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-02-22T06:00:00.000Z",
+    "scheduledDueAt": "2026-02-08T06:00:00.000Z",
     "priority": 0,
     "urgency": 0,
     "importancePercentile": 0,
@@ -257,7 +257,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:08:39.392Z",
-    "updated_at": "2025-12-25T22:08:39.392Z",
+    "updated_at": "2025-12-26T12:58:12.592Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -267,7 +267,7 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-03-01T06:00:00.000Z",
+    "scheduledDueAt": "2026-05-15T05:00:00.000Z",
     "priority": 0,
     "urgency": 0,
     "importancePercentile": 0,
@@ -282,7 +282,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:09:02.478Z",
-    "updated_at": "2025-12-25T22:09:02.478Z",
+    "updated_at": "2025-12-26T12:58:34.034Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -292,7 +292,7 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-03-01T06:00:00.000Z",
+    "scheduledDueAt": "2026-03-08T06:00:00.000Z",
     "priority": 0,
     "urgency": 0,
     "importancePercentile": 0,
@@ -307,7 +307,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:09:30.149Z",
-    "updated_at": "2025-12-25T22:09:30.149Z",
+    "updated_at": "2025-12-26T12:52:53.403Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -317,7 +317,7 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-02-22T06:00:00.000Z",
+    "scheduledDueAt": "2026-02-08T06:00:00.000Z",
     "priority": 0,
     "urgency": 0,
     "importancePercentile": 0,
@@ -426,13 +426,13 @@
   },
   {
     "id": "1766700697865-7908",
-    "title": "sow onions",
+    "title": "sow/transplant onions",
     "description": "",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:11:37.865Z",
-    "updated_at": "2025-12-25T22:11:37.865Z",
+    "updated_at": "2025-12-26T12:48:10.062Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -557,7 +557,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:13:44.396Z",
-    "updated_at": "2025-12-25T22:13:44.396Z",
+    "updated_at": "2025-12-26T12:51:04.308Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -567,32 +567,7 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-03-08T06:00:00.000Z",
-    "priority": 0,
-    "urgency": 0,
-    "importancePercentile": 0,
-    "importanceRaw": 0,
-    "deadlock": false
-  },
-  {
-    "id": "1766700853460-96889",
-    "title": "sow or transplant celery outside",
-    "description": "",
-    "state": "Ready",
-    "dependencies": [],
-    "picker": null,
-    "created_at": "2025-12-25T22:14:13.460Z",
-    "updated_at": "2025-12-25T22:14:13.460Z",
-    "created_by": "korgan",
-    "meta": {},
-    "recurrence": {
-      "type": "anchored",
-      "intervalDays": 365,
-      "weekdays": [],
-      "leadTimeDays": 7,
-      "paused": false
-    },
-    "scheduledDueAt": "2026-04-08T05:00:00.000Z",
+    "scheduledDueAt": "2026-03-15T05:00:00.000Z",
     "priority": 0,
     "urgency": 0,
     "importancePercentile": 0,
@@ -607,7 +582,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:14:52.582Z",
-    "updated_at": "2025-12-25T22:14:52.582Z",
+    "updated_at": "2025-12-26T12:47:45.716Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -617,7 +592,7 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-04-08T05:00:00.000Z",
+    "scheduledDueAt": "2026-04-22T05:00:00.000Z",
     "priority": 0,
     "urgency": 0,
     "importancePercentile": 0,
@@ -682,7 +657,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:18:11.544Z",
-    "updated_at": "2025-12-25T22:18:11.544Z",
+    "updated_at": "2025-12-26T12:52:07.140Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -692,7 +667,7 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-04-15T05:00:00.000Z",
+    "scheduledDueAt": "2026-04-22T05:00:00.000Z",
     "priority": 0,
     "urgency": 0,
     "importancePercentile": 0,
@@ -732,7 +707,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:19:07.281Z",
-    "updated_at": "2025-12-25T22:19:07.281Z",
+    "updated_at": "2025-12-26T13:02:34.381Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -742,7 +717,7 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-05-22T05:00:00.000Z",
+    "scheduledDueAt": "2026-04-15T05:00:00.000Z",
     "priority": 0,
     "urgency": 0,
     "importancePercentile": 0,
@@ -753,13 +728,17 @@
     "id": "1766701208210-75737",
     "title": "germinate celery",
     "description": "",
-    "state": "Ready",
-    "dependencies": [],
-    "picker": null,
+    "state": "Suspended",
+    "dependencies": [
+      "1767294627154-26489"
+    ],
+    "picker": "korgan",
     "created_at": "2025-12-25T22:20:08.210Z",
-    "updated_at": "2025-12-25T22:20:08.210Z",
+    "updated_at": "2026-01-01T19:10:27.154Z",
     "created_by": "korgan",
-    "meta": {},
+    "meta": {
+      "block_note": "Need to clear tables in garage"
+    },
     "recurrence": {
       "type": "anchored",
       "intervalDays": 365,
@@ -767,22 +746,40 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-05-01T05:00:00.000Z",
-    "priority": 0,
-    "urgency": 0,
+    "scheduledDueAt": "2026-01-08T06:00:00.000Z",
+    "priority": 32,
+    "urgency": 81,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-01T19:08:26.509Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 31,
+    "points_snapshot_created_at": "2026-01-01T19:08:26.510Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-01T19:08:26.510Z",
+    "points_history": [
+      {
+        "ts": "2026-01-01T19:08:26.510Z",
+        "snapshot": 31,
+        "by": "korgan"
+      }
+    ]
   },
   {
     "id": "1766701245085-55141",
-    "title": "replce shelling peas with cowpeas",
+    "title": "replace shelling peas with cowpeas",
     "description": "",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:20:45.085Z",
-    "updated_at": "2025-12-25T22:20:45.085Z",
+    "updated_at": "2025-12-26T13:04:08.780Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -792,7 +789,7 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-05-30T05:00:00.000Z",
+    "scheduledDueAt": "2026-04-22T05:00:00.000Z",
     "priority": 0,
     "urgency": 0,
     "importancePercentile": 0,
@@ -932,7 +929,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:23:23.667Z",
-    "updated_at": "2025-12-25T22:23:23.667Z",
+    "updated_at": "2025-12-26T12:57:39.072Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -942,7 +939,7 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-08-08T05:00:00.000Z",
+    "scheduledDueAt": "2026-08-15T05:00:00.000Z",
     "priority": 0,
     "urgency": 0,
     "importancePercentile": 0,
@@ -1031,7 +1028,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:25:39.586Z",
-    "updated_at": "2025-12-25T22:25:39.587Z",
+    "updated_at": "2025-12-26T13:05:22.453Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -1041,7 +1038,7 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-08-22T05:00:00.000Z",
+    "scheduledDueAt": "2026-11-08T06:00:00.000Z",
     "priority": 0,
     "urgency": 0,
     "importancePercentile": 0,
@@ -1099,31 +1096,6 @@
     "deadlock": false
   },
   {
-    "id": "1766701700335-56710",
-    "title": "transplant kale",
-    "description": "",
-    "state": "Ready",
-    "dependencies": [],
-    "picker": null,
-    "created_at": "2025-12-25T22:28:20.335Z",
-    "updated_at": "2025-12-25T22:28:20.335Z",
-    "created_by": "korgan",
-    "meta": {},
-    "recurrence": {
-      "type": "anchored",
-      "intervalDays": 365,
-      "weekdays": [],
-      "leadTimeDays": 7,
-      "paused": false
-    },
-    "scheduledDueAt": "2026-03-22T05:00:00.000Z",
-    "priority": 0,
-    "urgency": 0,
-    "importancePercentile": 0,
-    "importanceRaw": 0,
-    "deadlock": false
-  },
-  {
     "id": "1766701739627-14299",
     "title": "order seeds for next year",
     "description": "",
@@ -1156,12 +1128,12 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:29:40.672Z",
-    "updated_at": "2025-12-25T22:29:40.672Z",
+    "updated_at": "2026-01-01T19:17:16.742Z",
     "created_by": "korgan",
     "meta": {},
-    "scheduledDueAt": "2026-01-01T06:00:00.000Z",
-    "priority": 32,
-    "urgency": 79,
+    "scheduledDueAt": "2026-01-01T19:00:00.000Z",
+    "priority": 40,
+    "urgency": 100,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1199,7 +1171,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T23:48:53.093Z",
-    "updated_at": "2025-12-26T00:59:04.331Z",
+    "updated_at": "2026-01-02T10:36:46.441Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -1208,15 +1180,30 @@
       "leadTimeDays": 0,
       "paused": false
     },
-    "scheduledDueAt": "2025-12-26T00:53:00.000Z",
-    "priority": 40,
-    "urgency": 100,
+    "scheduledDueAt": "2026-01-02T22:30:00.000Z",
+    "priority": 33,
+    "urgency": 83,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
       {
         "ts": "2025-12-26T00:53:29.886Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2025-12-26T11:01:37.422Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2025-12-28T01:07:36.511Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2025-12-31T00:26:43.792Z",
         "picker": "korgan",
         "action": "picked"
       }
@@ -1227,14 +1214,365 @@
         "ts": "2025-12-26T00:53:29.886Z",
         "snapshot": 100,
         "by": "korgan"
+      },
+      {
+        "ts": "2025-12-26T11:01:37.424Z",
+        "snapshot": 40,
+        "by": "korgan"
+      },
+      {
+        "ts": "2025-12-28T01:07:36.515Z",
+        "snapshot": 40,
+        "by": "korgan"
+      },
+      {
+        "ts": "2025-12-31T00:26:43.796Z",
+        "snapshot": 40,
+        "by": "korgan"
       }
     ],
-    "lastCompletedAt": "2025-12-26T00:53:35.774Z",
+    "lastCompletedAt": "2025-12-31T00:26:46.037Z",
     "awarded": {
       "to": "korgan",
-      "points": 100,
-      "ts": "2025-12-26T00:53:35.774Z"
+      "points": 40,
+      "ts": "2025-12-31T00:26:46.038Z"
     },
     "points_snapshot_awarded": true
+  },
+  {
+    "id": "1766753376036-95907",
+    "title": "germinate onions",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-26T12:49:36.036Z",
+    "updated_at": "2025-12-26T12:49:36.036Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 7,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-01-22T06:00:00.000Z",
+    "priority": 14,
+    "urgency": 34,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1766753502851-89388",
+    "title": "sow cabbages",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-26T12:51:42.851Z",
+    "updated_at": "2025-12-26T12:51:42.851Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 7,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-07-22T05:00:00.000Z",
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1766753606372-52047",
+    "title": "transplant lettuce",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-26T12:53:26.372Z",
+    "updated_at": "2025-12-26T12:53:26.372Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 7,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-03-08T06:00:00.000Z",
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1766753646472-43385",
+    "title": "sow lettuce outside",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-26T12:54:06.472Z",
+    "updated_at": "2025-12-26T12:54:06.472Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 7,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-03-22T05:00:00.000Z",
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1766753718487-51541",
+    "title": "transplant broccoli",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-26T12:55:18.487Z",
+    "updated_at": "2025-12-26T12:55:18.487Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 7,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-03-22T05:00:00.000Z",
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1766753755106-77118",
+    "title": "sow broccoli outside",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-26T12:55:55.106Z",
+    "updated_at": "2025-12-26T12:55:55.106Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 7,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-07-22T05:00:00.000Z",
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1766753800394-53847",
+    "title": "transplant greens",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-26T12:56:40.394Z",
+    "updated_at": "2025-12-26T12:56:40.394Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 7,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-03-15T05:00:00.000Z",
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1766754015125-85202",
+    "title": "plant potatoes",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-26T13:00:15.125Z",
+    "updated_at": "2025-12-26T13:00:15.125Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 7,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-03-08T06:00:00.000Z",
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1766754077258-12040",
+    "title": "transplant winter squash",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-26T13:01:17.258Z",
+    "updated_at": "2025-12-26T13:01:17.258Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 7,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-04-15T05:00:00.000Z",
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1766754114764-85386",
+    "title": "transplant summer squash",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-26T13:01:54.764Z",
+    "updated_at": "2025-12-26T13:01:54.764Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 7,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-04-15T05:00:00.000Z",
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1766754296179-93047",
+    "title": "sow sweet potatoes",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-26T13:04:56.179Z",
+    "updated_at": "2025-12-26T13:04:56.179Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 7,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-04-22T05:00:00.000Z",
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1766754406067-57143",
+    "title": "transplant kale",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2025-12-26T13:06:46.067Z",
+    "updated_at": "2025-12-26T13:07:03.081Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 7,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-03-22T05:00:00.000Z",
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1767294627154-26489",
+    "title": "Clear tables in garage",
+    "description": "Remedy for: germinate celery",
+    "state": "InProgress",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-01-01T19:10:27.154Z",
+    "updated_at": "2026-01-02T14:09:32.116Z",
+    "created_by": "korgan",
+    "meta": {},
+    "remedy_for": "1766701208210-75737",
+    "priority": 60,
+    "urgency": 0,
+    "importancePercentile": 100,
+    "importanceRaw": 1,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-02T14:09:32.115Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 60,
+    "points_snapshot_created_at": "2026-01-02T14:09:32.116Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-02T14:09:32.116Z",
+    "points_history": [
+      {
+        "ts": "2026-01-02T14:09:32.116Z",
+        "snapshot": 60,
+        "by": "korgan"
+      }
+    ]
   }
 ]

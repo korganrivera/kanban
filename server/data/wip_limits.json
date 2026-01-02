@@ -1,8 +1,8 @@
 {
-  "Ready": null,
-  "InProgress": 5,
-  "Blocked": 10,
-  "Suspended": null,
+  "Ready": 4,
+  "InProgress": 2,
+  "Blocked": 2,
+  "Suspended": 3,
   "Waiting": null,
   "Done": null
 }
