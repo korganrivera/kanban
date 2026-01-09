@@ -1253,35 +1253,132 @@ app.get("/tasks/active", (req, res) => {
 
 app.delete("/tasks/:id", requireAuth, async (req, res) => {
   try {
+    const confirm =
+      (req.query && req.query.confirm === "true") ||
+      (req.body && req.body.confirm === true) ||
+      (req.get && req.get("X-Confirm-Delete") === "1");
+
     const result = await enqueueMutation(async () => {
       let tasks = loadTasks();
-      const exists = tasks.some((t) => t.id === req.params.id);
+      const targetId = req.params.id;
+
+      const exists = tasks.some((t) => t.id === targetId);
       if (!exists) throw { status: 404, body: { error: "Task not found" } };
 
-      tasks = tasks.filter((t) => t.id !== req.params.id);
+      // Build lookup
+      const byId = new Map(tasks.map((t) => [t.id, t]));
 
+      // 1) Build the dependency closure (outgoing edges) from targetId.
+      // This is: target and every task that target depends on (recursively).
+      const closure = new Set();
+      const stack = [targetId];
+      while (stack.length) {
+        const id = stack.pop();
+        if (closure.has(id)) continue;
+        closure.add(id);
+        const t = byId.get(id);
+        if (!t || !Array.isArray(t.dependencies)) continue;
+        for (const depId of t.dependencies) {
+          if (!closure.has(depId)) stack.push(depId);
+        }
+      }
+
+      // 2) Find tasks outside closure that depend on the target (incoming edges).
+      const tasksOutsideClosure = tasks.filter((t) => !closure.has(t.id));
+      // If any outside task depends on targetId, we should warn and require confirm.
+      const incomingDependents = tasksOutsideClosure
+        .filter((t) => Array.isArray(t.dependencies) && t.dependencies.includes(targetId))
+        .map((t) => ({ id: t.id, title: t.title, state: t.state }));
+
+      if (incomingDependents.length && !confirm) {
+        // 409 Conflict + list of dependents so the frontend can prompt the user.
+        throw {
+          status: 409,
+          body: {
+            error:
+              "Other tasks depend on this task. Confirm deletion to proceed; this will affect the dependent tasks.",
+            dependents: incomingDependents,
+          },
+        };
+      }
+
+      // 3) Determine the actual set to delete.
+      // Rules:
+      //  - always delete the explicit target
+      //  - for other nodes in closure: delete them only if NO task outside the closure depends on them
+      const tasksOutside = tasks.filter((t) => !closure.has(t.id));
+      const hasExternalDep = (nodeId) =>
+        tasksOutside.some((t) => Array.isArray(t.dependencies) && t.dependencies.includes(nodeId));
+
+      const toDelete = new Set();
+      toDelete.add(targetId);
+      for (const id of closure) {
+        if (id === targetId) continue;
+        if (!hasExternalDep(id)) {
+          toDelete.add(id);
+        }
+      }
+
+      // 4) Remove toDelete from the tasks list
+      const beforeCount = tasks.length;
+      tasks = tasks.filter((t) => !toDelete.has(t.id));
+      const deleted = Array.from(toDelete);
+
+      // 5) Clean remaining tasks: strip deleted ids from dependencies and remedy_for.
+      //    If a task had state 'suspended' and we removed dependencies that it was waiting on,
+      //    move it back to 'blocked' (per your requirement).
       tasks.forEach((t) => {
+        let changed = false;
         if (Array.isArray(t.dependencies)) {
-          const filtered = t.dependencies.filter((d) => d !== req.params.id);
+          const filtered = t.dependencies.filter((d) => !toDelete.has(d));
           if (filtered.length !== t.dependencies.length) {
             t.dependencies = filtered;
-            t.updated_at = new Date().toISOString();
+            changed = true;
           }
+        }
+        if (t.remedy_for && toDelete.has(t.remedy_for)) {
+          delete t.remedy_for;
+          changed = true;
+        }
+
+        if (changed) {
+          // If the task used to be suspended, move it to blocked.
+          // We rely on tasks having a `state` field (suspended/blocked/etc).
+          // If your code stores state differently, adapt this bit accordingly.
+          if (t.state === "suspended") {
+            t.state = "blocked";
+            // Optionally mark when it was moved back to blocked:
+            t.blocked_at = new Date().toISOString();
+          }
+          t.updated_at = new Date().toISOString();
         }
       });
 
+      // 6) Recompute derived values and persist.
       recomputeAllPriorities(tasks);
       saveTasks(tasks);
-      return { message: "Task deleted" };
+
+      return {
+        message: "Deleted",
+        deleted,
+        removed_count: beforeCount - tasks.length,
+        adjusted: tasks
+          .filter((t) => t.state === "blocked")
+          .map((t) => ({ id: t.id, title: t.title, state: t.state })),
+      };
     });
+
     res.json(result);
   } catch (err) {
-    if (err && err.status && err.body)
-      return res.status(err.status).json(err.body);
+    if (err && err.status && err.body) return res.status(err.status).json(err.body);
     console.error("DELETE /tasks/:id error:", err);
     res.status(500).json({ error: "Internal error" });
   }
 });
+
+
+
+
 
 /* PATCH /tasks/:id edits. Important: support recurrence type 'none' */
 app.patch("/tasks/:id", requireAuth, async (req, res) => {
@@ -1558,7 +1655,8 @@ function broadcastTasksUpdate() {
   }
 }
 
-server.listen(PORT, () => {
+//server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   WIP_LIMITS = loadWipLimits();
   console.log(`Server listening on port ${PORT}`);
   console.log("WIP limits loaded:", WIP_LIMITS);
