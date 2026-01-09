@@ -93,8 +93,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-01-22T06:00:00.000Z",
-    "priority": 14,
-    "urgency": 34,
+    "priority": 23,
+    "urgency": 58,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -119,7 +119,7 @@
     },
     "scheduledDueAt": "2026-02-08T06:00:00.000Z",
     "priority": 0,
-    "urgency": 0,
+    "urgency": 1,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -169,7 +169,7 @@
     },
     "scheduledDueAt": "2026-02-08T06:00:00.000Z",
     "priority": 0,
-    "urgency": 0,
+    "urgency": 1,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -319,7 +319,7 @@
     },
     "scheduledDueAt": "2026-02-08T06:00:00.000Z",
     "priority": 0,
-    "urgency": 0,
+    "urgency": 1,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -344,7 +344,7 @@
     },
     "scheduledDueAt": "2026-02-08T06:00:00.000Z",
     "priority": 0,
-    "urgency": 0,
+    "urgency": 1,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -728,13 +728,13 @@
     "id": "1766701208210-75737",
     "title": "germinate celery",
     "description": "",
-    "state": "Suspended",
+    "state": "Done",
     "dependencies": [
       "1767294627154-26489"
     ],
     "picker": "korgan",
     "created_at": "2025-12-25T22:20:08.210Z",
-    "updated_at": "2026-01-01T19:10:27.154Z",
+    "updated_at": "2026-01-03T12:56:24.978Z",
     "created_by": "korgan",
     "meta": {
       "block_note": "Need to clear tables in garage"
@@ -747,14 +747,19 @@
       "paused": false
     },
     "scheduledDueAt": "2026-01-08T06:00:00.000Z",
-    "priority": 32,
-    "urgency": 81,
+    "priority": 40,
+    "urgency": 100,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
       {
         "ts": "2026-01-01T19:08:26.509Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-01-03T12:56:22.624Z",
         "picker": "korgan",
         "action": "picked"
       }
@@ -769,7 +774,14 @@
         "snapshot": 31,
         "by": "korgan"
       }
-    ]
+    ],
+    "lastCompletedAt": "2026-01-03T12:56:24.978Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 31,
+      "ts": "2026-01-03T12:56:24.980Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1766701245085-55141",
@@ -949,12 +961,12 @@
   {
     "id": "1766701460303-39410",
     "title": "move compost",
-    "description": "",
+    "description": "Bay 2 > Bay 3\nBay 1 > Bay 2",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:24:20.303Z",
-    "updated_at": "2025-12-25T22:24:20.303Z",
+    "updated_at": "2026-01-08T21:47:02.365Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -963,9 +975,9 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-09-09T05:00:00.000Z",
-    "priority": 0,
-    "urgency": 0,
+    "scheduledDueAt": "2026-03-25T05:00:00.000Z",
+    "priority": 7,
+    "urgency": 17,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1121,24 +1133,6 @@
     "deadlock": false
   },
   {
-    "id": "1766701780672-96843",
-    "title": "sell chick brooder",
-    "description": "",
-    "state": "Ready",
-    "dependencies": [],
-    "picker": null,
-    "created_at": "2025-12-25T22:29:40.672Z",
-    "updated_at": "2026-01-01T19:17:16.742Z",
-    "created_by": "korgan",
-    "meta": {},
-    "scheduledDueAt": "2026-01-01T19:00:00.000Z",
-    "priority": 40,
-    "urgency": 100,
-    "importancePercentile": 0,
-    "importanceRaw": 0,
-    "deadlock": false
-  },
-  {
     "id": "1766701842941-96136",
     "title": "strawberry season stars today",
     "description": "buy/eat local strawberries.",
@@ -1171,7 +1165,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T23:48:53.093Z",
-    "updated_at": "2026-01-02T10:36:46.441Z",
+    "updated_at": "2026-01-08T14:22:35.406Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -1180,9 +1174,9 @@
       "leadTimeDays": 0,
       "paused": false
     },
-    "scheduledDueAt": "2026-01-02T22:30:00.000Z",
-    "priority": 33,
-    "urgency": 83,
+    "scheduledDueAt": "2026-01-10T14:22:35.406Z",
+    "priority": 21,
+    "urgency": 52,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -1204,6 +1198,21 @@
       },
       {
         "ts": "2025-12-31T00:26:43.792Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-01-03T12:56:42.158Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-01-05T23:57:44.274Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-01-08T14:22:33.157Z",
         "picker": "korgan",
         "action": "picked"
       }
@@ -1229,13 +1238,28 @@
         "ts": "2025-12-31T00:26:43.796Z",
         "snapshot": 40,
         "by": "korgan"
+      },
+      {
+        "ts": "2026-01-03T12:56:42.159Z",
+        "snapshot": 40,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-01-05T23:57:44.275Z",
+        "snapshot": 40,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-01-08T14:22:33.162Z",
+        "snapshot": 40,
+        "by": "korgan"
       }
     ],
-    "lastCompletedAt": "2025-12-31T00:26:46.037Z",
+    "lastCompletedAt": "2026-01-08T14:22:35.406Z",
     "awarded": {
       "to": "korgan",
       "points": 40,
-      "ts": "2025-12-31T00:26:46.038Z"
+      "ts": "2026-01-08T14:22:35.408Z"
     },
     "points_snapshot_awarded": true
   },
@@ -1258,8 +1282,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-01-22T06:00:00.000Z",
-    "priority": 14,
-    "urgency": 34,
+    "priority": 23,
+    "urgency": 58,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1543,11 +1567,11 @@
     "id": "1767294627154-26489",
     "title": "Clear tables in garage",
     "description": "Remedy for: germinate celery",
-    "state": "InProgress",
+    "state": "Done",
     "dependencies": [],
     "picker": "korgan",
     "created_at": "2026-01-01T19:10:27.154Z",
-    "updated_at": "2026-01-02T14:09:32.116Z",
+    "updated_at": "2026-01-02T18:13:39.669Z",
     "created_by": "korgan",
     "meta": {},
     "remedy_for": "1766701208210-75737",
@@ -1573,6 +1597,458 @@
         "snapshot": 60,
         "by": "korgan"
       }
+    ],
+    "lastCompletedAt": "2026-01-02T18:13:39.669Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 60,
+      "ts": "2026-01-02T18:13:39.671Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1767482398339-57361",
+    "title": "clean out bird feeders",
+    "description": "",
+    "state": "InProgress",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-01-03T23:19:58.339Z",
+    "updated_at": "2026-01-08T14:22:37.688Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-08T14:22:37.686Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 0,
+    "points_snapshot_created_at": "2026-01-08T14:22:37.688Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-08T14:22:37.688Z",
+    "points_history": [
+      {
+        "ts": "2026-01-08T14:22:37.688Z",
+        "snapshot": 0,
+        "by": "korgan"
+      }
     ]
+  },
+  {
+    "id": "1767482433061-42171",
+    "title": "clean up hardware cloth in yard",
+    "description": "If keeping, put it in the shipping crate.\nElse, put it in trash.",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-01-03T23:20:33.061Z",
+    "updated_at": "2026-01-08T14:22:45.664Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "scheduledDueAt": null,
+    "picker_history": [
+      {
+        "ts": "2026-01-08T14:22:40.534Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 0,
+    "points_snapshot_created_at": "2026-01-08T14:22:40.535Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-08T14:22:40.535Z",
+    "points_history": [
+      {
+        "ts": "2026-01-08T14:22:40.535Z",
+        "snapshot": 0,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-08T14:22:45.664Z",
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2026-01-08T14:22:45.664Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1767482452965-79640",
+    "title": "check gaps in fence",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-03T23:20:52.965Z",
+    "updated_at": "2026-01-03T23:41:20.819Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "scheduledDueAt": "2026-03-08T06:00:00.000Z",
+    "recurrence": {
+      "leadTimeDays": 7,
+      "paused": false,
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": []
+    }
+  },
+  {
+    "id": "1767482463758-42021",
+    "title": "cut bushes growing through fence",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-01-03T23:21:03.758Z",
+    "updated_at": "2026-01-08T14:23:20.639Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-08T14:23:18.842Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 0,
+    "points_snapshot_created_at": "2026-01-08T14:23:18.843Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-08T14:23:18.843Z",
+    "points_history": [
+      {
+        "ts": "2026-01-08T14:23:18.843Z",
+        "snapshot": 0,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-08T14:23:20.639Z",
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2026-01-08T14:23:20.639Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1767482473692-41196",
+    "title": "finish painting nest boxes",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-03T23:21:13.692Z",
+    "updated_at": "2026-01-03T23:21:13.692Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1767482483871-35076",
+    "title": "clear out back left of garden",
+    "description": "",
+    "state": "InProgress",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-01-03T23:21:23.871Z",
+    "updated_at": "2026-01-08T23:41:18.872Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-08T20:10:46.563Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-01-08T23:41:18.872Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 0,
+    "points_snapshot_created_at": "2026-01-08T20:10:46.564Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-08T20:10:46.564Z",
+    "points_history": [
+      {
+        "ts": "2026-01-08T20:10:46.564Z",
+        "snapshot": 0,
+        "by": "korgan"
+      }
+    ]
+  },
+  {
+    "id": "1767482497983-85979",
+    "title": "dump all treated wood",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-03T23:21:37.983Z",
+    "updated_at": "2026-01-03T23:21:37.983Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1767482503204-73352",
+    "title": "burn out that stump",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-03T23:21:43.204Z",
+    "updated_at": "2026-01-03T23:21:43.204Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1767482511183-38914",
+    "title": "get grass from back back",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-03T23:21:51.183Z",
+    "updated_at": "2026-01-03T23:21:51.184Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1767482519846-891",
+    "title": "cover firewood properly",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-01-03T23:21:59.846Z",
+    "updated_at": "2026-01-08T14:23:02.808Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-08T14:23:00.937Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 0,
+    "points_snapshot_created_at": "2026-01-08T14:23:00.939Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-08T14:23:00.939Z",
+    "points_history": [
+      {
+        "ts": "2026-01-08T14:23:00.939Z",
+        "snapshot": 0,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-08T14:23:02.808Z",
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2026-01-08T14:23:02.808Z"
+    },
+    "points_snapshot_awarded": false
+  },
+  {
+    "id": "1767482526703-46541",
+    "title": "cut up all branches in yard",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-03T23:22:06.703Z",
+    "updated_at": "2026-01-03T23:22:06.703Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1767482537434-69622",
+    "title": "get gfci socket fixed in garage",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-03T23:22:17.434Z",
+    "updated_at": "2026-01-03T23:22:17.434Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1767482552942-5352",
+    "title": "get coffee grounds",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-03T23:22:32.942Z",
+    "updated_at": "2026-01-08T23:45:17.741Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 35,
+    "urgency": 88,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "scheduledDueAt": "2026-01-13T06:00:00.000Z"
+  },
+  {
+    "id": "1767483806922-65611",
+    "title": "Fix delete task problem in kanboard",
+    "description": "If one task depends on another but I delete it, the other task still will say \"remedy for: blah\", even though blah is deleted.",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-03T23:43:26.922Z",
+    "updated_at": "2026-01-03T23:43:26.922Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1767483939386-37693",
+    "title": "change lawnmower blade",
+    "description": "Need a torque wrench.",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-03T23:45:39.386Z",
+    "updated_at": "2026-01-03T23:48:00.258Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "scheduledDueAt": null
+  },
+  {
+    "id": "1767789564643-28163",
+    "title": "get bedding for nest boxes",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-07T12:39:24.643Z",
+    "updated_at": "2026-01-07T12:39:24.643Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1767915641350-69030",
+    "title": "Put up new ropes in chicken run",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-01-08T23:40:41.350Z",
+    "updated_at": "2026-01-08T23:41:04.668Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 0,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-08T23:41:02.505Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 0,
+    "points_snapshot_created_at": "2026-01-08T23:41:02.506Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-08T23:41:02.506Z",
+    "points_history": [
+      {
+        "ts": "2026-01-08T23:41:02.506Z",
+        "snapshot": 0,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-08T23:41:04.668Z",
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2026-01-08T23:41:04.668Z"
+    },
+    "points_snapshot_awarded": false
   }
 ]
