@@ -18,7 +18,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-08T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -43,7 +43,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-15T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -54,10 +54,13 @@
     "title": "sow corn",
     "description": "",
     "state": "Ready",
-    "dependencies": [],
+    "dependencies": [
+      "1768052164682-18955",
+      "1768091726375-92352"
+    ],
     "picker": null,
     "created_at": "2025-12-25T22:03:57.372Z",
-    "updated_at": "2025-12-25T22:04:11.790Z",
+    "updated_at": "2026-01-15T16:23:52.798Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -67,7 +70,7 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -93,8 +96,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-01-22T06:00:00.000Z",
-    "priority": 23,
-    "urgency": 58,
+    "priority": 33,
+    "urgency": 81,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -118,8 +121,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-08T06:00:00.000Z",
-    "priority": 0,
-    "urgency": 1,
+    "priority": 11,
+    "urgency": 24,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -143,7 +146,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-22T06:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -168,8 +171,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-08T06:00:00.000Z",
-    "priority": 0,
-    "urgency": 1,
+    "priority": 11,
+    "urgency": 24,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -193,7 +196,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-15T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -218,7 +221,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-01T06:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -243,7 +246,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-15T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -268,7 +271,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-05-15T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -293,7 +296,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-08T06:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -318,8 +321,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-08T06:00:00.000Z",
-    "priority": 0,
-    "urgency": 1,
+    "priority": 11,
+    "urgency": 24,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -343,8 +346,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-08T06:00:00.000Z",
-    "priority": 0,
-    "urgency": 1,
+    "priority": 11,
+    "urgency": 24,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -368,7 +371,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-22T06:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -393,7 +396,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-22T06:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -418,7 +421,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-08T06:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -443,7 +446,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-08T06:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -468,7 +471,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-08T06:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -493,7 +496,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -518,7 +521,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-18T06:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -543,7 +546,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-21T06:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -568,7 +571,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-15T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -593,7 +596,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-22T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -618,7 +621,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -643,7 +646,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -668,7 +671,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-22T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -693,7 +696,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-22T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -718,7 +721,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -728,13 +731,13 @@
     "id": "1766701208210-75737",
     "title": "germinate celery",
     "description": "",
-    "state": "Done",
+    "state": "Ready",
     "dependencies": [
       "1767294627154-26489"
     ],
-    "picker": "korgan",
+    "picker": null,
     "created_at": "2025-12-25T22:20:08.210Z",
-    "updated_at": "2026-01-03T12:56:24.978Z",
+    "updated_at": "2026-01-16T13:30:08.644Z",
     "created_by": "korgan",
     "meta": {
       "block_note": "Need to clear tables in garage"
@@ -746,9 +749,9 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-01-08T06:00:00.000Z",
-    "priority": 40,
-    "urgency": 100,
+    "scheduledDueAt": "2027-01-08T06:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -764,10 +767,6 @@
         "action": "picked"
       }
     ],
-    "points_snapshot": 31,
-    "points_snapshot_created_at": "2026-01-01T19:08:26.510Z",
-    "points_snapshot_created_by": "korgan",
-    "picked_at": "2026-01-01T19:08:26.510Z",
     "points_history": [
       {
         "ts": "2026-01-01T19:08:26.510Z",
@@ -802,7 +801,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-22T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -827,7 +826,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-06-05T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -852,7 +851,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-06-01T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -877,7 +876,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-07-22T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -902,7 +901,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-07-01T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -927,7 +926,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-08-15T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -952,7 +951,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-08-15T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -976,8 +975,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-25T05:00:00.000Z",
-    "priority": 7,
-    "urgency": 17,
+    "priority": 11,
+    "urgency": 25,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1001,7 +1000,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-08-08T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1026,7 +1025,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-09-08T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1051,7 +1050,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-11-08T06:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1076,7 +1075,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-09-01T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1101,7 +1100,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-09-01T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1126,7 +1125,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-12-04T06:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1151,7 +1150,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-01T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1165,7 +1164,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T23:48:53.093Z",
-    "updated_at": "2026-01-08T14:22:35.406Z",
+    "updated_at": "2026-01-16T12:53:01.353Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -1174,9 +1173,9 @@
       "leadTimeDays": 0,
       "paused": false
     },
-    "scheduledDueAt": "2026-01-10T14:22:35.406Z",
-    "priority": 21,
-    "urgency": 52,
+    "scheduledDueAt": "2026-01-18T12:53:01.353Z",
+    "priority": 2,
+    "urgency": 3,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -1213,6 +1212,21 @@
       },
       {
         "ts": "2026-01-08T14:22:33.157Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-01-11T00:09:59.838Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-01-13T14:16:14.696Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-01-16T12:52:58.091Z",
         "picker": "korgan",
         "action": "picked"
       }
@@ -1253,13 +1267,28 @@
         "ts": "2026-01-08T14:22:33.162Z",
         "snapshot": 40,
         "by": "korgan"
+      },
+      {
+        "ts": "2026-01-11T00:09:59.839Z",
+        "snapshot": 40,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-01-13T14:16:14.700Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-01-16T12:52:58.098Z",
+        "snapshot": 41,
+        "by": "korgan"
       }
     ],
-    "lastCompletedAt": "2026-01-08T14:22:35.406Z",
+    "lastCompletedAt": "2026-01-16T12:53:01.353Z",
     "awarded": {
       "to": "korgan",
-      "points": 40,
-      "ts": "2026-01-08T14:22:35.408Z"
+      "points": 41,
+      "ts": "2026-01-16T12:53:01.355Z"
     },
     "points_snapshot_awarded": true
   },
@@ -1282,8 +1311,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-01-22T06:00:00.000Z",
-    "priority": 23,
-    "urgency": 58,
+    "priority": 33,
+    "urgency": 81,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1307,7 +1336,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-07-22T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1332,7 +1361,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-08T06:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1357,7 +1386,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-22T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1382,7 +1411,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-22T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1407,7 +1436,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-07-22T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1432,7 +1461,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-15T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1457,7 +1486,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-08T06:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1482,7 +1511,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1507,7 +1536,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1532,7 +1561,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-22T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1557,7 +1586,7 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-22T05:00:00.000Z",
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1577,7 +1606,7 @@
     "remedy_for": "1766701208210-75737",
     "priority": 60,
     "urgency": 0,
-    "importancePercentile": 100,
+    "importancePercentile": 98,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -1610,14 +1639,14 @@
     "id": "1767482398339-57361",
     "title": "clean out bird feeders",
     "description": "",
-    "state": "InProgress",
+    "state": "Done",
     "dependencies": [],
     "picker": "korgan",
     "created_at": "2026-01-03T23:19:58.339Z",
-    "updated_at": "2026-01-08T14:22:37.688Z",
+    "updated_at": "2026-01-09T16:15:25.293Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1639,7 +1668,15 @@
         "snapshot": 0,
         "by": "korgan"
       }
-    ]
+    ],
+    "lastCompletedAt": "2026-01-09T16:15:25.293Z",
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2026-01-09T16:15:25.293Z"
+    },
+    "points_snapshot_awarded": false
   },
   {
     "id": "1767482433061-42171",
@@ -1652,7 +1689,7 @@
     "updated_at": "2026-01-08T14:22:45.664Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1696,7 +1733,7 @@
     "updated_at": "2026-01-03T23:41:20.819Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1721,7 +1758,7 @@
     "updated_at": "2026-01-08T14:23:20.639Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1764,7 +1801,7 @@
     "updated_at": "2026-01-03T23:21:13.692Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1774,14 +1811,14 @@
     "id": "1767482483871-35076",
     "title": "clear out back left of garden",
     "description": "",
-    "state": "InProgress",
+    "state": "Done",
     "dependencies": [],
     "picker": "korgan",
     "created_at": "2026-01-03T23:21:23.871Z",
-    "updated_at": "2026-01-08T23:41:18.872Z",
+    "updated_at": "2026-01-09T17:21:04.830Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1808,24 +1845,57 @@
         "snapshot": 0,
         "by": "korgan"
       }
-    ]
+    ],
+    "lastCompletedAt": "2026-01-09T17:21:04.830Z",
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2026-01-09T17:21:04.830Z"
+    },
+    "points_snapshot_awarded": false
   },
   {
     "id": "1767482497983-85979",
     "title": "dump all treated wood",
     "description": "",
-    "state": "Ready",
+    "state": "Done",
     "dependencies": [],
-    "picker": null,
+    "picker": "korgan",
     "created_at": "2026-01-03T23:21:37.983Z",
-    "updated_at": "2026-01-03T23:21:37.983Z",
+    "updated_at": "2026-01-16T14:09:57.383Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-16T14:09:55.985Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 1,
+    "points_snapshot_created_at": "2026-01-16T14:09:55.988Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-16T14:09:55.988Z",
+    "points_history": [
+      {
+        "ts": "2026-01-16T14:09:55.988Z",
+        "snapshot": 1,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-16T14:09:57.383Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 1,
+      "ts": "2026-01-16T14:09:57.384Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1767482503204-73352",
@@ -1838,7 +1908,7 @@
     "updated_at": "2026-01-03T23:21:43.204Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1848,18 +1918,44 @@
     "id": "1767482511183-38914",
     "title": "get grass from back back",
     "description": "",
-    "state": "Ready",
+    "state": "Done",
     "dependencies": [],
-    "picker": null,
+    "picker": "korgan",
     "created_at": "2026-01-03T23:21:51.183Z",
-    "updated_at": "2026-01-03T23:21:51.184Z",
+    "updated_at": "2026-01-09T17:22:38.671Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-09T17:22:37.545Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 0,
+    "points_snapshot_created_at": "2026-01-09T17:22:37.546Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-09T17:22:37.546Z",
+    "points_history": [
+      {
+        "ts": "2026-01-09T17:22:37.546Z",
+        "snapshot": 0,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-09T17:22:38.671Z",
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2026-01-09T17:22:38.671Z"
+    },
+    "points_snapshot_awarded": false
   },
   {
     "id": "1767482519846-891",
@@ -1872,7 +1968,7 @@
     "updated_at": "2026-01-08T14:23:02.808Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1908,18 +2004,43 @@
     "id": "1767482526703-46541",
     "title": "cut up all branches in yard",
     "description": "",
-    "state": "Ready",
+    "state": "Done",
     "dependencies": [],
-    "picker": null,
+    "picker": "korgan",
     "created_at": "2026-01-03T23:22:06.703Z",
-    "updated_at": "2026-01-03T23:22:06.703Z",
+    "updated_at": "2026-01-16T12:53:09.646Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-16T12:53:08.410Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 1,
+    "points_snapshot_created_at": "2026-01-16T12:53:08.412Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-16T12:53:08.412Z",
+    "points_history": [
+      {
+        "ts": "2026-01-16T12:53:08.412Z",
+        "snapshot": 1,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-16T12:53:09.646Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 1,
+      "ts": "2026-01-16T12:53:09.651Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1767482537434-69622",
@@ -1932,7 +2053,7 @@
     "updated_at": "2026-01-03T23:22:17.434Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -1946,50 +2067,101 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2026-01-03T23:22:32.942Z",
-    "updated_at": "2026-01-08T23:45:17.741Z",
+    "updated_at": "2026-01-14T19:36:53.921Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 35,
-    "urgency": 88,
+    "priority": 33,
+    "urgency": 81,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
-    "scheduledDueAt": "2026-01-13T06:00:00.000Z"
+    "scheduledDueAt": "2026-01-22T06:00:00.000Z"
   },
   {
     "id": "1767483806922-65611",
     "title": "Fix delete task problem in kanboard",
     "description": "If one task depends on another but I delete it, the other task still will say \"remedy for: blah\", even though blah is deleted.",
-    "state": "Ready",
+    "state": "Done",
     "dependencies": [],
-    "picker": null,
+    "picker": "korgan",
     "created_at": "2026-01-03T23:43:26.922Z",
-    "updated_at": "2026-01-03T23:43:26.922Z",
+    "updated_at": "2026-01-09T15:22:25.569Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-09T15:22:22.766Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 0,
+    "points_snapshot_created_at": "2026-01-09T15:22:22.770Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-09T15:22:22.770Z",
+    "points_history": [
+      {
+        "ts": "2026-01-09T15:22:22.770Z",
+        "snapshot": 0,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-09T15:22:25.569Z",
+    "awarded": {
+      "to": null,
+      "points": 0,
+      "reason": "none",
+      "ts": "2026-01-09T15:22:25.569Z"
+    },
+    "points_snapshot_awarded": false
   },
   {
     "id": "1767483939386-37693",
     "title": "change lawnmower blade",
     "description": "Need a torque wrench.",
-    "state": "Ready",
+    "state": "Done",
     "dependencies": [],
-    "picker": null,
+    "picker": "korgan",
     "created_at": "2026-01-03T23:45:39.386Z",
-    "updated_at": "2026-01-03T23:48:00.258Z",
+    "updated_at": "2026-01-14T16:41:46.945Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
-    "scheduledDueAt": null
+    "scheduledDueAt": null,
+    "picker_history": [
+      {
+        "ts": "2026-01-14T16:41:19.283Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 1,
+    "points_snapshot_created_at": "2026-01-14T16:41:19.288Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-14T16:41:19.288Z",
+    "points_history": [
+      {
+        "ts": "2026-01-14T16:41:19.288Z",
+        "snapshot": 1,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-14T16:41:46.945Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 1,
+      "ts": "2026-01-14T16:41:46.947Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1767789564643-28163",
@@ -2002,7 +2174,7 @@
     "updated_at": "2026-01-07T12:39:24.643Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -2019,7 +2191,7 @@
     "updated_at": "2026-01-08T23:41:04.668Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 0,
+    "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
@@ -2050,5 +2222,380 @@
       "ts": "2026-01-08T23:41:04.668Z"
     },
     "points_snapshot_awarded": false
+  },
+  {
+    "id": "1768052164682-18955",
+    "title": "Broadfork row 1",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-01-10T13:36:04.682Z",
+    "updated_at": "2026-01-15T14:23:19.244Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 60,
+    "urgency": 0,
+    "importancePercentile": 98,
+    "importanceRaw": 1,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-15T14:23:14.112Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 60,
+    "points_snapshot_created_at": "2026-01-15T14:23:14.114Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-15T14:23:14.114Z",
+    "points_history": [
+      {
+        "ts": "2026-01-15T14:23:14.114Z",
+        "snapshot": 60,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-15T14:23:19.244Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 60,
+      "ts": "2026-01-15T14:23:19.248Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1768052331603-25048",
+    "title": "Fix dependency language in kanban board",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-10T13:38:51.603Z",
+    "updated_at": "2026-01-10T13:38:51.603Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1768052339788-67032",
+    "title": "Fix zero points in kanban",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-01-10T13:38:59.789Z",
+    "updated_at": "2026-01-11T00:27:06.717Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-11T00:27:05.295Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 1,
+    "points_snapshot_created_at": "2026-01-11T00:27:05.297Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-11T00:27:05.297Z",
+    "points_history": [
+      {
+        "ts": "2026-01-11T00:27:05.297Z",
+        "snapshot": 1,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-11T00:27:06.717Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 1,
+      "ts": "2026-01-11T00:27:06.718Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1768091173319-72588",
+    "title": "Fertilise corn with urine mix",
+    "description": "1 part urine, 9 parts water. Give each corn plant ~133 ml of the mix. \n1.1 litres of urine needed total.",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-11T00:26:13.319Z",
+    "updated_at": "2026-01-11T00:26:13.319Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-06-15T05:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1768091726375-92352",
+    "title": "fertilise corn row",
+    "description": "For each 30 ft row:\n3 lb lime \n2 lb bonemeal\n2 lb langbeinite\nAll the compost\nBroadfork it in.\n\nOr, use 1 lb of SoP instead of langbeinite.",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-01-11T00:35:26.375Z",
+    "updated_at": "2026-01-15T16:23:52.798Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-01-15T06:00:00.000Z",
+    "priority": 100,
+    "urgency": 100,
+    "importancePercentile": 98,
+    "importanceRaw": 1,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-15T16:23:50.346Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 100,
+    "points_snapshot_created_at": "2026-01-15T16:23:50.348Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-15T16:23:50.348Z",
+    "points_history": [
+      {
+        "ts": "2026-01-15T16:23:50.348Z",
+        "snapshot": 100,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-15T16:23:52.798Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 100,
+      "ts": "2026-01-15T16:23:52.799Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1768138386003-64043",
+    "title": "Add a github-style contributions page to user profiles",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-11T13:33:06.003Z",
+    "updated_at": "2026-01-11T13:33:06.003Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1768138410995-10510",
+    "title": "why is the 'germinate celery' task not in the waiting column?",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-01-11T13:33:30.995Z",
+    "updated_at": "2026-01-16T13:31:32.691Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-16T13:31:31.235Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 1,
+    "points_snapshot_created_at": "2026-01-16T13:31:31.240Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-16T13:31:31.240Z",
+    "points_history": [
+      {
+        "ts": "2026-01-16T13:31:31.240Z",
+        "snapshot": 1,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-16T13:31:32.691Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 1,
+      "ts": "2026-01-16T13:31:32.693Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1768213511524-22087",
+    "title": "get bone meal at Ace Hardware",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-01-12T10:25:11.524Z",
+    "updated_at": "2026-01-14T00:00:51.713Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-14T00:00:49.914Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 59,
+    "points_snapshot_created_at": "2026-01-14T00:00:49.915Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-14T00:00:49.915Z",
+    "points_history": [
+      {
+        "ts": "2026-01-14T00:00:49.915Z",
+        "snapshot": 59,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-14T00:00:51.713Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 59,
+      "ts": "2026-01-14T00:00:51.714Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1768213555950-10231",
+    "title": "order langbeinite",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-01-12T10:25:55.950Z",
+    "updated_at": "2026-01-12T12:53:30.875Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-12T12:53:29.604Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 59,
+    "points_snapshot_created_at": "2026-01-12T12:53:29.605Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-12T12:53:29.605Z",
+    "points_history": [
+      {
+        "ts": "2026-01-12T12:53:29.605Z",
+        "snapshot": 59,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-12T12:53:30.875Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 59,
+      "ts": "2026-01-12T12:53:30.876Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1768421056653-76745",
+    "title": "withdraw the tarp",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-14T20:04:16.653Z",
+    "updated_at": "2026-01-15T18:38:31.179Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 3,
+    "urgency": 6,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "scheduledDueAt": "2026-01-29T18:38:31.179Z",
+    "recurrence": {
+      "leadTimeDays": 0,
+      "paused": false,
+      "type": "rolling",
+      "intervalDays": 14
+    },
+    "picker_history": [
+      {
+        "ts": "2026-01-15T18:38:29.084Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-01-15T18:38:29.085Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-15T18:38:31.179Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-01-15T18:38:31.180Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1768421114267-83427",
+    "title": "apply the tarp",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-14T20:05:14.267Z",
+    "updated_at": "2026-01-14T20:09:12.750Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 17,
+    "urgency": 40,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "scheduledDueAt": "2026-01-29T06:00:00.000Z",
+    "recurrence": {
+      "leadTimeDays": 0,
+      "paused": false,
+      "type": "rolling",
+      "intervalDays": 21
+    }
   }
 ]

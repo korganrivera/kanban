@@ -206,7 +206,8 @@ function computeEffectiveState(task, allTasks = [], now = new Date()) {
     overdue = false;
     if (task.recurrence && typeof task.recurrence === "object") {
       const intervalDays =
-        Number(task.recurrence.intervalDays ?? task.recurrence.interval ?? 0) || 0;
+        Number(task.recurrence.intervalDays ?? task.recurrence.interval ?? 0) ||
+        0;
       if (intervalDays > 0) {
         const halfMs = (intervalDays / 2) * 24 * 60 * 60 * 1000;
         overdue = now.getTime() >= scheduledAt.getTime() + halfMs;
@@ -297,11 +298,6 @@ function computeEffectiveState(task, allTasks = [], now = new Date()) {
     overdue,
   };
 }
-
-
-
-
-
 
 /* -------------------- user points -------------------- */
 
@@ -427,82 +423,78 @@ function computePriorities(tasks, nowIso = new Date(), config = {}) {
   function rawToPercentile(val) {
     // If there is only one value, or none, return 0 (no meaningful percentile)
     if (allRaw.length <= 1) return 0;
-  
+
     // Count how many values are strictly less than val
     const lessCount = allRaw.filter((v) => v < val).length;
-  
+
     // Use denom = allRaw.length - 1 so the max possible percentile is 100
     const denom = allRaw.length - 1;
     const pct = denom > 0 ? (lessCount / denom) * 100 : 0;
-  
+
     return Math.max(0, Math.min(100, Math.round(pct)));
   }
 
   /* ---------- urgency calculation (UPDATED) ---------- */
 
-function computeUrgency(task) {
-  // 1. Hard deadline always wins
-  if (task.deadline) {
-    const d = new Date(task.deadline);
-    if (isNaN(d.getTime())) return 0;
-    const msLeft = d.getTime() - now.getTime();
-    const daysLeft = msLeft / (1000 * 60 * 60 * 24);
-    if (daysLeft <= 0) return 100;
-    if (daysLeft >= cfg.MAX_WINDOW) return 0;
-    return Math.max(
-      0,
-      Math.min(100, Math.round(100 * (1 - daysLeft / cfg.MAX_WINDOW))),
-    );
-  }
-
-  // 2. Rolling recurrence urgency grows as the due date approaches
-  if (task.scheduledDueAt) {
-    const d = new Date(task.scheduledDueAt);
-    if (isNaN(d.getTime())) return 0;
-
-    const isRolling =
-      task.recurrence &&
-      typeof task.recurrence === "object" &&
-      task.recurrence.type === "rolling";
-
-    const intervalDays =
-      Number(
-        (task.recurrence && task.recurrence.intervalDays) ??
-          (task.recurrence && task.recurrence.interval) ??
-          0,
-      ) || 0;
-
-    if (isRolling && intervalDays > 0) {
-      // urgency should grow during the interval *leading up to* scheduledDueAt
-      const msUntil = d.getTime() - now.getTime();
-      const daysUntil = msUntil / (1000 * 60 * 60 * 24);
-
-      if (daysUntil <= 0) return 100; // past due -> max urgency
-      if (daysUntil >= intervalDays) return 0; // far away -> no urgency
-      // scale from 0 -> 100 as we go from intervalDays -> 0
+  function computeUrgency(task) {
+    // 1. Hard deadline always wins
+    if (task.deadline) {
+      const d = new Date(task.deadline);
+      if (isNaN(d.getTime())) return 0;
+      const msLeft = d.getTime() - now.getTime();
+      const daysLeft = msLeft / (1000 * 60 * 60 * 24);
+      if (daysLeft <= 0) return 100;
+      if (daysLeft >= cfg.MAX_WINDOW) return 0;
       return Math.max(
         0,
-        Math.min(100, Math.round(100 * (1 - daysUntil / intervalDays))),
+        Math.min(100, Math.round(100 * (1 - daysLeft / cfg.MAX_WINDOW))),
       );
     }
 
-    // 3. Fallback: soft deadline behavior (non-rolling)
-    const msLeft = d.getTime() - now.getTime();
-    const daysLeft = msLeft / (1000 * 60 * 60 * 24);
-    if (daysLeft <= 0) return 100;
-    if (daysLeft >= cfg.MAX_WINDOW) return 0;
-    return Math.max(
-      0,
-      Math.min(100, Math.round(100 * (1 - daysLeft / cfg.MAX_WINDOW))),
-    );
+    // 2. Rolling recurrence urgency grows as the due date approaches
+    if (task.scheduledDueAt) {
+      const d = new Date(task.scheduledDueAt);
+      if (isNaN(d.getTime())) return 0;
+
+      const isRolling =
+        task.recurrence &&
+        typeof task.recurrence === "object" &&
+        task.recurrence.type === "rolling";
+
+      const intervalDays =
+        Number(
+          (task.recurrence && task.recurrence.intervalDays) ??
+            (task.recurrence && task.recurrence.interval) ??
+            0,
+        ) || 0;
+
+      if (isRolling && intervalDays > 0) {
+        // urgency should grow during the interval *leading up to* scheduledDueAt
+        const msUntil = d.getTime() - now.getTime();
+        const daysUntil = msUntil / (1000 * 60 * 60 * 24);
+
+        if (daysUntil <= 0) return 100; // past due -> max urgency
+        if (daysUntil >= intervalDays) return 0; // far away -> no urgency
+        // scale from 0 -> 100 as we go from intervalDays -> 0
+        return Math.max(
+          0,
+          Math.min(100, Math.round(100 * (1 - daysUntil / intervalDays))),
+        );
+      }
+
+      // 3. Fallback: soft deadline behavior (non-rolling)
+      const msLeft = d.getTime() - now.getTime();
+      const daysLeft = msLeft / (1000 * 60 * 60 * 24);
+      if (daysLeft <= 0) return 100;
+      if (daysLeft >= cfg.MAX_WINDOW) return 0;
+      return Math.max(
+        0,
+        Math.min(100, Math.round(100 * (1 - daysLeft / cfg.MAX_WINDOW))),
+      );
+    }
+
+    return 0;
   }
-
-  return 0;
-}
-
-
-
-
 
   /* ---------- final priority ---------- */
 
@@ -511,8 +503,8 @@ function computeUrgency(task) {
     const I = rawToPercentile(r);
     const U = computeUrgency(t);
     const P = Math.max(
-      0,
-      Math.min(100, Math.round(cfg.w_u * U + cfg.w_i * I)),
+      1,
+      Math.min(100, Math.round(cfg.w_u * U + cfg.w_i * I + 1)),
     );
 
     return Object.assign({}, t, {
@@ -524,12 +516,6 @@ function computeUrgency(task) {
     });
   });
 }
-
-
-
-
-
-
 
 /* -------------------- recompute wrapper -------------------- */
 
@@ -990,33 +976,47 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
             task.picked_at = undefined;
             task.points_snapshot = undefined;
             task.points_snapshot_created_at = undefined;
-          } else if (
-            r.type === "anchored" &&
-            Array.isArray(r.weekdays) &&
-            r.weekdays.length
-          ) {
-            const wds = r.weekdays
-              .map((n) => Number(n))
-              .filter((x) => Number.isFinite(x));
-            const preserve = parseDateSafe(task.scheduledDueAt) || new Date();
-            let d = new Date(completedAtIso);
-            d.setHours(
-              preserve.getHours(),
-              preserve.getMinutes(),
-              preserve.getSeconds(),
-              preserve.getMilliseconds(),
-            );
-            for (let i = 1; i <= 14; ++i) {
-              d.setDate(d.getDate() + 1);
-              if (wds.includes(d.getDay())) {
-                task.scheduledDueAt = d.toISOString();
-                task.state = "Ready";
-                task.picker = null;
-                task.picked_at = undefined;
-                task.points_snapshot = undefined;
-                task.points_snapshot_created_at = undefined;
-                break;
+          } else if (r.type === "anchored") {
+            if (Array.isArray(r.weekdays) && r.weekdays.length) {
+              // Anchored to specific weekdays
+              const wds = r.weekdays
+                .map((n) => Number(n))
+                .filter((x) => Number.isFinite(x));
+              const preserve = parseDateSafe(task.scheduledDueAt) || new Date();
+              let d = new Date(completedAtIso);
+              d.setHours(
+                preserve.getHours(),
+                preserve.getMinutes(),
+                preserve.getSeconds(),
+                preserve.getMilliseconds(),
+              );
+              for (let i = 1; i <= 14; ++i) {
+                d.setDate(d.getDate() + 1);
+                if (wds.includes(d.getDay())) {
+                  task.scheduledDueAt = d.toISOString();
+                  task.state = "Ready";
+                  task.picker = null;
+                  task.picked_at = undefined;
+                  task.points_snapshot = undefined;
+                  task.points_snapshot_created_at = undefined;
+                  break;
+                }
               }
+            } else if (
+              Number.isFinite(Number(r.intervalDays)) &&
+              Number(r.intervalDays) > 0
+            ) {
+              // Anchored by interval (like rolling but preserves time)
+              const intervalDays = Number(r.intervalDays);
+              const preserve = parseDateSafe(task.scheduledDueAt) || new Date();
+              const msInterval = intervalDays * 24 * 60 * 60 * 1000;
+              const next = new Date(preserve.getTime() + msInterval);
+              task.scheduledDueAt = next.toISOString();
+              task.state = "Ready";
+              task.picker = null;
+              task.picked_at = undefined;
+              task.points_snapshot = undefined;
+              task.points_snapshot_created_at = undefined;
             }
           }
         }
@@ -1287,7 +1287,10 @@ app.delete("/tasks/:id", requireAuth, async (req, res) => {
       const tasksOutsideClosure = tasks.filter((t) => !closure.has(t.id));
       // If any outside task depends on targetId, we should warn and require confirm.
       const incomingDependents = tasksOutsideClosure
-        .filter((t) => Array.isArray(t.dependencies) && t.dependencies.includes(targetId))
+        .filter(
+          (t) =>
+            Array.isArray(t.dependencies) && t.dependencies.includes(targetId),
+        )
         .map((t) => ({ id: t.id, title: t.title, state: t.state }));
 
       if (incomingDependents.length && !confirm) {
@@ -1308,7 +1311,10 @@ app.delete("/tasks/:id", requireAuth, async (req, res) => {
       //  - for other nodes in closure: delete them only if NO task outside the closure depends on them
       const tasksOutside = tasks.filter((t) => !closure.has(t.id));
       const hasExternalDep = (nodeId) =>
-        tasksOutside.some((t) => Array.isArray(t.dependencies) && t.dependencies.includes(nodeId));
+        tasksOutside.some(
+          (t) =>
+            Array.isArray(t.dependencies) && t.dependencies.includes(nodeId),
+        );
 
       const toDelete = new Set();
       toDelete.add(targetId);
@@ -1370,15 +1376,12 @@ app.delete("/tasks/:id", requireAuth, async (req, res) => {
 
     res.json(result);
   } catch (err) {
-    if (err && err.status && err.body) return res.status(err.status).json(err.body);
+    if (err && err.status && err.body)
+      return res.status(err.status).json(err.body);
     console.error("DELETE /tasks/:id error:", err);
     res.status(500).json({ error: "Internal error" });
   }
 });
-
-
-
-
 
 /* PATCH /tasks/:id edits. Important: support recurrence type 'none' */
 app.patch("/tasks/:id", requireAuth, async (req, res) => {
@@ -1656,7 +1659,7 @@ function broadcastTasksUpdate() {
 }
 
 //server.listen(PORT, () => {
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, "0.0.0.0", () => {
   WIP_LIMITS = loadWipLimits();
   console.log(`Server listening on port ${PORT}`);
   console.log("WIP limits loaded:", WIP_LIMITS);

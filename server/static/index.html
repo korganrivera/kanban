@@ -488,6 +488,9 @@
             <label style="margin-top: 10px">Created</label>
             <div id="sb_created" class="muted-small">—</div>
 
+            <label style="margin-top: 10px">Completed</label>
+            <div id="sb_completed" class="muted-small">—</div>
+
             <label style="margin-top: 10px">Age</label>
             <div id="sb_age" class="muted-small">—</div>
 
@@ -501,7 +504,7 @@
                     style="width: 100%; margin-bottom: 4px"
                 >
                     <option value="">
-                        -- Select task to add as dependency --
+                        -- Select task that must be completed first --
                     </option>
                 </select>
                 <button
@@ -671,6 +674,18 @@
                     year: "numeric",
                     month: "short",
                     day: "numeric",
+                });
+            }
+            function fmtDateTime(iso) {
+                if (!iso) return "—";
+                const d = new Date(iso);
+                if (isNaN(d.getTime())) return "—";
+                return d.toLocaleString(undefined, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
                 });
             }
             function isoToInputLocal(iso) {
@@ -941,9 +956,34 @@
                     if (!listEl) {
                         continue;
                     }
-                    groups[st].sort(
-                        (a, b) => (b.priority || 0) - (a.priority || 0),
-                    );
+                    if (st === "Waiting") {
+                        // Sort Waiting tasks by due date (earliest first)
+                        groups[st].sort((a, b) => {
+                            const aDate = a.scheduledDueAt
+                                ? new Date(a.scheduledDueAt).getTime()
+                                : Infinity;
+                            const bDate = b.scheduledDueAt
+                                ? new Date(b.scheduledDueAt).getTime()
+                                : Infinity;
+                            return aDate - bDate;
+                        });
+                    } else if (st === "Done") {
+                        // Sort Done tasks by completion date (most recent first)
+                        groups[st].sort((a, b) => {
+                            const aDate = a.lastCompletedAt
+                                ? new Date(a.lastCompletedAt).getTime()
+                                : 0;
+                            const bDate = b.lastCompletedAt
+                                ? new Date(b.lastCompletedAt).getTime()
+                                : 0;
+                            return bDate - aDate;
+                        });
+                    } else {
+                        // Sort all other columns by priority (highest first)
+                        groups[st].sort(
+                            (a, b) => (b.priority || 0) - (a.priority || 0),
+                        );
+                    }
                     groups[st].forEach((task) =>
                         listEl.appendChild(makeCard(task)),
                     );
@@ -1451,6 +1491,10 @@
                 // Show created date and age
                 document.getElementById("sb_created").textContent =
                     task.created_at ? fmtDate(task.created_at) : "—";
+                document.getElementById("sb_completed").textContent =
+                    task.lastCompletedAt
+                        ? fmtDateTime(task.lastCompletedAt)
+                        : "—";
                 document.getElementById("sb_age").textContent = calculateAge(
                     task.created_at,
                 );
@@ -1488,7 +1532,7 @@
                 const addDepSelect =
                     document.getElementById("sb_add_dependency");
                 addDepSelect.innerHTML =
-                    '<option value="">-- Select task to add as dependency --</option>';
+                    '<option value="">-- Select task that must be completed first --</option>';
                 tasksCache.forEach((t) => {
                     if (
                         t.id !== task.id &&
@@ -1567,6 +1611,7 @@
 
                 sb.style.display = "block";
                 sb.setAttribute("aria-hidden", "false");
+                sb.scrollTop = 0;
             }
 
             function closeSidebar() {
@@ -1750,9 +1795,28 @@
                     document.getElementById("sb_weekdays_row").style.display =
                         "none";
 
+                    // Clear additional fields that aren't relevant for new tasks
+                    document.getElementById("sb_claimed").textContent = "—";
+                    document.getElementById("sb_created_by").textContent = "—";
+                    document.getElementById("sb_points_snapshot").textContent =
+                        "—";
+                    document.getElementById("sb_created").textContent = "—";
+                    document.getElementById("sb_completed").textContent = "—";
+                    document.getElementById("sb_age").textContent = "—";
+                    document.getElementById("sb_dependencies").textContent =
+                        "None";
+
+                    // Clear dependency management UI
+                    const addDepSelect =
+                        document.getElementById("sb_add_dependency");
+                    addDepSelect.innerHTML =
+                        '<option value="">-- Select task that must be completed first --</option>';
+                    document.getElementById("sb_dep_list").innerHTML = "";
+
                     const sb = document.getElementById("sidebar");
                     sb.style.display = "block";
                     sb.setAttribute("aria-hidden", "false");
+                    sb.scrollTop = 0;
                 });
 
             /* ---------------- Client WIP mirror ---------------- */
