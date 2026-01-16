@@ -192,7 +192,7 @@
     "username": "korgan",
     "password": "$2b$10$q01s7J.J9JemviWGZTjR.e9t/r7wqxNdK6V6sCJKB51Rv9nPqjWoK",
     "created_at": "2025-12-25T22:00:39.874Z",
-    "points": 531,
+    "points": 977,
     "history": [
       {
         "ts": "2025-12-25T23:28:59.985Z",
@@ -243,6 +243,71 @@
         "ts": "2026-01-08T14:22:35.407Z",
         "points": 40,
         "reason": "Completed task 1766706533093-22404 (Check coop for eggs)"
+      },
+      {
+        "ts": "2026-01-11T00:10:01.739Z",
+        "points": 40,
+        "reason": "Completed task 1766706533093-22404 (Check coop for eggs)"
+      },
+      {
+        "ts": "2026-01-11T00:27:06.718Z",
+        "points": 1,
+        "reason": "Completed task 1768052339788-67032 (Fix zero points in kanban)"
+      },
+      {
+        "ts": "2026-01-12T12:53:30.876Z",
+        "points": 59,
+        "reason": "Completed task 1768213555950-10231 (order langbeinite)"
+      },
+      {
+        "ts": "2026-01-13T14:16:16.251Z",
+        "points": 41,
+        "reason": "Completed task 1766706533093-22404 (Check coop for eggs)"
+      },
+      {
+        "ts": "2026-01-14T00:00:51.713Z",
+        "points": 59,
+        "reason": "Completed task 1768213511524-22087 (get bone meal at Ace Hardware)"
+      },
+      {
+        "ts": "2026-01-14T16:41:46.946Z",
+        "points": 1,
+        "reason": "Completed task 1767483939386-37693 (change lawnmower blade)"
+      },
+      {
+        "ts": "2026-01-15T14:23:19.244Z",
+        "points": 60,
+        "reason": "Completed task 1768052164682-18955 (Broadfork row 1)"
+      },
+      {
+        "ts": "2026-01-15T16:23:52.798Z",
+        "points": 100,
+        "reason": "Completed task 1768091726375-92352 (fertilise corn row)"
+      },
+      {
+        "ts": "2026-01-15T18:38:31.179Z",
+        "points": 41,
+        "reason": "Completed task 1768421056653-76745 (withdraw the tarp)"
+      },
+      {
+        "ts": "2026-01-16T12:53:01.354Z",
+        "points": 41,
+        "reason": "Completed task 1766706533093-22404 (Check coop for eggs)"
+      },
+      {
+        "ts": "2026-01-16T12:53:09.647Z",
+        "points": 1,
+        "reason": "Completed task 1767482526703-46541 (cut up all branches in yard)"
+      },
+      {
+        "ts": "2026-01-16T13:31:32.692Z",
+        "points": 1,
+        "reason": "Completed task 1768138410995-10510 (why is the 'germinate celery' task not in the waiting column?)"
+      },
+      {
+        "ts": "2026-01-16T14:09:57.383Z",
+        "points": 1,
+        "reason": "Completed task 1767482497983-85979 (dump all treated wood)"
       }
     ]
   }
