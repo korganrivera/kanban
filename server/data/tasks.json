@@ -27,12 +27,12 @@
   {
     "id": "1766700196887-89014",
     "title": "germinate cucumber",
-    "description": "",
+    "description": "9 plants, 12 inch spacing.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:03:16.887Z",
-    "updated_at": "2025-12-26T13:02:20.695Z",
+    "updated_at": "2026-01-16T18:07:29.998Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -52,7 +52,7 @@
   {
     "id": "1766700237372-47259",
     "title": "sow corn",
-    "description": "",
+    "description": "204 plants, 12 inch spacing.",
     "state": "Ready",
     "dependencies": [
       "1768052164682-18955",
@@ -60,7 +60,7 @@
     ],
     "picker": null,
     "created_at": "2025-12-25T22:03:57.372Z",
-    "updated_at": "2026-01-15T16:23:52.798Z",
+    "updated_at": "2026-01-16T18:09:19.052Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -80,12 +80,12 @@
   {
     "id": "1766700309271-97061",
     "title": "germinate peppers",
-    "description": "",
+    "description": "Need 15 plants.\nAssume 50% germination rate and plant 30 seeds.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:05:09.271Z",
-    "updated_at": "2025-12-25T22:05:09.271Z",
+    "updated_at": "2026-01-17T13:45:52.353Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -96,21 +96,39 @@
       "paused": false
     },
     "scheduledDueAt": "2026-01-22T06:00:00.000Z",
-    "priority": 33,
-    "urgency": 81,
+    "priority": 35,
+    "urgency": 86,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-17T13:45:29.363Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 35,
+    "points_snapshot_created_at": "2026-01-17T13:45:29.364Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-17T13:45:29.364Z",
+    "points_history": [
+      {
+        "ts": "2026-01-17T13:45:29.364Z",
+        "snapshot": 35,
+        "by": "korgan"
+      }
+    ]
   },
   {
     "id": "1766700339884-28095",
     "title": "germinate cabbage",
-    "description": "",
+    "description": "Need 21 plants.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:05:39.884Z",
-    "updated_at": "2025-12-25T22:05:39.884Z",
+    "updated_at": "2026-01-16T18:04:07.538Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -121,8 +139,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-08T06:00:00.000Z",
-    "priority": 11,
-    "urgency": 24,
+    "priority": 13,
+    "urgency": 29,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -130,12 +148,12 @@
   {
     "id": "1766700369474-18123",
     "title": "germinate broccoli",
-    "description": "",
+    "description": "Need 32.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:06:09.474Z",
-    "updated_at": "2025-12-26T12:54:36.604Z",
+    "updated_at": "2026-01-16T18:05:10.331Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -155,12 +173,12 @@
   {
     "id": "1766700407477-58716",
     "title": "germinate tomatoes",
-    "description": "",
+    "description": "Need 25.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:06:47.477Z",
-    "updated_at": "2025-12-26T12:52:26.466Z",
+    "updated_at": "2026-01-16T18:04:21.645Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -171,8 +189,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-08T06:00:00.000Z",
-    "priority": 11,
-    "urgency": 24,
+    "priority": 13,
+    "urgency": 29,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -180,12 +198,12 @@
   {
     "id": "1766700435646-79631",
     "title": "germinate winter squash",
-    "description": "",
+    "description": "9 plants, 12 inch spacing.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:07:15.646Z",
-    "updated_at": "2025-12-25T22:07:15.646Z",
+    "updated_at": "2026-01-16T18:07:45.095Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -205,12 +223,12 @@
   {
     "id": "1766700462257-80939",
     "title": "sow shelling peas",
-    "description": "",
+    "description": "204 seeds, 3 inch spacing.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:07:42.257Z",
-    "updated_at": "2025-12-25T22:07:42.257Z",
+    "updated_at": "2026-01-16T18:05:46.715Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -230,12 +248,12 @@
   {
     "id": "1766700494297-93620",
     "title": "germinate summer squash",
-    "description": "",
+    "description": "6 plants, 12 inch spacing.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:08:14.297Z",
-    "updated_at": "2025-12-25T22:08:14.297Z",
+    "updated_at": "2026-01-16T18:08:01.747Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -255,12 +273,12 @@
   {
     "id": "1766700519392-63789",
     "title": "sow snap peas",
-    "description": "",
+    "description": "81 plants, 5 inch spacing.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:08:39.392Z",
-    "updated_at": "2025-12-26T12:58:12.592Z",
+    "updated_at": "2026-01-16T18:10:09.169Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -280,12 +298,12 @@
   {
     "id": "1766700542478-67244",
     "title": "sow carrots",
-    "description": "",
+    "description": "252 seeds, 3 inch spacing.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:09:02.478Z",
-    "updated_at": "2025-12-26T12:58:34.034Z",
+    "updated_at": "2026-01-16T18:06:08.766Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -305,12 +323,12 @@
   {
     "id": "1766700570149-59077",
     "title": "germinate lettuce",
-    "description": "",
+    "description": "Need 81.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:09:30.149Z",
-    "updated_at": "2025-12-26T12:52:53.403Z",
+    "updated_at": "2026-01-16T18:04:34.547Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -321,8 +339,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-08T06:00:00.000Z",
-    "priority": 11,
-    "urgency": 24,
+    "priority": 13,
+    "urgency": 29,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -330,12 +348,12 @@
   {
     "id": "1766700592359-75787",
     "title": "germinate kale",
-    "description": "",
+    "description": "Need 81.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:09:52.359Z",
-    "updated_at": "2025-12-25T22:09:52.359Z",
+    "updated_at": "2026-01-16T18:04:51.340Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -346,8 +364,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-08T06:00:00.000Z",
-    "priority": 11,
-    "urgency": 24,
+    "priority": 13,
+    "urgency": 29,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -430,12 +448,12 @@
   {
     "id": "1766700697865-7908",
     "title": "sow/transplant onions",
-    "description": "",
+    "description": "105 seeds, 5 inch spacing.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:11:37.865Z",
-    "updated_at": "2025-12-26T12:48:10.062Z",
+    "updated_at": "2026-01-16T18:06:33.769Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -455,12 +473,12 @@
   {
     "id": "1766700720864-19456",
     "title": "sow bunching onions",
-    "description": "",
+    "description": "36 plants, 3 inch spacing.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:12:00.864Z",
-    "updated_at": "2025-12-25T22:12:00.864Z",
+    "updated_at": "2026-01-16T18:06:51.580Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -480,12 +498,12 @@
   {
     "id": "1766700752182-28548",
     "title": "sow cow peas",
-    "description": "",
+    "description": "102 plants, 6 inch spacing.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:12:32.182Z",
-    "updated_at": "2025-12-25T22:12:32.183Z",
+    "updated_at": "2026-01-16T18:08:37.015Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -605,12 +623,12 @@
   {
     "id": "1766701051929-59835",
     "title": "sow bush beans",
-    "description": "",
+    "description": "102 plants, 6 inch spacing.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:17:31.929Z",
-    "updated_at": "2025-12-25T22:17:31.930Z",
+    "updated_at": "2026-01-16T18:08:56.067Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -976,7 +994,7 @@
     },
     "scheduledDueAt": "2026-03-25T05:00:00.000Z",
     "priority": 11,
-    "urgency": 25,
+    "urgency": 26,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1174,8 +1192,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-01-18T12:53:01.353Z",
-    "priority": 2,
-    "urgency": 3,
+    "priority": 29,
+    "urgency": 70,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -1295,12 +1313,12 @@
   {
     "id": "1766753376036-95907",
     "title": "germinate onions",
-    "description": "",
+    "description": "Need 105 plants.\nRefer to this guide: https://www.theseasonalhomestead.com/how-to-grow-onions-from-seeds/\n\nChoose one of these: https://www.johnnyseeds.com/vegetables/onions/?prefn1=disease_resistance_codes&prefv1=Fusarium+Basal+Rot%7CPink+Root&prefn2=prod_feature_cat_ref&prefv2=182",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-26T12:49:36.036Z",
-    "updated_at": "2025-12-26T12:49:36.036Z",
+    "updated_at": "2026-01-17T00:57:32.555Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -1311,8 +1329,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-01-22T06:00:00.000Z",
-    "priority": 33,
-    "urgency": 81,
+    "priority": 35,
+    "urgency": 86,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1320,12 +1338,12 @@
   {
     "id": "1766753502851-89388",
     "title": "sow cabbages",
-    "description": "",
+    "description": "21 plants, 12 inch spacing.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-26T12:51:42.851Z",
-    "updated_at": "2025-12-26T12:51:42.851Z",
+    "updated_at": "2026-01-16T18:10:35.571Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -1470,12 +1488,12 @@
   {
     "id": "1766754015125-85202",
     "title": "plant potatoes",
-    "description": "",
+    "description": "90 plants, 12 inch spacing.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-26T13:00:15.125Z",
-    "updated_at": "2025-12-26T13:00:15.125Z",
+    "updated_at": "2026-01-16T18:07:07.324Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -1545,12 +1563,12 @@
   {
     "id": "1766754296179-93047",
     "title": "sow sweet potatoes",
-    "description": "",
+    "description": "18 plants, 12 inch spacing.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-26T13:04:56.179Z",
-    "updated_at": "2025-12-26T13:04:56.179Z",
+    "updated_at": "2026-01-16T18:09:53.115Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -2070,8 +2088,8 @@
     "updated_at": "2026-01-14T19:36:53.921Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 33,
-    "urgency": 81,
+    "priority": 35,
+    "urgency": 86,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -2269,18 +2287,43 @@
     "id": "1768052331603-25048",
     "title": "Fix dependency language in kanban board",
     "description": "",
-    "state": "Ready",
+    "state": "Done",
     "dependencies": [],
-    "picker": null,
+    "picker": "korgan",
     "created_at": "2026-01-10T13:38:51.603Z",
-    "updated_at": "2026-01-10T13:38:51.603Z",
+    "updated_at": "2026-01-16T14:28:30.119Z",
     "created_by": "korgan",
     "meta": {},
     "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-16T14:28:28.780Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 1,
+    "points_snapshot_created_at": "2026-01-16T14:28:28.781Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-16T14:28:28.781Z",
+    "points_history": [
+      {
+        "ts": "2026-01-16T14:28:28.781Z",
+        "snapshot": 1,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-16T14:28:30.119Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 1,
+      "ts": "2026-01-16T14:28:30.120Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1768052339788-67032",
@@ -2389,18 +2432,43 @@
     "id": "1768138386003-64043",
     "title": "Add a github-style contributions page to user profiles",
     "description": "",
-    "state": "Ready",
+    "state": "Done",
     "dependencies": [],
-    "picker": null,
+    "picker": "korgan",
     "created_at": "2026-01-11T13:33:06.003Z",
-    "updated_at": "2026-01-11T13:33:06.003Z",
+    "updated_at": "2026-01-16T15:11:26.289Z",
     "created_by": "korgan",
     "meta": {},
     "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-16T15:11:24.122Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 1,
+    "points_snapshot_created_at": "2026-01-16T15:11:24.124Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-16T15:11:24.124Z",
+    "points_history": [
+      {
+        "ts": "2026-01-16T15:11:24.124Z",
+        "snapshot": 1,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-16T15:11:26.289Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 1,
+      "ts": "2026-01-16T15:11:26.290Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1768138410995-10510",
@@ -2539,8 +2607,8 @@
     "updated_at": "2026-01-15T18:38:31.179Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 3,
-    "urgency": 6,
+    "priority": 7,
+    "urgency": 15,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -2585,8 +2653,8 @@
     "updated_at": "2026-01-14T20:09:12.750Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 17,
-    "urgency": 40,
+    "priority": 19,
+    "urgency": 46,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,

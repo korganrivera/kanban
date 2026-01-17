@@ -137,6 +137,10 @@
                 border: 1px solid rgba(255, 255, 255, 0.02);
                 font-size: 0.92rem;
                 position: relative;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                hyphens: auto;
+                max-width: 100%;
             }
             .card.waiting {
                 opacity: 0.56;
@@ -148,6 +152,9 @@
                 margin-bottom: 4px;
                 font-size: 0.96rem;
                 display: block;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                hyphens: auto;
             }
             .card .claimer {
                 font-size: 0.82rem;
@@ -158,6 +165,9 @@
                 font-size: 0.84rem;
                 color: var(--muted);
                 margin-bottom: 6px;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                hyphens: auto;
             }
             .recurrence-icon {
                 display: inline-block;
@@ -277,6 +287,110 @@
                     max-width: 200px;
                 }
             }
+
+            /* Heatmap Styles */
+            .heatmap-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.8);
+                display: none;
+                z-index: 1000;
+                overflow: auto;
+            }
+            .heatmap-container {
+                background: var(--bg);
+                margin: 50px auto;
+                padding: 30px;
+                border-radius: 12px;
+                max-width: 800px;
+                position: relative;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .heatmap-wrapper {
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+                margin: 20px 0;
+            }
+            .heatmap-days {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+                padding-top: 0px;
+            }
+            .heatmap-day-label {
+                height: 10px;
+                font-size: 9px;
+                color: var(--muted);
+                display: flex;
+                align-items: center;
+                line-height: 10px;
+            }
+            .heatmap {
+                display: grid;
+                grid-template-rows: repeat(7, 1fr);
+                grid-template-columns: repeat(53, 1fr);
+                gap: 2px;
+                font-size: 0;
+            }
+            .heatmap-square {
+                width: 10px;
+                height: 10px;
+                border-radius: 2px;
+                background-color: #161b22;
+            }
+            .heatmap-square.level-0 {
+                background-color: #161b22;
+            }
+            .heatmap-square.level-1 {
+                background-color: #0e4429;
+            }
+            .heatmap-square.level-2 {
+                background-color: #006d32;
+            }
+            .heatmap-square.level-3 {
+                background-color: #26a641;
+            }
+            .heatmap-square.level-4 {
+                background-color: #39d353;
+            }
+            .heatmap-square:hover {
+                outline: 1px solid rgba(240, 246, 252, 0.3);
+                outline-offset: 1px;
+            }
+            .heatmap-months {
+                position: relative;
+                margin-bottom: 8px;
+                font-size: 12px;
+                color: var(--muted);
+                height: 15px;
+                width: 636px;
+                margin-left: 30px;
+            }
+            .heatmap-month-label {
+                position: absolute;
+                font-size: 12px;
+                color: var(--muted);
+                transform: translateX(-50%);
+                left: 0;
+            }
+            .heatmap-legend {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                font-size: 12px;
+                color: var(--muted);
+                margin-top: 20px;
+                justify-content: center;
+            }
+            .heatmap-legend-squares {
+                display: flex;
+                gap: 2px;
+                margin: 0 8px;
+            }
         </style>
     </head>
     <body>
@@ -312,7 +426,12 @@
                         id="currentUser"
                         style="color: var(--accent-2); display: none"
                     >
-                        👤 <span id="username"></span> •
+                        👤
+                        <span
+                            id="username"
+                            style="cursor: pointer; text-decoration: underline"
+                        ></span>
+                        •
                         <span
                             id="userPoints"
                             style="color: var(--ok); font-weight: 600"
@@ -628,6 +747,78 @@
             <div class="actions">
                 <button id="saveSettings">Save</button>
                 <button id="cancelSettings" class="ghost">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Heatmap Modal -->
+        <div
+            id="heatmapModal"
+            class="heatmap-modal"
+            role="dialog"
+            aria-hidden="true"
+        >
+            <button
+                id="closeHeatmap"
+                style="
+                    position: absolute;
+                    top: 20px;
+                    right: 20px;
+                    background: transparent;
+                    border: 0;
+                    color: var(--muted);
+                    font-size: 1.2rem;
+                    cursor: pointer;
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                "
+            >
+                ✕
+            </button>
+            <div class="heatmap-container">
+                <h3>Task Completion Activity</h3>
+                <div class="muted-small" style="margin-bottom: 15px">
+                    Your task completion activity over the past year
+                </div>
+
+                <div id="heatmap-months" class="heatmap-months"></div>
+                <div class="heatmap-wrapper">
+                    <div class="heatmap-days">
+                        <div class="heatmap-day-label">Sun</div>
+                        <div class="heatmap-day-label"></div>
+                        <div class="heatmap-day-label">Tue</div>
+                        <div class="heatmap-day-label"></div>
+                        <div class="heatmap-day-label">Thu</div>
+                        <div class="heatmap-day-label"></div>
+                        <div class="heatmap-day-label">Sat</div>
+                    </div>
+                    <div id="heatmap-grid" class="heatmap"></div>
+                </div>
+
+                <div class="heatmap-legend">
+                    <span>Less</span>
+                    <div class="heatmap-legend-squares">
+                        <div class="heatmap-square level-0"></div>
+                        <div class="heatmap-square level-1"></div>
+                        <div class="heatmap-square level-2"></div>
+                        <div class="heatmap-square level-3"></div>
+                        <div class="heatmap-square level-4"></div>
+                    </div>
+                    <span>More</span>
+                </div>
+
+                <div
+                    id="heatmap-stats"
+                    style="
+                        margin-top: 20px;
+                        font-size: 11px;
+                        color: var(--muted);
+                    "
+                >
+                    <div id="total-contributions"></div>
+                    <div id="current-streak"></div>
+                    <div id="longest-streak"></div>
+                </div>
             </div>
         </div>
 
@@ -1933,6 +2124,216 @@
                 modal.setAttribute("aria-hidden", "true");
             }
 
+            /* ---------------- Heatmap Functions ---------------- */
+            function generateHeatmapData() {
+                const now = new Date();
+                const oneYearAgo = new Date(now);
+                oneYearAgo.setFullYear(now.getFullYear() - 1);
+
+                // Create a map of date strings to task completion counts
+                const dailyCounts = {};
+
+                // Initialize all days in the past year to 0
+                for (
+                    let d = new Date(oneYearAgo);
+                    d <= now;
+                    d.setDate(d.getDate() + 1)
+                ) {
+                    const dateKey = d.toISOString().split("T")[0];
+                    dailyCounts[dateKey] = 0;
+                }
+
+                // Count completed tasks for each day
+                tasksCache.forEach((task) => {
+                    if (task.lastCompletedAt) {
+                        const completedDate = new Date(task.lastCompletedAt);
+                        if (
+                            completedDate >= oneYearAgo &&
+                            completedDate <= now
+                        ) {
+                            const dateKey = completedDate
+                                .toISOString()
+                                .split("T")[0];
+                            if (dailyCounts[dateKey] !== undefined) {
+                                dailyCounts[dateKey]++;
+                            }
+                        }
+                    }
+                });
+
+                return dailyCounts;
+            }
+
+            function renderHeatmap() {
+                const data = generateHeatmapData();
+                const now = new Date();
+
+                // Find max value for scaling
+                const maxValue = Math.max(...Object.values(data));
+                const getLevel = (count) => {
+                    if (count === 0) return 0;
+                    if (maxValue <= 1) return 4;
+                    const normalized = count / maxValue;
+                    if (normalized <= 0.25) return 1;
+                    if (normalized <= 0.5) return 2;
+                    if (normalized <= 0.75) return 3;
+                    return 4;
+                };
+
+                // Clear existing heatmap
+                const grid = document.getElementById("heatmap-grid");
+                grid.innerHTML = "";
+
+                // Start from the most recent Sunday (like GitHub)
+                const endDate = new Date(now);
+                const dayOfWeek = endDate.getDay();
+                endDate.setDate(endDate.getDate() - dayOfWeek);
+
+                // Go back 53 weeks
+                const startDate = new Date(endDate);
+                startDate.setDate(startDate.getDate() - 52 * 7);
+
+                // Generate month headers
+                const monthsDiv = document.getElementById("heatmap-months");
+                monthsDiv.innerHTML = "";
+                const months = [
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec",
+                ];
+
+                // Track which months to show and where
+                const monthPositions = [];
+                let lastMonth = -1;
+
+                for (let week = 0; week < 53; week++) {
+                    const weekDate = new Date(startDate);
+                    weekDate.setDate(startDate.getDate() + week * 7);
+                    const month = weekDate.getMonth();
+
+                    // Show month label when month changes
+                    if (month !== lastMonth) {
+                        monthPositions.push({
+                            week: week,
+                            month: months[month],
+                        });
+                        lastMonth = month;
+                    }
+                }
+
+                // Clear existing month labels
+                monthsDiv.innerHTML = "";
+
+                // Create month labels at calculated positions
+                monthPositions.forEach((pos) => {
+                    const monthSpan = document.createElement("span");
+                    monthSpan.textContent = pos.month;
+                    monthSpan.className = "heatmap-month-label";
+                    // Calculate position: (week * (square_width + gap)) + half_square_width
+                    const pixelPosition = pos.week * 12 + 5; // 10px square + 2px gap = 12px per week, +5px to center
+                    monthSpan.style.left = `${pixelPosition}px`;
+                    monthsDiv.appendChild(monthSpan);
+                });
+
+                // Generate grid squares - fill by day of week (rows) then by week (columns)
+                // This matches your C version: graph[day][week]
+                for (let day = 0; day < 7; day++) {
+                    for (let week = 0; week < 53; week++) {
+                        const date = new Date(startDate);
+                        date.setDate(startDate.getDate() + week * 7 + day);
+
+                        const square = document.createElement("div");
+                        square.className = "heatmap-square";
+
+                        // Don't show future dates
+                        if (date <= now) {
+                            const dateKey = date.toISOString().split("T")[0];
+                            const count = data[dateKey] || 0;
+                            const level = getLevel(count);
+                            square.classList.add(`level-${level}`);
+
+                            // Add tooltip
+                            const dayNames = [
+                                "Sunday",
+                                "Monday",
+                                "Tuesday",
+                                "Wednesday",
+                                "Thursday",
+                                "Friday",
+                                "Saturday",
+                            ];
+                            square.title = `${dayNames[day]}, ${date.toLocaleDateString()}: ${count} task${count !== 1 ? "s" : ""} completed`;
+                        } else {
+                            square.classList.add("level-0");
+                        }
+
+                        grid.appendChild(square);
+                    }
+                }
+
+                // Update stats
+                const totalTasks = Object.values(data).reduce(
+                    (sum, count) => sum + count,
+                    0,
+                );
+                document.getElementById("total-contributions").textContent =
+                    `${totalTasks} tasks completed in the last year`;
+
+                // Calculate streaks
+                const sortedDates = Object.keys(data).sort().reverse();
+                let currentStreak = 0;
+                let longestStreak = 0;
+                let tempStreak = 0;
+
+                for (let i = 0; i < sortedDates.length; i++) {
+                    const count = data[sortedDates[i]];
+                    if (count > 0) {
+                        tempStreak++;
+                        if (i === 0) currentStreak = tempStreak;
+                        longestStreak = Math.max(longestStreak, tempStreak);
+                    } else {
+                        if (i === 0) currentStreak = 0;
+                        tempStreak = 0;
+                    }
+                }
+
+                document.getElementById("current-streak").textContent =
+                    `Current streak: ${currentStreak} day${currentStreak !== 1 ? "s" : ""}`;
+                document.getElementById("longest-streak").textContent =
+                    `Longest streak: ${longestStreak} day${longestStreak !== 1 ? "s" : ""}`;
+            }
+
+            function openHeatmap() {
+                renderHeatmap();
+                const modal = document.getElementById("heatmapModal");
+                modal.style.display = "block";
+                modal.setAttribute("aria-hidden", "false");
+            }
+
+            function closeHeatmap() {
+                const modal = document.getElementById("heatmapModal");
+                modal.style.display = "none";
+                modal.setAttribute("aria-hidden", "true");
+            }
+
+            // Close modal when clicking outside the content
+            document
+                .getElementById("heatmapModal")
+                .addEventListener("click", (e) => {
+                    if (e.target.id === "heatmapModal") {
+                        closeHeatmap();
+                    }
+                });
+
             async function saveSettings() {
                 const payload = {};
 
@@ -1984,6 +2385,11 @@
                 .getElementById("saveSettings")
                 .addEventListener("click", saveSettings);
 
+            /* ---------------- Heatmap Event Listeners ---------------- */
+            document
+                .getElementById("closeHeatmap")
+                .addEventListener("click", closeHeatmap);
+
             /* ---------------- User points refresh ---------------- */
             async function refreshUserPoints() {
                 try {
@@ -2010,8 +2416,9 @@
                     }
 
                     // Show user info
-                    document.getElementById("username").textContent =
-                        data.username;
+                    const usernameEl = document.getElementById("username");
+                    usernameEl.textContent = data.username;
+                    usernameEl.addEventListener("click", openHeatmap);
                     document.getElementById("userPoints").textContent =
                         data.points || 0;
                     document.getElementById("currentUser").style.display =
