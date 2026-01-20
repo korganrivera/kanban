@@ -192,7 +192,7 @@
     "username": "korgan",
     "password": "$2b$10$q01s7J.J9JemviWGZTjR.e9t/r7wqxNdK6V6sCJKB51Rv9nPqjWoK",
     "created_at": "2025-12-25T22:00:39.874Z",
-    "points": 979,
+    "points": 1020,
     "history": [
       {
         "ts": "2025-12-25T23:28:59.985Z",
@@ -318,7 +318,17 @@
         "ts": "2026-01-16T15:11:26.290Z",
         "points": 1,
         "reason": "Completed task 1768138386003-64043 (Add a github-style contributions page to user profiles)"
+      },
+      {
+        "ts": "2026-01-19T12:00:21.812Z",
+        "points": 41,
+        "reason": "Completed task 1766706533093-22404 (Check coop for eggs)"
       }
     ]
+  },
+  "whitneyapple": {
+    "username": "whitneyapple",
+    "password": "$2b$10$dteXvZ9MU7YIl/Vc3xK7ruL5PbphX6TWfsEyNleSwAcSa2vTYVekO",
+    "created_at": "2026-01-18T13:40:59.447Z"
   }
 }
