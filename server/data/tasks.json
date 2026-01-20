@@ -96,8 +96,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-01-22T06:00:00.000Z",
-    "priority": 35,
-    "urgency": 86,
+    "priority": 39,
+    "urgency": 94,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -139,8 +139,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-08T06:00:00.000Z",
-    "priority": 13,
-    "urgency": 29,
+    "priority": 16,
+    "urgency": 37,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -189,8 +189,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-08T06:00:00.000Z",
-    "priority": 13,
-    "urgency": 29,
+    "priority": 16,
+    "urgency": 37,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -298,12 +298,12 @@
   {
     "id": "1766700542478-67244",
     "title": "sow carrots",
-    "description": "252 seeds, 3 inch spacing.",
+    "description": "252 seeds, 3 inch spacing.\nDig out soil, sieve it, and put it back in.\nCover so they don't dry out.\nTry Nantes-type carrots.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:09:02.478Z",
-    "updated_at": "2026-01-16T18:06:08.766Z",
+    "updated_at": "2026-01-20T01:13:30.022Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -339,8 +339,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-08T06:00:00.000Z",
-    "priority": 13,
-    "urgency": 29,
+    "priority": 16,
+    "urgency": 37,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -364,8 +364,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-08T06:00:00.000Z",
-    "priority": 13,
-    "urgency": 29,
+    "priority": 16,
+    "urgency": 37,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -539,8 +539,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-02-18T06:00:00.000Z",
-    "priority": 1,
-    "urgency": 0,
+    "priority": 3,
+    "urgency": 4,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -993,8 +993,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-25T05:00:00.000Z",
-    "priority": 11,
-    "urgency": 26,
+    "priority": 13,
+    "urgency": 29,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1182,7 +1182,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T23:48:53.093Z",
-    "updated_at": "2026-01-16T12:53:01.353Z",
+    "updated_at": "2026-01-19T12:00:21.811Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -1191,9 +1191,9 @@
       "leadTimeDays": 0,
       "paused": false
     },
-    "scheduledDueAt": "2026-01-18T12:53:01.353Z",
-    "priority": 29,
-    "urgency": 70,
+    "scheduledDueAt": "2026-01-21T12:00:21.811Z",
+    "priority": 19,
+    "urgency": 44,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -1245,6 +1245,11 @@
       },
       {
         "ts": "2026-01-16T12:52:58.091Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-01-19T12:00:20.509Z",
         "picker": "korgan",
         "action": "picked"
       }
@@ -1300,25 +1305,30 @@
         "ts": "2026-01-16T12:52:58.098Z",
         "snapshot": 41,
         "by": "korgan"
+      },
+      {
+        "ts": "2026-01-19T12:00:20.510Z",
+        "snapshot": 41,
+        "by": "korgan"
       }
     ],
-    "lastCompletedAt": "2026-01-16T12:53:01.353Z",
+    "lastCompletedAt": "2026-01-19T12:00:21.811Z",
     "awarded": {
       "to": "korgan",
       "points": 41,
-      "ts": "2026-01-16T12:53:01.355Z"
+      "ts": "2026-01-19T12:00:21.812Z"
     },
     "points_snapshot_awarded": true
   },
   {
     "id": "1766753376036-95907",
     "title": "germinate onions",
-    "description": "Need 105 plants.\nRefer to this guide: https://www.theseasonalhomestead.com/how-to-grow-onions-from-seeds/\n\nChoose one of these: https://www.johnnyseeds.com/vegetables/onions/?prefn1=disease_resistance_codes&prefv1=Fusarium+Basal+Rot%7CPink+Root&prefn2=prod_feature_cat_ref&prefv2=182",
+    "description": "Need 105 plants.\nRefer to this guide: https://www.theseasonalhomestead.com/how-to-grow-onions-from-seeds/",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-26T12:49:36.036Z",
-    "updated_at": "2026-01-17T00:57:32.555Z",
+    "updated_at": "2026-01-19T13:08:18.256Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -1329,8 +1339,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-01-22T06:00:00.000Z",
-    "priority": 35,
-    "urgency": 86,
+    "priority": 39,
+    "urgency": 94,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1488,12 +1498,12 @@
   {
     "id": "1766754015125-85202",
     "title": "plant potatoes",
-    "description": "90 plants, 12 inch spacing.",
+    "description": "90 plants, 12 inch spacing.\n6 inch depth, NO nitrogen, mulch heavily after emergence to keep cool.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-26T13:00:15.125Z",
-    "updated_at": "2026-01-16T18:07:07.324Z",
+    "updated_at": "2026-01-20T00:45:31.213Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -1563,12 +1573,14 @@
   {
     "id": "1766754296179-93047",
     "title": "sow sweet potatoes",
-    "description": "18 plants, 12 inch spacing.",
-    "state": "Ready",
-    "dependencies": [],
+    "description": "18 plants, 12 inch spacing.\nsoil temp 65+, not soaked.\nShaded with mulch, but not touching.\nMaintain even moisture.",
+    "state": "Suspended",
+    "dependencies": [
+      "1768899336093-82128"
+    ],
     "picker": null,
     "created_at": "2025-12-26T13:04:56.179Z",
-    "updated_at": "2026-01-16T18:09:53.115Z",
+    "updated_at": "2026-01-20T09:16:50.551Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -1622,9 +1634,9 @@
     "created_by": "korgan",
     "meta": {},
     "remedy_for": "1766701208210-75737",
-    "priority": 60,
+    "priority": 59,
     "urgency": 0,
-    "importancePercentile": 98,
+    "importancePercentile": 97,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -2088,8 +2100,8 @@
     "updated_at": "2026-01-14T19:36:53.921Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 35,
-    "urgency": 86,
+    "priority": 39,
+    "urgency": 94,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -2252,9 +2264,9 @@
     "updated_at": "2026-01-15T14:23:19.244Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 60,
+    "priority": 59,
     "urgency": 0,
-    "importancePercentile": 98,
+    "importancePercentile": 97,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -2397,9 +2409,9 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-01-15T06:00:00.000Z",
-    "priority": 100,
+    "priority": 99,
     "urgency": 100,
-    "importancePercentile": 98,
+    "importancePercentile": 97,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -2604,15 +2616,15 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2026-01-14T20:04:16.653Z",
-    "updated_at": "2026-01-15T18:38:31.179Z",
+    "updated_at": "2026-01-20T09:19:24.957Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 7,
-    "urgency": 15,
+    "priority": 1,
+    "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
-    "scheduledDueAt": "2026-01-29T18:38:31.179Z",
+    "scheduledDueAt": "2026-02-19T18:38:00.000Z",
     "recurrence": {
       "leadTimeDays": 0,
       "paused": false,
@@ -2653,8 +2665,8 @@
     "updated_at": "2026-01-14T20:09:12.750Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 19,
-    "urgency": 46,
+    "priority": 24,
+    "urgency": 58,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -2665,5 +2677,97 @@
       "type": "rolling",
       "intervalDays": 21
     }
+  },
+  {
+    "id": "1768741186460-56953",
+    "title": "stage garden supplies",
+    "description": "Order peat plugs, amendments, trays, and whatever else I need before the garden starts.",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-18T12:59:46.460Z",
+    "updated_at": "2026-01-18T12:59:46.460Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 0,
+      "paused": false
+    },
+    "scheduledDueAt": "2027-01-01T06:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1768741358105-73662",
+    "title": "Garden Documentation Update",
+    "description": "Photograph bed layouts, log observations",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-18T13:02:38.105Z",
+    "updated_at": "2026-01-18T13:02:38.105Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 30,
+      "weekdays": [],
+      "leadTimeDays": 0,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-01-22T06:00:00.000Z",
+    "priority": 39,
+    "urgency": 94,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1768743703186-78271",
+    "title": "Clean cat water bowl",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-18T13:41:43.186Z",
+    "updated_at": "2026-01-18T13:41:43.186Z",
+    "created_by": "whitneyapple",
+    "meta": {},
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1768899336093-82128",
+    "title": "Prep sweet potato area",
+    "description": "Broadfork and loosen soil, mix with compost.\nAdd bonemeal and langbeinite. NO nitrogen.",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-20T08:55:36.093Z",
+    "updated_at": "2026-01-20T08:55:36.093Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 7,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-04-15T05:00:00.000Z",
+    "priority": 59,
+    "urgency": 0,
+    "importancePercentile": 97,
+    "importanceRaw": 1,
+    "deadlock": false
   }
 ]

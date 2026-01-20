@@ -197,6 +197,19 @@ function computeEffectiveState(task, allTasks = [], now = new Date()) {
   const readyAtIso = calcReadyAt(task);
   const readyAt = parseDateSafe(readyAtIso);
 
+  // Debug logging for specific task
+  if (task.id === "1766754296179-93047") {
+    console.log(`\nDEBUG Task ${task.id}:`);
+    console.log(`  scheduledAt: ${scheduledAt}`);
+    console.log(`  readyAtIso: ${readyAtIso}`);
+    console.log(`  readyAt: ${readyAt}`);
+    console.log(`  now: ${now.toISOString()}`);
+    console.log(`  stored state: ${task.state}`);
+    console.log(
+      `  now < readyAt: ${readyAt && now.getTime() < readyAt.getTime()}`,
+    );
+  }
+
   // Determine overdue:
   // - For recurring tasks with a numeric intervalDays, consider overdue only
   //   when now is past scheduledAt + (intervalDays / 2).
@@ -245,14 +258,7 @@ function computeEffectiveState(task, allTasks = [], now = new Date()) {
       overdue,
     };
   }
-  if (task.state === "Suspended") {
-    return {
-      effectiveState: "Suspended",
-      readyAt: readyAtIso,
-      scheduledDueAt: scheduledAt ? scheduledAt.toISOString() : null,
-      overdue,
-    };
-  }
+  // Note: Don't return early for Suspended state - let timing logic override it
 
   if (task.recurrence && task.recurrence.paused) {
     return {
@@ -263,6 +269,17 @@ function computeEffectiveState(task, allTasks = [], now = new Date()) {
     };
   }
 
+  // Check if task is not due yet - this should override dependency checks
+  if (readyAt && now.getTime() < readyAt.getTime()) {
+    return {
+      effectiveState: "Waiting",
+      readyAt: readyAtIso,
+      scheduledDueAt: scheduledAt ? scheduledAt.toISOString() : null,
+      overdue: false,
+    };
+  }
+
+  // Only check dependencies if task is due/ready
   if (anyDependencyUnresolved(allTasks, task)) {
     return {
       effectiveState: "Suspended",
@@ -282,19 +299,20 @@ function computeEffectiveState(task, allTasks = [], now = new Date()) {
     };
   }
 
-  if (readyAt && now.getTime() < readyAt.getTime()) {
+  // If stored state was Suspended, respect it after all other checks
+  if (task.state === "Suspended") {
     return {
-      effectiveState: "Waiting",
+      effectiveState: "Suspended",
       readyAt: readyAtIso,
-      scheduledDueAt: scheduledAt.toISOString(),
-      overdue: false,
+      scheduledDueAt: scheduledAt ? scheduledAt.toISOString() : null,
+      overdue,
     };
   }
 
   return {
     effectiveState: "Ready",
     readyAt: readyAtIso,
-    scheduledDueAt: scheduledAt.toISOString(),
+    scheduledDueAt: scheduledAt ? scheduledAt.toISOString() : null,
     overdue,
   };
 }
