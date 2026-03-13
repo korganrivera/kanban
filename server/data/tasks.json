@@ -18,8 +18,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-08T05:00:00.000Z",
-    "priority": 1,
-    "urgency": 0,
+    "priority": 6,
+    "urgency": 13,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -32,19 +32,19 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:03:16.887Z",
-    "updated_at": "2026-01-16T18:07:29.998Z",
+    "updated_at": "2026-03-11T14:28:20.380Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
       "type": "anchored",
       "intervalDays": 365,
       "weekdays": [],
-      "leadTimeDays": 7,
+      "leadTimeDays": 3,
       "paused": false
     },
     "scheduledDueAt": "2026-03-15T05:00:00.000Z",
-    "priority": 1,
-    "urgency": 0,
+    "priority": 38,
+    "urgency": 93,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -85,7 +85,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:05:09.271Z",
-    "updated_at": "2026-01-17T13:45:52.353Z",
+    "updated_at": "2026-01-22T18:07:05.892Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -95,9 +95,9 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-01-22T06:00:00.000Z",
-    "priority": 39,
-    "urgency": 94,
+    "scheduledDueAt": "2027-01-22T06:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -106,19 +106,28 @@
         "ts": "2026-01-17T13:45:29.363Z",
         "picker": "korgan",
         "action": "picked"
+      },
+      {
+        "ts": "2026-01-22T18:07:04.784Z",
+        "picker": "korgan",
+        "action": "picked"
       }
     ],
-    "points_snapshot": 35,
-    "points_snapshot_created_at": "2026-01-17T13:45:29.364Z",
     "points_snapshot_created_by": "korgan",
-    "picked_at": "2026-01-17T13:45:29.364Z",
     "points_history": [
       {
         "ts": "2026-01-17T13:45:29.364Z",
         "snapshot": 35,
         "by": "korgan"
       }
-    ]
+    ],
+    "lastCompletedAt": "2026-01-22T18:07:05.892Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 35,
+      "ts": "2026-01-22T18:07:05.894Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1766700339884-28095",
@@ -128,7 +137,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:05:39.884Z",
-    "updated_at": "2026-01-16T18:04:07.538Z",
+    "updated_at": "2026-02-07T12:06:26.604Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -138,12 +147,34 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-02-08T06:00:00.000Z",
-    "priority": 16,
-    "urgency": 37,
+    "scheduledDueAt": "2027-02-08T06:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-07T12:06:15.126Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-02-07T12:06:15.128Z",
+        "snapshot": 40,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-07T12:06:26.604Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 40,
+      "ts": "2026-02-07T12:06:26.605Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1766700369474-18123",
@@ -153,7 +184,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:06:09.474Z",
-    "updated_at": "2026-01-16T18:05:10.331Z",
+    "updated_at": "2026-02-20T14:56:36.204Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -163,12 +194,34 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-02-22T06:00:00.000Z",
+    "scheduledDueAt": "2027-02-22T06:00:00.000Z",
     "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-20T14:56:34.402Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-02-20T14:56:34.405Z",
+        "snapshot": 39,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-20T14:56:36.204Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 39,
+      "ts": "2026-02-20T14:56:36.209Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1766700407477-58716",
@@ -178,7 +231,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:06:47.477Z",
-    "updated_at": "2026-01-16T18:04:21.645Z",
+    "updated_at": "2026-02-06T21:00:41.697Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -188,12 +241,34 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-02-08T06:00:00.000Z",
-    "priority": 16,
-    "urgency": 37,
+    "scheduledDueAt": "2027-02-08T06:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-06T21:00:38.556Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-02-06T21:00:38.558Z",
+        "snapshot": 39,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-06T21:00:41.697Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 39,
+      "ts": "2026-02-06T21:00:41.698Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1766700435646-79631",
@@ -203,19 +278,19 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:07:15.646Z",
-    "updated_at": "2026-01-16T18:07:45.095Z",
+    "updated_at": "2026-03-11T14:28:48.187Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
       "type": "anchored",
       "intervalDays": 365,
       "weekdays": [],
-      "leadTimeDays": 7,
+      "leadTimeDays": 3,
       "paused": false
     },
     "scheduledDueAt": "2026-03-15T05:00:00.000Z",
-    "priority": 1,
-    "urgency": 0,
+    "priority": 38,
+    "urgency": 93,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -225,10 +300,12 @@
     "title": "sow shelling peas",
     "description": "204 seeds, 3 inch spacing.",
     "state": "Ready",
-    "dependencies": [],
+    "dependencies": [
+      "1772325007270-41459"
+    ],
     "picker": null,
     "created_at": "2025-12-25T22:07:42.257Z",
-    "updated_at": "2026-01-16T18:05:46.715Z",
+    "updated_at": "2026-03-06T01:39:06.364Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -238,12 +315,34 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-03-01T06:00:00.000Z",
+    "scheduledDueAt": "2027-03-01T06:00:00.000Z",
     "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-03-05T19:57:51.242Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-03-05T19:57:51.244Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-03-06T01:39:06.364Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-03-06T01:39:06.365Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1766700494297-93620",
@@ -253,19 +352,19 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:08:14.297Z",
-    "updated_at": "2026-01-16T18:08:01.747Z",
+    "updated_at": "2026-03-11T14:28:27.544Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
       "type": "anchored",
       "intervalDays": 365,
       "weekdays": [],
-      "leadTimeDays": 7,
+      "leadTimeDays": 3,
       "paused": false
     },
     "scheduledDueAt": "2026-03-15T05:00:00.000Z",
-    "priority": 1,
-    "urgency": 0,
+    "priority": 38,
+    "urgency": 93,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -303,19 +402,19 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:09:02.478Z",
-    "updated_at": "2026-01-20T01:13:30.022Z",
+    "updated_at": "2026-03-11T14:31:25.577Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
       "type": "anchored",
       "intervalDays": 365,
       "weekdays": [],
-      "leadTimeDays": 7,
+      "leadTimeDays": 3,
       "paused": false
     },
     "scheduledDueAt": "2026-03-08T06:00:00.000Z",
-    "priority": 1,
-    "urgency": 0,
+    "priority": 41,
+    "urgency": 100,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -328,7 +427,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:09:30.149Z",
-    "updated_at": "2026-01-16T18:04:34.547Z",
+    "updated_at": "2026-02-06T21:00:29.674Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -338,12 +437,34 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-02-08T06:00:00.000Z",
-    "priority": 16,
-    "urgency": 37,
+    "scheduledDueAt": "2027-02-08T06:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-06T19:51:54.538Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-02-06T19:51:54.540Z",
+        "snapshot": 39,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-06T21:00:29.674Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 39,
+      "ts": "2026-02-06T21:00:29.675Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1766700592359-75787",
@@ -353,7 +474,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:09:52.359Z",
-    "updated_at": "2026-01-16T18:04:51.340Z",
+    "updated_at": "2026-02-06T21:28:46.906Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -363,12 +484,34 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-02-08T06:00:00.000Z",
-    "priority": 16,
-    "urgency": 37,
+    "scheduledDueAt": "2027-02-08T06:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-06T21:00:46.669Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-02-06T21:00:46.672Z",
+        "snapshot": 39,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-06T21:28:46.906Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 39,
+      "ts": "2026-02-06T21:28:46.908Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1766700627709-5936",
@@ -378,7 +521,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:10:27.709Z",
-    "updated_at": "2025-12-25T22:10:27.709Z",
+    "updated_at": "2026-02-19T21:47:47.391Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -388,12 +531,34 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-02-22T06:00:00.000Z",
+    "scheduledDueAt": "2027-02-22T06:00:00.000Z",
     "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-19T21:47:45.844Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-02-19T21:47:45.846Z",
+        "snapshot": 38,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-19T21:47:47.391Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 38,
+      "ts": "2026-02-19T21:47:47.392Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1766700650119-63955",
@@ -403,7 +568,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:10:50.119Z",
-    "updated_at": "2025-12-25T22:10:50.119Z",
+    "updated_at": "2026-03-06T20:26:59.376Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -413,12 +578,34 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-02-22T06:00:00.000Z",
+    "scheduledDueAt": "2027-02-22T06:00:00.000Z",
     "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-23T13:13:04.355Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-02-23T13:13:04.358Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-03-06T20:26:59.376Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-03-06T20:26:59.377Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1766700672858-1876",
@@ -439,8 +626,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-08T06:00:00.000Z",
-    "priority": 1,
-    "urgency": 0,
+    "priority": 41,
+    "urgency": 100,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -453,7 +640,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:11:37.865Z",
-    "updated_at": "2026-01-16T18:06:33.769Z",
+    "updated_at": "2026-03-10T22:21:19.016Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -463,12 +650,34 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-03-08T06:00:00.000Z",
+    "scheduledDueAt": "2027-03-08T06:00:00.000Z",
     "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-03-10T22:20:41.107Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-03-10T22:20:41.108Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-03-10T22:21:19.016Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-03-10T22:21:19.017Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1766700720864-19456",
@@ -478,7 +687,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:12:00.864Z",
-    "updated_at": "2026-01-16T18:06:51.580Z",
+    "updated_at": "2026-03-12T19:46:32.540Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -488,12 +697,34 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-03-08T06:00:00.000Z",
+    "scheduledDueAt": "2027-03-08T06:00:00.000Z",
     "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-03-12T19:46:30.856Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-03-12T19:46:30.858Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-03-12T19:46:32.540Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-03-12T19:46:32.540Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1766700752182-28548",
@@ -528,7 +759,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:13:01.675Z",
-    "updated_at": "2025-12-25T22:13:01.675Z",
+    "updated_at": "2026-02-11T17:40:54.614Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -538,12 +769,34 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-02-18T06:00:00.000Z",
-    "priority": 3,
-    "urgency": 4,
+    "scheduledDueAt": "2027-02-18T06:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-11T17:40:53.476Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-02-11T17:40:53.479Z",
+        "snapshot": 32,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-11T17:40:54.614Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 32,
+      "ts": "2026-02-11T17:40:54.615Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1766700803760-98320",
@@ -553,7 +806,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:13:23.760Z",
-    "updated_at": "2025-12-25T22:13:23.760Z",
+    "updated_at": "2026-02-14T12:07:57.975Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -563,12 +816,34 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-02-21T06:00:00.000Z",
+    "scheduledDueAt": "2027-02-21T06:00:00.000Z",
     "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-14T12:07:56.618Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-02-14T12:07:56.620Z",
+        "snapshot": 32,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-14T12:07:57.975Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 32,
+      "ts": "2026-02-14T12:07:57.976Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1766700824396-97611",
@@ -578,19 +853,19 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:13:44.396Z",
-    "updated_at": "2025-12-26T12:51:04.308Z",
+    "updated_at": "2026-03-11T14:28:33.688Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
       "type": "anchored",
       "intervalDays": 365,
       "weekdays": [],
-      "leadTimeDays": 7,
+      "leadTimeDays": 3,
       "paused": false
     },
     "scheduledDueAt": "2026-03-15T05:00:00.000Z",
-    "priority": 1,
-    "urgency": 0,
+    "priority": 38,
+    "urgency": 93,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -993,8 +1268,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-25T05:00:00.000Z",
-    "priority": 13,
-    "urgency": 29,
+    "priority": 35,
+    "urgency": 86,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1002,12 +1277,12 @@
   {
     "id": "1766701489395-21051",
     "title": "plant carrots",
-    "description": "",
+    "description": "When planted, cover them with boards propped up to maintain humidity.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T22:24:49.395Z",
-    "updated_at": "2025-12-25T22:24:49.395Z",
+    "updated_at": "2026-02-16T23:15:30.259Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -1168,8 +1443,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-01T05:00:00.000Z",
-    "priority": 1,
-    "urgency": 0,
+    "priority": 15,
+    "urgency": 36,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1182,7 +1457,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T23:48:53.093Z",
-    "updated_at": "2026-01-19T12:00:21.811Z",
+    "updated_at": "2026-03-10T10:55:33.463Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -1191,9 +1466,9 @@
       "leadTimeDays": 0,
       "paused": false
     },
-    "scheduledDueAt": "2026-01-21T12:00:21.811Z",
-    "priority": 19,
-    "urgency": 44,
+    "scheduledDueAt": "2026-03-12T10:55:33.463Z",
+    "priority": 41,
+    "urgency": 100,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -1250,6 +1525,91 @@
       },
       {
         "ts": "2026-01-19T12:00:20.509Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-01-22T00:37:30.289Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-01-24T12:45:11.716Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-01-26T22:58:35.086Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-01-29T05:34:27.460Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-01-31T12:58:33.253Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-02-03T11:54:31.297Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-02-05T17:43:06.069Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-02-08T02:08:54.283Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-02-11T00:14:52.853Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-02-13T00:16:28.374Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-02-16T00:27:50.660Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-02-19T13:37:18.210Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-02-23T00:28:37.606Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-02-27T19:24:29.216Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-03-04T22:53:03.586Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-03-06T20:31:00.177Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-03-10T10:55:32.351Z",
         "picker": "korgan",
         "action": "picked"
       }
@@ -1310,27 +1670,116 @@
         "ts": "2026-01-19T12:00:20.510Z",
         "snapshot": 41,
         "by": "korgan"
+      },
+      {
+        "ts": "2026-01-22T00:37:30.291Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-01-24T12:45:11.721Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-01-26T22:58:35.088Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-01-29T05:34:27.463Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-01-31T12:58:33.255Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-02-03T11:54:31.299Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-02-05T17:43:06.071Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-02-08T02:08:54.285Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-02-11T00:14:52.854Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-02-13T00:16:28.376Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-02-16T00:27:50.660Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-02-19T13:37:18.214Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-02-23T00:28:37.609Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-02-27T19:24:29.219Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-03-04T22:53:03.588Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-03-06T20:31:00.177Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-03-10T10:55:32.352Z",
+        "snapshot": 41,
+        "by": "korgan"
       }
     ],
-    "lastCompletedAt": "2026-01-19T12:00:21.811Z",
+    "lastCompletedAt": "2026-03-10T10:55:33.463Z",
     "awarded": {
       "to": "korgan",
       "points": 41,
-      "ts": "2026-01-19T12:00:21.812Z"
+      "ts": "2026-03-10T10:55:33.464Z"
     },
     "points_snapshot_awarded": true
   },
   {
     "id": "1766753376036-95907",
     "title": "germinate onions",
-    "description": "Need 105 plants.\nRefer to this guide: https://www.theseasonalhomestead.com/how-to-grow-onions-from-seeds/",
+    "description": "Need 72 plants.\nRefer to this guide: https://www.theseasonalhomestead.com/how-to-grow-onions-from-seeds/",
     "state": "Ready",
-    "dependencies": [],
+    "dependencies": [
+      "1770312971865-51403"
+    ],
     "picker": null,
     "created_at": "2025-12-26T12:49:36.036Z",
-    "updated_at": "2026-01-19T13:08:18.256Z",
+    "updated_at": "2026-02-06T19:41:07.957Z",
     "created_by": "korgan",
-    "meta": {},
+    "meta": {
+      "block_note": "need soil"
+    },
     "recurrence": {
       "type": "anchored",
       "intervalDays": 365,
@@ -1338,12 +1787,39 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-01-22T06:00:00.000Z",
-    "priority": 39,
-    "urgency": 94,
+    "scheduledDueAt": "2027-02-08T06:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-05T17:35:54.803Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-02-06T16:20:06.456Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-02-05T17:35:54.805Z",
+        "snapshot": 38,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-06T19:41:07.957Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 38,
+      "ts": "2026-02-06T19:41:07.958Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1766753502851-89388",
@@ -1378,7 +1854,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-26T12:53:26.372Z",
-    "updated_at": "2025-12-26T12:53:26.372Z",
+    "updated_at": "2026-03-10T22:21:17.590Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -1388,12 +1864,34 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-03-08T06:00:00.000Z",
+    "scheduledDueAt": "2027-03-08T06:00:00.000Z",
     "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-03-10T22:20:44.484Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-03-10T22:20:44.487Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-03-10T22:21:17.590Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-03-10T22:21:17.592Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1766753646472-43385",
@@ -1414,8 +1912,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-22T05:00:00.000Z",
-    "priority": 1,
-    "urgency": 0,
+    "priority": 29,
+    "urgency": 69,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1439,8 +1937,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-22T05:00:00.000Z",
-    "priority": 1,
-    "urgency": 0,
+    "priority": 29,
+    "urgency": 69,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1478,19 +1976,19 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-26T12:56:40.394Z",
-    "updated_at": "2025-12-26T12:56:40.394Z",
+    "updated_at": "2026-03-11T14:28:40.758Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
       "type": "anchored",
       "intervalDays": 365,
       "weekdays": [],
-      "leadTimeDays": 7,
+      "leadTimeDays": 3,
       "paused": false
     },
     "scheduledDueAt": "2026-03-15T05:00:00.000Z",
-    "priority": 1,
-    "urgency": 0,
+    "priority": 38,
+    "urgency": 93,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1498,12 +1996,12 @@
   {
     "id": "1766754015125-85202",
     "title": "plant potatoes",
-    "description": "90 plants, 12 inch spacing.\n6 inch depth, NO nitrogen, mulch heavily after emergence to keep cool.",
+    "description": "90 plants, 12 inch spacing.\n6 inch depth, NO nitrogen, mulch heavily after emergence to keep cool.\n\nSeed potatoes are ready to plant when they have short bulky sprouts that are starting to turn\ngreen. Planting 1 to 2 weeks before your last frost ensures that the seed potatoes are protected\nunderground if it does frost, but by the time the greens emerge (which are susceptible to frost)\nthat danger of frost has passed.",
     "state": "Ready",
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-26T13:00:15.125Z",
-    "updated_at": "2026-01-20T00:45:31.213Z",
+    "updated_at": "2026-02-08T02:07:53.857Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -1513,9 +2011,9 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "scheduledDueAt": "2026-03-08T06:00:00.000Z",
-    "priority": 1,
-    "urgency": 0,
+    "scheduledDueAt": "2026-03-25T05:00:00.000Z",
+    "priority": 25,
+    "urgency": 59,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1616,8 +2114,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-22T05:00:00.000Z",
-    "priority": 1,
-    "urgency": 0,
+    "priority": 29,
+    "urgency": 69,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1634,9 +2132,9 @@
     "created_by": "korgan",
     "meta": {},
     "remedy_for": "1766701208210-75737",
-    "priority": 59,
+    "priority": 57,
     "urgency": 0,
-    "importancePercentile": 97,
+    "importancePercentile": 94,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -1763,8 +2261,8 @@
     "updated_at": "2026-01-03T23:41:20.819Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 1,
-    "urgency": 0,
+    "priority": 41,
+    "urgency": 100,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -1931,18 +2429,48 @@
     "id": "1767482503204-73352",
     "title": "burn out that stump",
     "description": "",
-    "state": "Ready",
+    "state": "Done",
     "dependencies": [],
-    "picker": null,
+    "picker": "korgan",
     "created_at": "2026-01-03T23:21:43.204Z",
-    "updated_at": "2026-01-03T23:21:43.204Z",
+    "updated_at": "2026-03-10T22:21:16.216Z",
     "created_by": "korgan",
     "meta": {},
     "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-21T12:35:37.498Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-03-10T22:21:11.673Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 1,
+    "points_snapshot_created_at": "2026-02-21T12:35:37.499Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-02-21T12:35:37.499Z",
+    "points_history": [
+      {
+        "ts": "2026-02-21T12:35:37.499Z",
+        "snapshot": 1,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-03-10T22:21:16.216Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 1,
+      "ts": "2026-03-10T22:21:16.218Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1767482511183-38914",
@@ -2088,24 +2616,6 @@
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
-  },
-  {
-    "id": "1767482552942-5352",
-    "title": "get coffee grounds",
-    "description": "",
-    "state": "Ready",
-    "dependencies": [],
-    "picker": null,
-    "created_at": "2026-01-03T23:22:32.942Z",
-    "updated_at": "2026-01-14T19:36:53.921Z",
-    "created_by": "korgan",
-    "meta": {},
-    "priority": 39,
-    "urgency": 94,
-    "importancePercentile": 0,
-    "importanceRaw": 0,
-    "deadlock": false,
-    "scheduledDueAt": "2026-01-22T06:00:00.000Z"
   },
   {
     "id": "1767483806922-65611",
@@ -2264,9 +2774,9 @@
     "updated_at": "2026-01-15T14:23:19.244Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 59,
+    "priority": 57,
     "urgency": 0,
-    "importancePercentile": 97,
+    "importancePercentile": 94,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -2409,9 +2919,9 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-01-15T06:00:00.000Z",
-    "priority": 99,
+    "priority": 97,
     "urgency": 100,
-    "importancePercentile": 97,
+    "importancePercentile": 94,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -2616,7 +3126,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2026-01-14T20:04:16.653Z",
-    "updated_at": "2026-01-20T09:19:24.957Z",
+    "updated_at": "2026-03-06T20:35:14.081Z",
     "created_by": "korgan",
     "meta": {},
     "priority": 1,
@@ -2624,7 +3134,7 @@
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
-    "scheduledDueAt": "2026-02-19T18:38:00.000Z",
+    "scheduledDueAt": "2026-10-02T05:00:00.000Z",
     "recurrence": {
       "leadTimeDays": 0,
       "paused": false,
@@ -2636,6 +3146,11 @@
         "ts": "2026-01-15T18:38:29.084Z",
         "picker": "korgan",
         "action": "picked"
+      },
+      {
+        "ts": "2026-02-27T20:19:19.745Z",
+        "picker": "korgan",
+        "action": "picked"
       }
     ],
     "points_snapshot_created_by": "korgan",
@@ -2644,13 +3159,18 @@
         "ts": "2026-01-15T18:38:29.085Z",
         "snapshot": 41,
         "by": "korgan"
+      },
+      {
+        "ts": "2026-02-27T20:19:19.748Z",
+        "snapshot": 41,
+        "by": "korgan"
       }
     ],
-    "lastCompletedAt": "2026-01-15T18:38:31.179Z",
+    "lastCompletedAt": "2026-02-27T20:19:22.516Z",
     "awarded": {
       "to": "korgan",
       "points": 41,
-      "ts": "2026-01-15T18:38:31.180Z"
+      "ts": "2026-02-27T20:19:22.518Z"
     },
     "points_snapshot_awarded": true
   },
@@ -2662,21 +3182,50 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2026-01-14T20:05:14.267Z",
-    "updated_at": "2026-01-14T20:09:12.750Z",
+    "updated_at": "2026-03-06T20:35:21.000Z",
     "created_by": "korgan",
-    "meta": {},
-    "priority": 24,
-    "urgency": 58,
+    "meta": {
+      "block_note": "waiting to apply bone meal"
+    },
+    "priority": 1,
+    "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
-    "scheduledDueAt": "2026-01-29T06:00:00.000Z",
+    "scheduledDueAt": "2026-09-11T05:00:00.000Z",
     "recurrence": {
       "leadTimeDays": 0,
       "paused": false,
       "type": "rolling",
       "intervalDays": 21
-    }
+    },
+    "picker_history": [
+      {
+        "ts": "2026-02-05T17:42:40.823Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-02-06T16:20:12.586Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-02-05T17:42:40.825Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-06T17:41:44.539Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-02-06T17:41:44.540Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1768741186460-56953",
@@ -2711,7 +3260,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2026-01-18T13:02:38.105Z",
-    "updated_at": "2026-01-18T13:02:38.105Z",
+    "updated_at": "2026-02-21T16:03:57.358Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -2721,29 +3270,86 @@
       "leadTimeDays": 0,
       "paused": false
     },
-    "scheduledDueAt": "2026-01-22T06:00:00.000Z",
-    "priority": 39,
-    "urgency": 94,
+    "scheduledDueAt": "2026-03-23T06:00:00.000Z",
+    "priority": 27,
+    "urgency": 66,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-22T23:44:50.713Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-02-21T12:35:17.087Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-01-22T23:44:50.715Z",
+        "snapshot": 41,
+        "by": "korgan"
+      },
+      {
+        "ts": "2026-02-21T12:35:17.090Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-21T16:03:57.358Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-02-21T16:03:57.360Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1768743703186-78271",
     "title": "Clean cat water bowl",
     "description": "",
-    "state": "Ready",
+    "state": "Done",
     "dependencies": [],
-    "picker": null,
+    "picker": "korgan",
     "created_at": "2026-01-18T13:41:43.186Z",
-    "updated_at": "2026-01-18T13:41:43.186Z",
+    "updated_at": "2026-02-12T13:50:52.477Z",
     "created_by": "whitneyapple",
     "meta": {},
     "priority": 1,
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-12T13:50:49.652Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 1,
+    "points_snapshot_created_at": "2026-02-12T13:50:49.654Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-02-12T13:50:49.654Z",
+    "points_history": [
+      {
+        "ts": "2026-02-12T13:50:49.654Z",
+        "snapshot": 1,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-12T13:50:52.477Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 1,
+      "ts": "2026-02-12T13:50:52.478Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1768899336093-82128",
@@ -2764,10 +3370,1262 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 59,
+    "priority": 57,
     "urgency": 0,
-    "importancePercentile": 97,
+    "importancePercentile": 94,
     "importanceRaw": 1,
+    "deadlock": false
+  },
+  {
+    "id": "1768901904484-5097",
+    "title": "Order ponca blackberries",
+    "description": "https://penseberryfarm.com/products/sweet-ark-ponca-thornless-blackberry",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-20T09:38:24.484Z",
+    "updated_at": "2026-01-23T00:00:52.171Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2027-01-22T06:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1769113446987-43675",
+    "title": "Add amendments to rows 7, 9, 11, 12.",
+    "description": "For each full row (90sqft):\n3 lb dolomite lime\n2 lb bonemeal\n2 lb langbeinite\n\n| row | bone meal   | lime | langbeinite |\n|-----|-------------|------|-------------|\n| 7   |             | ✓    | ✓           |\n| 9   |             | ✓    | ✓           |\n| 11  |             | ✓    | ✓           |\n| 12  | needs 662 g | ✓    | ✓           |",
+    "state": "Done",
+    "dependencies": [
+      "1769864671855-97944",
+      "1770314021546-32280"
+    ],
+    "picker": "korgan",
+    "created_at": "2026-01-22T20:24:06.987Z",
+    "updated_at": "2026-02-06T16:19:41.359Z",
+    "created_by": "korgan",
+    "meta": {
+      "block_note": "need bone meal"
+    },
+    "priority": 41,
+    "urgency": 100,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "scheduledDueAt": "2026-01-29T06:00:00.000Z",
+    "picker_history": [
+      {
+        "ts": "2026-01-23T21:46:17.742Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-02-05T17:52:57.136Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-02-06T16:19:34.198Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 41,
+    "points_snapshot_created_at": "2026-01-23T21:46:17.744Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-23T21:46:17.744Z",
+    "points_history": [
+      {
+        "ts": "2026-01-23T21:46:17.744Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-06T16:19:41.359Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-02-06T16:19:41.361Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1769115450631-74486",
+    "title": "Solve for X",
+    "description": "“For the next 90 days, X percentage of my calories come from systems I maintain.”",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-22T20:57:30.631Z",
+    "updated_at": "2026-01-22T20:57:30.631Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 182,
+      "weekdays": [],
+      "leadTimeDays": 0,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-06-22T05:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1769126695781-48435",
+    "title": "Get lumber for new garage shelves",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [
+      "1769864671855-97944"
+    ],
+    "picker": null,
+    "created_at": "2026-01-23T00:04:55.781Z",
+    "updated_at": "2026-02-04T00:08:33.736Z",
+    "created_by": "korgan",
+    "meta": {
+      "block_note": "snow"
+    },
+    "priority": 97,
+    "urgency": 100,
+    "importancePercentile": 94,
+    "importanceRaw": 1,
+    "deadlock": false,
+    "scheduledDueAt": "2026-01-29T06:00:00.000Z"
+  },
+  {
+    "id": "1769126709131-53365",
+    "title": "build garage shelves",
+    "description": "",
+    "state": "Suspended",
+    "dependencies": [
+      "1769126695781-48435"
+    ],
+    "picker": null,
+    "created_at": "2026-01-23T00:05:09.131Z",
+    "updated_at": "2026-01-24T12:45:38.007Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 41,
+    "urgency": 100,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "scheduledDueAt": "2026-01-29T06:00:00.000Z"
+  },
+  {
+    "id": "1769204544490-30363",
+    "title": "Chop and Drop Cover Crop",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-01-23T21:42:24.490Z",
+    "updated_at": "2026-01-23T21:42:24.490Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-05-22T05:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1769385535123-10588",
+    "title": "Make door trim for top of chicken coop door",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-01-25T23:58:55.123Z",
+    "updated_at": "2026-01-27T23:42:18.277Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-01-26T23:00:00.000Z",
+    "priority": 41,
+    "urgency": 100,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-01-27T23:42:16.357Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 41,
+    "points_snapshot_created_at": "2026-01-27T23:42:16.358Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-01-27T23:42:16.358Z",
+    "points_history": [
+      {
+        "ts": "2026-01-27T23:42:16.358Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-01-27T23:42:18.277Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-01-27T23:42:18.278Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1769864671855-97944",
+    "title": "wait for snow to clear 1",
+    "description": "Remedy for: apply the tarp",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-01-31T13:04:31.855Z",
+    "updated_at": "2026-02-04T00:08:33.736Z",
+    "created_by": "korgan",
+    "meta": {},
+    "remedy_for": "1768421114267-83427",
+    "priority": 61,
+    "urgency": 0,
+    "importancePercentile": 100,
+    "importanceRaw": 2.5,
+    "deadlock": false,
+    "scheduledDueAt": null,
+    "picker_history": [
+      {
+        "ts": "2026-02-04T00:08:32.480Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 61,
+    "points_snapshot_created_at": "2026-02-04T00:08:32.481Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-02-04T00:08:32.481Z",
+    "points_history": [
+      {
+        "ts": "2026-02-04T00:08:32.481Z",
+        "snapshot": 61,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-04T00:08:33.736Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 61,
+      "ts": "2026-02-04T00:08:33.737Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1770119858492-26960",
+    "title": "Replace HVAC filter",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-02-03T11:57:38.492Z",
+    "updated_at": "2026-02-03T12:23:20.041Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "rolling",
+      "intervalDays": 91,
+      "leadTimeDays": 0,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-05-05T12:23:20.041Z",
+    "priority": 17,
+    "urgency": 41,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-03T12:23:18.389Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-02-03T12:23:18.391Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-03T12:23:20.041Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-02-03T12:23:20.042Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1770120004724-26206",
+    "title": "Do taxes",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-02-03T12:00:04.724Z",
+    "updated_at": "2026-02-11T17:24:37.058Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 0,
+      "paused": false
+    },
+    "scheduledDueAt": "2027-02-01T06:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-11T17:24:36.030Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-02-11T17:24:36.031Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-11T17:24:37.058Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-02-11T17:24:37.060Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1770120681559-3938",
+    "title": "wait snow",
+    "description": "Remedy for: Broadfork back left garden",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-02-03T12:11:21.559Z",
+    "updated_at": "2026-03-06T20:38:36.727Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-05T17:46:23.180Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 1,
+    "points_snapshot_created_at": "2026-02-05T17:46:23.181Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-02-05T17:46:23.181Z",
+    "points_history": [
+      {
+        "ts": "2026-02-05T17:46:23.181Z",
+        "snapshot": 1,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-05T17:46:31.132Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 1,
+      "ts": "2026-02-05T17:46:31.132Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1770312971865-51403",
+    "title": "buy soil for onion pots",
+    "description": "Remedy for: germinate onions",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-02-05T17:36:11.865Z",
+    "updated_at": "2026-02-06T16:19:47.983Z",
+    "created_by": "korgan",
+    "meta": {},
+    "remedy_for": "1766753376036-95907",
+    "priority": 57,
+    "urgency": 0,
+    "importancePercentile": 94,
+    "importanceRaw": 1,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-06T13:22:20.166Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 56,
+    "points_snapshot_created_at": "2026-02-06T13:22:20.167Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-02-06T13:22:20.167Z",
+    "points_history": [
+      {
+        "ts": "2026-02-06T13:22:20.167Z",
+        "snapshot": 56,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-06T16:19:47.983Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 56,
+      "ts": "2026-02-06T16:19:47.984Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1770313546499-72892",
+    "title": "waiting for bone meal application first",
+    "description": "Remedy for: apply the tarp",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-02-05T17:45:46.499Z",
+    "updated_at": "2026-02-12T13:50:37.196Z",
+    "created_by": "korgan",
+    "meta": {},
+    "remedy_for": "1768421114267-83427",
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-12T13:50:35.296Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 1,
+    "points_snapshot_created_at": "2026-02-12T13:50:35.298Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-02-12T13:50:35.298Z",
+    "points_history": [
+      {
+        "ts": "2026-02-12T13:50:35.298Z",
+        "snapshot": 1,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-12T13:50:37.196Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 1,
+      "ts": "2026-02-12T13:50:37.197Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1770314021546-32280",
+    "title": "Buy 8 lb bone meal from TSC",
+    "description": "Remedy for: Add amendments to rows 7, 9, 11, 12.",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-02-05T17:53:41.546Z",
+    "updated_at": "2026-02-06T16:19:28.864Z",
+    "created_by": "korgan",
+    "meta": {},
+    "remedy_for": "1769113446987-43675",
+    "priority": 97,
+    "urgency": 100,
+    "importancePercentile": 94,
+    "importanceRaw": 1,
+    "deadlock": false,
+    "scheduledDueAt": "2026-02-05T06:00:00.000Z",
+    "picker_history": [
+      {
+        "ts": "2026-02-06T13:22:16.319Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 100,
+    "points_snapshot_created_at": "2026-02-06T13:22:16.321Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-02-06T13:22:16.321Z",
+    "points_history": [
+      {
+        "ts": "2026-02-06T13:22:16.321Z",
+        "snapshot": 100,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-06T16:19:28.864Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 100,
+      "ts": "2026-02-06T16:19:28.866Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1770342066796-93971",
+    "title": "Add t-posts to rows",
+    "description": "Rows front and back: 2, 6.\nRows front: 9, 10.\nRows back: 11.",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-02-06T01:41:06.796Z",
+    "updated_at": "2026-02-06T18:32:14.532Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-02-06T06:00:00.000Z",
+    "priority": 41,
+    "urgency": 100,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-06T16:20:28.171Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 41,
+    "points_snapshot_created_at": "2026-02-06T16:20:28.173Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-02-06T16:20:28.173Z",
+    "points_history": [
+      {
+        "ts": "2026-02-06T16:20:28.173Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-06T18:32:14.532Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-02-06T18:32:14.533Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1770402779320-11250",
+    "title": "plant mache",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-02-06T18:32:59.320Z",
+    "updated_at": "2026-02-08T00:32:28.763Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-02-06T18:00:00.000Z",
+    "priority": 41,
+    "urgency": 100,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-08T00:32:27.357Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 41,
+    "points_snapshot_created_at": "2026-02-08T00:32:27.359Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-02-08T00:32:27.359Z",
+    "points_history": [
+      {
+        "ts": "2026-02-08T00:32:27.359Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-08T00:32:28.763Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-02-08T00:32:28.764Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1770414488318-31775",
+    "title": "Cover row 11 with cardboard",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-02-06T21:48:08.318Z",
+    "updated_at": "2026-02-06T21:48:08.318Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-02-07T06:00:00.000Z",
+    "priority": 41,
+    "urgency": 100,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1770468735712-5181",
+    "title": "Plant oats/peas/vetch mix",
+    "description": "After last frost. 219 g per 100 sq ft.",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-02-07T12:52:15.712Z",
+    "updated_at": "2026-02-07T12:52:15.712Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-04-08T05:00:00.000Z",
+    "priority": 6,
+    "urgency": 13,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1770516377275-70904",
+    "title": "Potatoes, warm & dark stage",
+    "description": "5 weeks before last frost; store in 70-75°F in the dark.",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-02-08T02:06:17.275Z",
+    "updated_at": "2026-03-06T20:27:49.232Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-03-04T06:00:00.000Z",
+    "priority": 41,
+    "urgency": 100,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-03-05T19:58:18.223Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 41,
+    "points_snapshot_created_at": "2026-03-05T19:58:18.224Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-03-05T19:58:18.224Z",
+    "points_history": [
+      {
+        "ts": "2026-03-05T19:58:18.224Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-03-06T20:27:49.232Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-03-06T20:27:49.233Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1770516436714-79951",
+    "title": "Potatoes, cool & bright stage",
+    "description": "4 weeks before last frost; store in 50°F exposed to indirect light.",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-02-08T02:07:16.714Z",
+    "updated_at": "2026-03-12T19:46:54.384Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-03-11T05:00:00.000Z",
+    "priority": 41,
+    "urgency": 100,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-03-12T19:46:52.898Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 41,
+    "points_snapshot_created_at": "2026-03-12T19:46:52.901Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-03-12T19:46:52.901Z",
+    "points_history": [
+      {
+        "ts": "2026-03-12T19:46:52.901Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-03-12T19:46:54.384Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-03-12T19:46:54.385Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1770737172951-69022",
+    "title": "Do food drawing for Amanda's birthday",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-02-10T15:26:12.951Z",
+    "updated_at": "2026-02-10T15:26:12.951Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-02-10T06:00:00.000Z",
+    "priority": 41,
+    "urgency": 100,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1770838941535-17829",
+    "title": "Buy more chicken food",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-02-11T19:42:21.535Z",
+    "updated_at": "2026-02-12T16:29:46.897Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-02-12T06:00:00.000Z",
+    "priority": 41,
+    "urgency": 100,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-12T16:29:45.507Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 41,
+    "points_snapshot_created_at": "2026-02-12T16:29:45.509Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-02-12T16:29:45.509Z",
+    "points_history": [
+      {
+        "ts": "2026-02-12T16:29:45.509Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-12T16:29:46.897Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-02-12T16:29:46.899Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1770904339643-23386",
+    "title": "Put something under the potato box",
+    "description": "Can't be on the concrete",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-02-12T13:52:19.643Z",
+    "updated_at": "2026-02-12T16:29:53.799Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-02-12T06:00:00.000Z",
+    "priority": 41,
+    "urgency": 100,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-12T16:29:48.300Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 41,
+    "points_snapshot_created_at": "2026-02-12T16:29:48.302Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-02-12T16:29:48.302Z",
+    "points_history": [
+      {
+        "ts": "2026-02-12T16:29:48.302Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-12T16:29:53.799Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-02-12T16:29:53.800Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1770904961270-21266",
+    "title": "buy zippo fuel",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-02-12T14:02:41.270Z",
+    "updated_at": "2026-02-12T16:29:55.243Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-02-12T06:00:00.000Z",
+    "priority": 41,
+    "urgency": 100,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-12T16:29:51.090Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 41,
+    "points_snapshot_created_at": "2026-02-12T16:29:51.092Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-02-12T16:29:51.092Z",
+    "points_history": [
+      {
+        "ts": "2026-02-12T16:29:51.092Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-12T16:29:55.243Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-02-12T16:29:55.245Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1771015050655-26540",
+    "title": "Buy more bone meal for back left garden",
+    "description": "Need 18 lb of bonemeal.\nMay as well buy langbeinite and lime too.",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-02-13T20:37:30.656Z",
+    "updated_at": "2026-03-04T22:53:01.897Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-02-19T06:00:00.000Z",
+    "priority": 41,
+    "urgency": 100,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-23T13:36:32.865Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 41,
+    "points_snapshot_created_at": "2026-02-23T13:36:32.869Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-02-23T13:36:32.869Z",
+    "points_history": [
+      {
+        "ts": "2026-02-23T13:36:32.869Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ]
+  },
+  {
+    "id": "1771508162050-8314",
+    "title": "get antihistamines",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-02-19T13:36:02.050Z",
+    "updated_at": "2026-02-19T21:47:41.902Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-02-19T06:00:00.000Z",
+    "priority": 41,
+    "urgency": 100,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-19T21:47:40.801Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 41,
+    "points_snapshot_created_at": "2026-02-19T21:47:40.803Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-02-19T21:47:40.803Z",
+    "points_history": [
+      {
+        "ts": "2026-02-19T21:47:40.803Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-02-19T21:47:41.902Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-02-19T21:47:41.907Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1771708096272-72766",
+    "title": "install irrigation",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-02-21T21:08:16.272Z",
+    "updated_at": "2026-02-26T18:56:49.513Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-02-21T21:08:19.760Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-02-26T18:56:46.490Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 1,
+    "points_snapshot_created_at": "2026-02-21T21:08:19.762Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-02-21T21:08:19.762Z",
+    "points_history": [
+      {
+        "ts": "2026-02-21T21:08:19.762Z",
+        "snapshot": 1,
+        "by": "korgan"
+      }
+    ],
+    "scheduledDueAt": null,
+    "lastCompletedAt": "2026-02-26T18:56:49.513Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 1,
+      "ts": "2026-02-26T18:56:49.515Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1772324960339-77177",
+    "title": "feed garlic",
+    "description": "1 to 10 urine water mix.",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-03-01T00:29:20.339Z",
+    "updated_at": "2026-03-06T14:54:27.390Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "rolling",
+      "intervalDays": 14,
+      "leadTimeDays": 1,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-03-20T14:54:27.390Z",
+    "priority": 19,
+    "urgency": 46,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-03-06T14:54:24.854Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-03-06T14:54:24.861Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-03-06T14:54:27.390Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-03-06T14:54:27.391Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1772325007270-41459",
+    "title": "pull roots out of row 2",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-03-01T00:30:07.270Z",
+    "updated_at": "2026-03-05T19:57:39.997Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-03-01T06:00:00.000Z",
+    "priority": 97,
+    "urgency": 100,
+    "importancePercentile": 94,
+    "importanceRaw": 1,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-03-01T12:36:45.304Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 96,
+    "points_snapshot_created_at": "2026-03-01T12:36:45.312Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-03-01T12:36:45.312Z",
+    "points_history": [
+      {
+        "ts": "2026-03-01T12:36:45.312Z",
+        "snapshot": 96,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-03-05T19:57:39.997Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 96,
+      "ts": "2026-03-05T19:57:39.998Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1772325070034-76539",
+    "title": "pot up peppers",
+    "description": "",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-03-01T00:31:10.034Z",
+    "updated_at": "2026-03-01T00:31:15.162Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-02-28T06:00:00.000Z",
+    "priority": 41,
+    "urgency": 100,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-03-01T00:31:13.082Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 41,
+    "points_snapshot_created_at": "2026-03-01T00:31:13.083Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-03-01T00:31:13.083Z",
+    "points_history": [
+      {
+        "ts": "2026-03-01T00:31:13.083Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-03-01T00:31:15.162Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-03-01T00:31:15.164Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1772325645206-6143",
+    "title": "adjust irrigation timer",
+    "description": "See 'Irrigation rate calculation' sheet for details.",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-03-01T00:40:45.207Z",
+    "updated_at": "2026-03-11T15:21:24.484Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-04-02T05:00:00.000Z",
+    "priority": 14,
+    "urgency": 33,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "recurrence": {
+      "leadTimeDays": 0,
+      "paused": false,
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": []
+    }
+  },
+  {
+    "id": "1773242523717-60444",
+    "title": "adjust irrigation timer",
+    "description": "See 'Irrigation rate calculation' sheet for details.",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-03-11T15:22:03.717Z",
+    "updated_at": "2026-03-11T15:22:03.717Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 0,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-05-16T05:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1773242557063-41819",
+    "title": "adjust irrigation timer",
+    "description": "See 'Irrigation rate calculation' sheet for details.",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-03-11T15:22:37.063Z",
+    "updated_at": "2026-03-11T15:22:37.063Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 0,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-08-16T05:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1773242579842-15477",
+    "title": "adjust irrigation timer",
+    "description": "See 'Irrigation rate calculation' sheet for details.",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-03-11T15:22:59.842Z",
+    "updated_at": "2026-03-11T15:22:59.842Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 0,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-10-02T05:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1773242604136-40044",
+    "title": "adjust irrigation timer",
+    "description": "See 'Irrigation rate calculation' sheet for details.",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-03-11T15:23:24.136Z",
+    "updated_at": "2026-03-11T15:23:24.136Z",
+    "created_by": "korgan",
+    "meta": {},
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "weekdays": [],
+      "leadTimeDays": 0,
+      "paused": false
+    },
+    "scheduledDueAt": "2026-11-16T06:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
     "deadlock": false
   }
 ]

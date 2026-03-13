@@ -197,19 +197,6 @@ function computeEffectiveState(task, allTasks = [], now = new Date()) {
   const readyAtIso = calcReadyAt(task);
   const readyAt = parseDateSafe(readyAtIso);
 
-  // Debug logging for specific task
-  if (task.id === "1766754296179-93047") {
-    console.log(`\nDEBUG Task ${task.id}:`);
-    console.log(`  scheduledAt: ${scheduledAt}`);
-    console.log(`  readyAtIso: ${readyAtIso}`);
-    console.log(`  readyAt: ${readyAt}`);
-    console.log(`  now: ${now.toISOString()}`);
-    console.log(`  stored state: ${task.state}`);
-    console.log(
-      `  now < readyAt: ${readyAt && now.getTime() < readyAt.getTime()}`,
-    );
-  }
-
   // Determine overdue:
   // - For recurring tasks with a numeric intervalDays, consider overdue only
   //   when now is past scheduledAt + (intervalDays / 2).
