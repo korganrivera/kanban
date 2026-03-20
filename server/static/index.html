@@ -1767,6 +1767,28 @@
                             const newDeps = task.dependencies.filter(
                                 (d) => d !== depId,
                             );
+                            const otherDependents = tasksCache.filter(
+                                (t) =>
+                                    t.id !== task.id &&
+                                    Array.isArray(t.dependencies) &&
+                                    t.dependencies.includes(depId),
+                            );
+                            const canOfferRemedyCleanup =
+                                depTask &&
+                                depTask.remedy_for === task.id &&
+                                otherDependents.length === 0;
+                            if (
+                                !confirm(
+                                    `Remove dependency "${depTask.title}" from "${task.title}"?`,
+                                )
+                            ) {
+                                return;
+                            }
+                            const shouldDeleteRemedy =
+                                canOfferRemedyCleanup &&
+                                confirm(
+                                    `Delete the now-unused remedy task "${depTask.title}" as well?`,
+                                );
                             try {
                                 const res = await fetch(
                                     `${API_ROOT}/tasks/${encodeURIComponent(task.id)}`,
@@ -1781,7 +1803,30 @@
                                     },
                                 );
                                 if (res.ok) {
-                                    toast("Dependency removed");
+                                    if (shouldDeleteRemedy) {
+                                        const deleteRes = await fetch(
+                                            `${API_ROOT}/tasks/${encodeURIComponent(depId)}`,
+                                            {
+                                                method: "DELETE",
+                                            },
+                                        );
+                                        if (!deleteRes.ok) {
+                                            toast(
+                                                "Dependency removed, but remedy cleanup failed",
+                                            );
+                                            await fetchAndRender();
+                                            const updatedTask =
+                                                await res.json();
+                                            openSidebar(updatedTask);
+                                            return;
+                                        }
+                                    }
+                                    toast(
+                                        shouldDeleteRemedy
+                                            ? "Dependency removed and remedy deleted"
+                                            : "Dependency removed",
+                                    );
+                                    await fetchAndRender();
                                     // Refresh sidebar with updated task
                                     const updatedTask = await res.json();
                                     openSidebar(updatedTask);

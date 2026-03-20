@@ -188,6 +188,23 @@ function anyDependencyUnresolved(tasks, task) {
   });
 }
 
+function syncSuspendedStateFromDependencies(task, allTasks = []) {
+  if (!task || task.state === "Done") return;
+
+  const hasUnresolvedDeps = anyDependencyUnresolved(allTasks, task);
+  if (hasUnresolvedDeps) {
+    task.state = "Suspended";
+    return;
+  }
+
+  if (
+    task.state === "Suspended" &&
+    !(task.recurrence && task.recurrence.paused)
+  ) {
+    task.state = "Ready";
+  }
+}
+
 /**
  * computeEffectiveState(task, allTasks, now)
  * Returns object: { effectiveState, readyAt, scheduledDueAt, overdue }
@@ -1155,16 +1172,8 @@ app.post("/tasks/:id/dependencies", requireAuth, async (req, res) => {
       if (!task.dependencies.includes(depId)) {
         task.dependencies.push(depId);
         task.updated_at = new Date().toISOString();
-
-        const hasUnresolvedDeps = (task.dependencies || []).some((did) => {
-          const depTask = tasks.find((x) => x.id === did);
-          return !depTask || depTask.state !== "Done";
-        });
-
-        if (hasUnresolvedDeps && task.state !== "Done") {
-          task.state = "Suspended";
-          task.updated_at = new Date().toISOString();
-        }
+        syncSuspendedStateFromDependencies(task, tasks);
+        task.updated_at = new Date().toISOString();
 
         recomputeAllPriorities(tasks);
         saveTasks(tasks);
@@ -1193,6 +1202,10 @@ app.post("/tasks/:id/remedy", async (req, res) => {
         req.body.deadline !== undefined && req.body.deadline !== null
           ? req.body.deadline
           : blockedTask.deadline;
+      const scheduledDueAt =
+        req.body.scheduledDueAt !== undefined && req.body.scheduledDueAt !== null
+          ? req.body.scheduledDueAt
+          : blockedTask.scheduledDueAt;
       const description =
         req.body.description && String(req.body.description).trim() !== ""
           ? req.body.description
@@ -1207,6 +1220,7 @@ app.post("/tasks/:id/remedy", async (req, res) => {
         description: description || `Created to unblock: ${blockedTask.title}`,
         state: "Ready",
         deadline: deadline || undefined,
+        scheduledDueAt: scheduledDueAt || undefined,
         dependencies: [],
         picker: null,
         points_snapshot: undefined,
@@ -1336,8 +1350,8 @@ app.delete("/tasks/:id", requireAuth, async (req, res) => {
       const deleted = Array.from(toDelete);
 
       // 5) Clean remaining tasks: strip deleted ids from dependencies and remedy_for.
-      //    If a task had state 'suspended' and we removed dependencies that it was waiting on,
-      //    move it back to 'blocked' (per your requirement).
+      //    If a task was suspended only because of a deleted dependency,
+      //    resume it so effective state can fall back to Ready/Waiting.
       tasks.forEach((t) => {
         let changed = false;
         if (Array.isArray(t.dependencies)) {
@@ -1353,14 +1367,7 @@ app.delete("/tasks/:id", requireAuth, async (req, res) => {
         }
 
         if (changed) {
-          // If the task used to be suspended, move it to blocked.
-          // We rely on tasks having a `state` field (suspended/blocked/etc).
-          // If your code stores state differently, adapt this bit accordingly.
-          if (t.state === "suspended") {
-            t.state = "blocked";
-            // Optionally mark when it was moved back to blocked:
-            t.blocked_at = new Date().toISOString();
-          }
+          syncSuspendedStateFromDependencies(t, tasks);
           t.updated_at = new Date().toISOString();
         }
       });
@@ -1509,16 +1516,7 @@ app.patch("/tasks/:id", requireAuth, async (req, res) => {
         }
 
         task.dependencies = newDeps;
-
-        // If task has unresolved dependencies and isn't Done, suspend it
-        const hasUnresolvedDeps = newDeps.some((did) => {
-          const depTask = tasks.find((x) => x.id === did);
-          return !depTask || depTask.state !== "Done";
-        });
-
-        if (hasUnresolvedDeps && task.state !== "Done") {
-          task.state = "Suspended";
-        }
+        syncSuspendedStateFromDependencies(task, tasks);
       }
 
       task.updated_at = new Date().toISOString();
