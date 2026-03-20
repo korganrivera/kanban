@@ -517,7 +517,10 @@
             <textarea id="sb_description"></textarea>
 
             <label>Scheduled due (local)</label>
-            <input id="sb_scheduled" type="datetime-local" />
+            <div class="row">
+                <input id="sb_scheduled_date" type="date" style="flex: 1" />
+                <input id="sb_scheduled_time" type="time" style="width: 110px" />
+            </div>
 
             <div class="row">
                 <label style="flex: 1">Lead time (days)</label>
@@ -911,6 +914,13 @@
 
                 // toISOString() automatically converts from local time to UTC
                 return d.toISOString();
+            }
+            function scheduledInputsToIso(dateVal, timeVal) {
+                const datePart = dateVal ? dateVal.trim() : "";
+                if (!datePart) return null;
+                const timePart =
+                    timeVal && timeVal.trim() ? timeVal.trim() : "00:00";
+                return inputLocalToIso(`${datePart}T${timePart}`);
             }
 
             /* ---------------- Low-level helpers for derivation ---------------- */
@@ -1629,13 +1639,17 @@
                         const day = String(d.getDate()).padStart(2, "0");
                         const hour = String(d.getHours()).padStart(2, "0");
                         const minute = String(d.getMinutes()).padStart(2, "0");
-                        document.getElementById("sb_scheduled").value =
-                            `${year}-${month}-${day}T${hour}:${minute}`;
+                        document.getElementById("sb_scheduled_date").value =
+                            `${year}-${month}-${day}`;
+                        document.getElementById("sb_scheduled_time").value =
+                            `${hour}:${minute}`;
                     } else {
-                        document.getElementById("sb_scheduled").value = "";
+                        document.getElementById("sb_scheduled_date").value = "";
+                        document.getElementById("sb_scheduled_time").value = "";
                     }
                 } else {
-                    document.getElementById("sb_scheduled").value = "";
+                    document.getElementById("sb_scheduled_date").value = "";
+                    document.getElementById("sb_scheduled_time").value = "";
                 }
                 document.getElementById("sb_lead").value =
                     task.recurrence &&
@@ -1931,9 +1945,16 @@
                     payload.description = document
                         .getElementById("sb_description")
                         .value.trim();
-                    const schedVal =
-                        document.getElementById("sb_scheduled").value;
-                    payload.scheduledDueAt = inputLocalToIso(schedVal);
+                    const schedDateVal = document.getElementById(
+                        "sb_scheduled_date",
+                    ).value;
+                    const schedTimeVal = document.getElementById(
+                        "sb_scheduled_time",
+                    ).value;
+                    payload.scheduledDueAt = scheduledInputsToIso(
+                        schedDateVal,
+                        schedTimeVal,
+                    );
 
                     const rtype =
                         document.getElementById("sb_recur_type").value;
@@ -2020,7 +2041,8 @@
                         "Create task";
                     document.getElementById("sb_title").value = "";
                     document.getElementById("sb_description").value = "";
-                    document.getElementById("sb_scheduled").value = "";
+                    document.getElementById("sb_scheduled_date").value = "";
+                    document.getElementById("sb_scheduled_time").value = "";
                     document.getElementById("sb_lead").value = "0";
                     document.getElementById("sb_paused").checked = false;
                     document.getElementById("sb_recur_type").value = "none";
