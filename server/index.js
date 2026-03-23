@@ -942,6 +942,9 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
         task.lastCompletedAt = completedAtIso;
         task.state = "Done";
         task.updated_at = completedAtIso;
+        if (task.meta && "block_note" in task.meta) {
+          delete task.meta.block_note;
+        }
 
         tasks.forEach((t) => {
           if (
