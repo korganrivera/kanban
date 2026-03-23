@@ -18,8 +18,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-08T05:00:00.000Z",
-    "priority": 17,
-    "urgency": 39,
+    "priority": 19,
+    "urgency": 46,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -28,18 +28,15 @@
     "id": "1766700196887-89014",
     "title": "germinate cucumber",
     "description": "9 plants, 12 inch spacing.",
-    "state": "Suspended",
+    "state": "Ready",
     "dependencies": [
-      "1773434835627-53774",
       "1774031366497-42101"
     ],
-    "picker": "korgan",
+    "picker": null,
     "created_at": "2025-12-25T22:03:16.887Z",
-    "updated_at": "2026-03-20T18:29:26.497Z",
+    "updated_at": "2026-03-23T00:01:53.155Z",
     "created_by": "korgan",
-    "meta": {
-      "block_note": "need soil"
-    },
+    "meta": {},
     "recurrence": {
       "type": "anchored",
       "intervalDays": 365,
@@ -47,9 +44,9 @@
       "leadTimeDays": 3,
       "paused": false
     },
-    "scheduledDueAt": "2026-03-15T05:00:00.000Z",
-    "priority": 41,
-    "urgency": 100,
+    "scheduledDueAt": "2027-03-15T05:00:00.000Z",
+    "priority": 1,
+    "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -63,19 +60,28 @@
         "ts": "2026-03-20T18:29:16.724Z",
         "picker": "korgan",
         "action": "picked"
+      },
+      {
+        "ts": "2026-03-22T22:46:39.223Z",
+        "picker": "korgan",
+        "action": "picked"
       }
     ],
-    "points_snapshot": 39,
-    "points_snapshot_created_at": "2026-03-13T14:39:02.435Z",
     "points_snapshot_created_by": "korgan",
-    "picked_at": "2026-03-13T14:39:02.435Z",
     "points_history": [
       {
         "ts": "2026-03-13T14:39:02.435Z",
         "snapshot": 39,
         "by": "korgan"
       }
-    ]
+    ],
+    "lastCompletedAt": "2026-03-23T00:01:53.155Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 39,
+      "ts": "2026-03-23T00:01:53.157Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1766700237372-47259",
@@ -861,8 +867,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 7,
-    "urgency": 15,
+    "priority": 10,
+    "urgency": 23,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1052,8 +1058,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 7,
-    "urgency": 15,
+    "priority": 10,
+    "urgency": 23,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1077,8 +1083,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 7,
-    "urgency": 15,
+    "priority": 10,
+    "urgency": 23,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1152,8 +1158,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 7,
-    "urgency": 15,
+    "priority": 10,
+    "urgency": 23,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1410,8 +1416,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-25T05:00:00.000Z",
-    "priority": 39,
-    "urgency": 95,
+    "priority": 40,
+    "urgency": 98,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -1603,8 +1609,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-01T05:00:00.000Z",
-    "priority": 26,
-    "urgency": 62,
+    "priority": 29,
+    "urgency": 69,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1617,7 +1623,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2025-12-25T23:48:53.093Z",
-    "updated_at": "2026-03-19T14:13:19.832Z",
+    "updated_at": "2026-03-22T23:16:51.619Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -1626,9 +1632,9 @@
       "leadTimeDays": 0,
       "paused": false
     },
-    "scheduledDueAt": "2026-03-21T14:13:19.832Z",
-    "priority": 25,
-    "urgency": 61,
+    "scheduledDueAt": "2026-03-24T23:16:51.619Z",
+    "priority": 2,
+    "urgency": 2,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -1780,6 +1786,11 @@
       },
       {
         "ts": "2026-03-19T14:13:18.235Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-03-21T21:56:31.888Z",
         "picker": "korgan",
         "action": "picked"
       }
@@ -1935,13 +1946,18 @@
         "ts": "2026-03-19T14:13:18.237Z",
         "snapshot": 41,
         "by": "korgan"
+      },
+      {
+        "ts": "2026-03-21T21:56:31.890Z",
+        "snapshot": 41,
+        "by": "korgan"
       }
     ],
-    "lastCompletedAt": "2026-03-19T14:13:19.832Z",
+    "lastCompletedAt": "2026-03-22T23:16:51.619Z",
     "awarded": {
       "to": "korgan",
       "points": 41,
-      "ts": "2026-03-19T14:13:19.833Z"
+      "ts": "2026-03-22T23:16:51.621Z"
     },
     "points_snapshot_awarded": true
   },
@@ -1957,9 +1973,7 @@
     "created_at": "2025-12-26T12:49:36.036Z",
     "updated_at": "2026-02-06T19:41:07.957Z",
     "created_by": "korgan",
-    "meta": {
-      "block_note": "need soil"
-    },
+    "meta": {},
     "recurrence": {
       "type": "anchored",
       "intervalDays": 365,
@@ -2139,8 +2153,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-22T05:00:00.000Z",
-    "priority": 39,
-    "urgency": 95,
+    "priority": 41,
+    "urgency": 100,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -2236,8 +2250,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-25T05:00:00.000Z",
-    "priority": 35,
-    "urgency": 85,
+    "priority": 38,
+    "urgency": 93,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -2261,8 +2275,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 7,
-    "urgency": 15,
+    "priority": 10,
+    "urgency": 23,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -2286,8 +2300,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 7,
-    "urgency": 15,
+    "priority": 10,
+    "urgency": 23,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -2338,8 +2352,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-22T05:00:00.000Z",
-    "priority": 39,
-    "urgency": 95,
+    "priority": 41,
+    "urgency": 100,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -2358,7 +2372,7 @@
     "remedy_for": "1766701208210-75737",
     "priority": 56,
     "urgency": 0,
-    "importancePercentile": 91,
+    "importancePercentile": 92,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -3000,7 +3014,7 @@
     "meta": {},
     "priority": 56,
     "urgency": 0,
-    "importancePercentile": 91,
+    "importancePercentile": 92,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -3145,7 +3159,7 @@
     "scheduledDueAt": "2026-01-15T06:00:00.000Z",
     "priority": 96,
     "urgency": 100,
-    "importancePercentile": 91,
+    "importancePercentile": 92,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -3495,8 +3509,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-23T06:00:00.000Z",
-    "priority": 38,
-    "urgency": 92,
+    "priority": 41,
+    "urgency": 99,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -3594,9 +3608,9 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 62,
-    "urgency": 15,
-    "importancePercentile": 91,
+    "priority": 65,
+    "urgency": 23,
+    "importancePercentile": 92,
     "importanceRaw": 1,
     "deadlock": false
   },
@@ -3716,9 +3730,9 @@
     "meta": {
       "block_note": "snow"
     },
-    "priority": 88,
-    "urgency": 82,
-    "importancePercentile": 91,
+    "priority": 92,
+    "urgency": 89,
+    "importancePercentile": 92,
     "importanceRaw": 1,
     "deadlock": false,
     "scheduledDueAt": "2026-03-26T05:00:00.000Z"
@@ -3736,8 +3750,8 @@
     "updated_at": "2026-03-19T14:16:10.022Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 34,
-    "urgency": 82,
+    "priority": 37,
+    "urgency": 89,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -3866,8 +3880,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-05-05T12:23:20.041Z",
-    "priority": 21,
-    "urgency": 50,
+    "priority": 22,
+    "urgency": 52,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -3997,7 +4011,7 @@
     "remedy_for": "1766753376036-95907",
     "priority": 56,
     "urgency": 0,
-    "importancePercentile": 91,
+    "importancePercentile": 92,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -4083,7 +4097,7 @@
     "remedy_for": "1769113446987-43675",
     "priority": 96,
     "urgency": 100,
-    "importancePercentile": 91,
+    "importancePercentile": 92,
     "importanceRaw": 1,
     "deadlock": false,
     "scheduledDueAt": "2026-02-05T06:00:00.000Z",
@@ -4211,8 +4225,8 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-04-08T05:00:00.000Z",
-    "priority": 17,
-    "urgency": 39,
+    "priority": 19,
+    "urgency": 46,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -4577,8 +4591,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-27T11:00:00.000Z",
-    "priority": 22,
-    "urgency": 52,
+    "priority": 28,
+    "urgency": 68,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -4619,7 +4633,7 @@
     "scheduledDueAt": "2026-03-01T06:00:00.000Z",
     "priority": 96,
     "urgency": 100,
-    "importancePercentile": 91,
+    "importancePercentile": 92,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -4703,8 +4717,8 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-04-02T05:00:00.000Z",
-    "priority": 25,
-    "urgency": 59,
+    "priority": 27,
+    "urgency": 66,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -4817,50 +4831,6 @@
     "deadlock": false
   },
   {
-    "id": "1773434835627-53774",
-    "title": "Buy soil",
-    "description": "Remedy for: germinate cucumber",
-    "state": "Done",
-    "dependencies": [],
-    "picker": "korgan",
-    "created_at": "2026-03-13T20:47:15.627Z",
-    "updated_at": "2026-03-20T17:55:47.276Z",
-    "created_by": "korgan",
-    "meta": {},
-    "remedy_for": "1766700196887-89014",
-    "priority": 96,
-    "urgency": 100,
-    "importancePercentile": 91,
-    "importanceRaw": 1,
-    "deadlock": false,
-    "scheduledDueAt": "2026-03-15T05:00:00.000Z",
-    "picker_history": [
-      {
-        "ts": "2026-03-20T17:55:44.892Z",
-        "picker": "korgan",
-        "action": "picked"
-      }
-    ],
-    "points_snapshot": 97,
-    "points_snapshot_created_at": "2026-03-20T17:55:44.894Z",
-    "points_snapshot_created_by": "korgan",
-    "picked_at": "2026-03-20T17:55:44.894Z",
-    "points_history": [
-      {
-        "ts": "2026-03-20T17:55:44.894Z",
-        "snapshot": 97,
-        "by": "korgan"
-      }
-    ],
-    "lastCompletedAt": "2026-03-20T17:55:47.276Z",
-    "awarded": {
-      "to": "korgan",
-      "points": 97,
-      "ts": "2026-03-20T17:55:47.277Z"
-    },
-    "points_snapshot_awarded": true
-  },
-  {
     "id": "1773951094388-93388",
     "title": "germinate sunflowers indoors",
     "description": "",
@@ -4868,9 +4838,11 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2026-03-19T20:11:34.388Z",
-    "updated_at": "2026-03-19T20:11:34.388Z",
+    "updated_at": "2026-03-23T00:01:54.544Z",
     "created_by": "korgan",
-    "meta": {},
+    "meta": {
+      "block_note": "need soil"
+    },
     "recurrence": {
       "type": "anchored",
       "intervalDays": 365,
@@ -4882,7 +4854,35 @@
     "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "scheduledDueAt": "2027-03-15T05:00:00.000Z",
+    "picker_history": [
+      {
+        "ts": "2026-03-21T21:53:21.625Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-03-22T23:16:53.282Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot_created_by": "korgan",
+    "points_history": [
+      {
+        "ts": "2026-03-21T21:53:21.627Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-03-23T00:01:54.544Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-03-23T00:01:54.545Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1773951132466-15775",
@@ -4892,7 +4892,7 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2026-03-19T20:12:12.466Z",
-    "updated_at": "2026-03-19T20:12:12.466Z",
+    "updated_at": "2026-03-21T08:40:47.582Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -4902,30 +4902,56 @@
       "leadTimeDays": 0,
       "paused": false
     },
-    "priority": 1,
-    "urgency": 0,
+    "priority": 19,
+    "urgency": 46,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "scheduledDueAt": "2026-04-08T05:00:00.000Z"
   },
   {
     "id": "1774031366497-42101",
     "title": "get soil",
     "description": "Remedy for: germinate cucumber",
-    "state": "Ready",
+    "state": "Done",
     "scheduledDueAt": "2026-03-15T05:00:00.000Z",
     "dependencies": [],
-    "picker": null,
+    "picker": "korgan",
     "created_at": "2026-03-20T18:29:26.497Z",
-    "updated_at": "2026-03-20T18:29:26.497Z",
+    "updated_at": "2026-03-22T00:25:34.949Z",
     "created_by": "korgan",
     "meta": {},
     "remedy_for": "1766700196887-89014",
     "priority": 96,
     "urgency": 100,
-    "importancePercentile": 91,
+    "importancePercentile": 92,
     "importanceRaw": 1,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-03-21T00:27:30.818Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 96,
+    "points_snapshot_created_at": "2026-03-21T00:27:30.819Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-03-21T00:27:30.819Z",
+    "points_history": [
+      {
+        "ts": "2026-03-21T00:27:30.819Z",
+        "snapshot": 96,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-03-22T00:25:34.949Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 96,
+      "ts": "2026-03-22T00:25:34.950Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1774031509927-7518",
@@ -4933,17 +4959,270 @@
     "description": "Remedy for: move compost",
     "state": "Ready",
     "scheduledDueAt": "2026-03-18T05:00:00.000Z",
-    "dependencies": [],
+    "dependencies": [
+      "1774052001441-39567"
+    ],
     "picker": null,
     "created_at": "2026-03-20T18:31:49.928Z",
-    "updated_at": "2026-03-20T18:32:19.620Z",
+    "updated_at": "2026-03-21T08:37:49.710Z",
     "created_by": "korgan",
     "meta": {},
     "remedy_for": "1766701460303-39410",
     "priority": 96,
     "urgency": 100,
-    "importancePercentile": 91,
+    "importancePercentile": 92,
     "importanceRaw": 1,
+    "deadlock": false
+  },
+  {
+    "id": "1774052001441-39567",
+    "title": "Ask Ethan about using truck for coffee-ground pickup",
+    "description": "Coffee shops are across town and picking up grounds in the car is a hassle. Ask Ethan whether the truck can help with a grounds run.",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-03-21T00:13:21.441Z",
+    "updated_at": "2026-03-21T08:37:49.709Z",
+    "created_by": "Auren",
+    "meta": {},
+    "priority": 60,
+    "urgency": 0,
+    "importancePercentile": 99,
+    "importanceRaw": 1.5,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-03-21T00:26:53.481Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 1,
+    "points_snapshot_created_at": "2026-03-21T00:26:53.484Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-03-21T00:26:53.484Z",
+    "points_history": [
+      {
+        "ts": "2026-03-21T00:26:53.484Z",
+        "snapshot": 1,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-03-21T08:37:49.709Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 1,
+      "ts": "2026-03-21T08:37:49.711Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1774052001441-12161",
+    "title": "Ask people at work if they want to buy surplus eggs",
+    "description": "There are about 4 dozen eggs in the house and production is tracking well. Make a concrete effort to find coworkers who want to buy eggs.",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-03-21T00:13:21.441Z",
+    "updated_at": "2026-03-21T08:38:35.410Z",
+    "created_by": "Auren",
+    "meta": {},
+    "picker_history": [
+      {
+        "ts": "2026-03-21T00:24:04.364Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 1,
+    "points_snapshot_created_at": "2026-03-21T00:24:04.366Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-03-21T00:24:04.366Z",
+    "points_history": [
+      {
+        "ts": "2026-03-21T00:24:04.366Z",
+        "snapshot": 1,
+        "by": "korgan"
+      }
+    ],
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "scheduledDueAt": null,
+    "lastCompletedAt": "2026-03-21T08:38:35.410Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 1,
+      "ts": "2026-03-21T08:38:35.412Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1774052001441-83612",
+    "title": "Sketch minimalist self-hosted surplus store",
+    "description": "Longer-term idea: a small self-hosted store for surplus goods like eggs, cookies, and soap. This is not immediate, but worth capturing as a future path.",
+    "state": "Waiting",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-03-21T00:13:21.441Z",
+    "updated_at": "2026-03-21T00:13:21.441Z",
+    "created_by": "Auren",
+    "meta": {},
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1774076626219-20953",
+    "title": "make a plan to grow more perennials (berries, herbs, fruit trees)",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-03-21T07:03:46.219Z",
+    "updated_at": "2026-03-21T07:03:59.059Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "scheduledDueAt": null
+  },
+  {
+    "id": "1774076670086-90711",
+    "title": "build rainwater system for watering chickens with float valve",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-03-21T07:04:30.086Z",
+    "updated_at": "2026-03-21T07:04:30.086Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1774076701949-35732",
+    "title": "Consider selling plant starts like tomatoes, peppers, herbs",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-03-21T07:05:01.949Z",
+    "updated_at": "2026-03-21T07:05:01.950Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 1,
+    "urgency": 0,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1774079031501-69301",
+    "title": "make egg mayo with a dozen eggs",
+    "description": "This is the easiest way to use surplus eggs.",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "korgan",
+    "created_at": "2026-03-21T07:43:51.501Z",
+    "updated_at": "2026-03-22T22:48:16.966Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-03-21T05:00:00.000Z",
+    "priority": 41,
+    "urgency": 100,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-03-22T22:48:15.460Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 41,
+    "points_snapshot_created_at": "2026-03-22T22:48:15.462Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-03-22T22:48:15.462Z",
+    "points_history": [
+      {
+        "ts": "2026-03-22T22:48:15.462Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-03-22T22:48:16.966Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-03-22T22:48:16.968Z"
+    },
+    "points_snapshot_awarded": true
+  },
+  {
+    "id": "1774080758597-25918",
+    "title": "make plan to get more nitrogen for compost",
+    "description": "I need grass clippings, coffee grounds, urine. I need to track how much nitrogen I've added to the compost pile so I know when it balances the 3480 lb of leaves I have.",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-03-21T08:12:38.597Z",
+    "updated_at": "2026-03-21T08:12:38.597Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-03-26T05:00:00.000Z",
+    "priority": 37,
+    "urgency": 89,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false
+  },
+  {
+    "id": "1774080772665-20097",
+    "title": "get a tarp for the compost pile",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-03-21T08:12:52.665Z",
+    "updated_at": "2026-03-22T22:47:19.995Z",
+    "created_by": "korgan",
+    "meta": {},
+    "priority": 37,
+    "urgency": 89,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
+    "deadlock": false,
+    "scheduledDueAt": "2026-03-26T05:00:00.000Z"
+  },
+  {
+    "id": "1774139582247-22720",
+    "title": "Check back back for grass clippings",
+    "description": "",
+    "state": "Ready",
+    "dependencies": [],
+    "picker": null,
+    "created_at": "2026-03-22T00:33:02.247Z",
+    "updated_at": "2026-03-22T00:33:02.247Z",
+    "created_by": "korgan",
+    "meta": {},
+    "scheduledDueAt": "2026-03-26T05:00:00.000Z",
+    "priority": 37,
+    "urgency": 89,
+    "importancePercentile": 0,
+    "importanceRaw": 0,
     "deadlock": false
   }
 ]
