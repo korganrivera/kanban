@@ -19,7 +19,7 @@
     },
     "scheduledDueAt": "2026-04-08T05:00:00.000Z",
     "priority": 26,
-    "urgency": 62,
+    "urgency": 63,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -105,7 +105,7 @@
       "paused": false
     },
     "priority": 7,
-    "urgency": 15,
+    "urgency": 16,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -1034,7 +1034,7 @@
     },
     "scheduledDueAt": "2026-04-22T05:00:00.000Z",
     "priority": 7,
-    "urgency": 15,
+    "urgency": 16,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1109,7 +1109,7 @@
     },
     "scheduledDueAt": "2026-04-22T05:00:00.000Z",
     "priority": 7,
-    "urgency": 15,
+    "urgency": 16,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1134,7 +1134,7 @@
     },
     "scheduledDueAt": "2026-04-22T05:00:00.000Z",
     "priority": 7,
-    "urgency": 15,
+    "urgency": 16,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1239,7 +1239,7 @@
     },
     "scheduledDueAt": "2026-04-22T05:00:00.000Z",
     "priority": 7,
-    "urgency": 15,
+    "urgency": 16,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1608,7 +1608,7 @@
     },
     "scheduledDueAt": "2026-04-01T05:00:00.000Z",
     "priority": 35,
-    "urgency": 85,
+    "urgency": 86,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -1631,8 +1631,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-29T17:45:27.918Z",
-    "priority": 2,
-    "urgency": 2,
+    "priority": 6,
+    "urgency": 13,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -2276,11 +2276,11 @@
     "id": "1766754015125-85202",
     "title": "plant potatoes",
     "description": "90 plants, 12 inch spacing.\n6 inch depth, NO nitrogen, mulch heavily after emergence to keep cool.\n\nSeed potatoes are ready to plant when they have short bulky sprouts that are starting to turn\ngreen. Planting 1 to 2 weeks before your last frost ensures that the seed potatoes are protected\nunderground if it does frost, but by the time the greens emerge (which are susceptible to frost)\nthat danger of frost has passed.",
-    "state": "Ready",
+    "state": "InProgress",
     "dependencies": [],
-    "picker": null,
+    "picker": "korgan",
     "created_at": "2025-12-26T13:00:15.125Z",
-    "updated_at": "2026-02-08T02:07:53.857Z",
+    "updated_at": "2026-03-27T23:45:41.649Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -2295,7 +2295,25 @@
     "urgency": 100,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-03-27T23:45:41.648Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 41,
+    "points_snapshot_created_at": "2026-03-27T23:45:41.649Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-03-27T23:45:41.649Z",
+    "points_history": [
+      {
+        "ts": "2026-03-27T23:45:41.649Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ]
   },
   {
     "id": "1766754077258-12040",
@@ -2369,7 +2387,7 @@
     },
     "scheduledDueAt": "2026-04-22T05:00:00.000Z",
     "priority": 7,
-    "urgency": 15,
+    "urgency": 16,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -2378,13 +2396,13 @@
     "id": "1766754406067-57143",
     "title": "transplant kale",
     "description": "",
-    "state": "Suspended",
+    "state": "InProgress",
     "dependencies": [
       "1774308859935-33319"
     ],
     "picker": "korgan",
     "created_at": "2025-12-26T13:06:46.067Z",
-    "updated_at": "2026-03-23T23:34:19.935Z",
+    "updated_at": "2026-03-27T23:45:33.660Z",
     "created_by": "korgan",
     "meta": {
       "block_note": "row 3 needs to be weeded"
@@ -2405,6 +2423,11 @@
     "picker_history": [
       {
         "ts": "2026-03-23T01:19:09.937Z",
+        "picker": "korgan",
+        "action": "picked"
+      },
+      {
+        "ts": "2026-03-27T23:45:33.660Z",
         "picker": "korgan",
         "action": "picked"
       }
@@ -2559,15 +2582,15 @@
     "dependencies": [],
     "picker": null,
     "created_at": "2026-01-03T23:20:52.965Z",
-    "updated_at": "2026-03-26T23:08:00.235Z",
+    "updated_at": "2026-03-27T23:45:29.973Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 41,
-    "urgency": 100,
+    "priority": 1,
+    "urgency": 0,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
-    "scheduledDueAt": "2026-03-08T06:00:00.000Z",
+    "scheduledDueAt": "2027-03-08T06:00:00.000Z",
     "recurrence": {
       "leadTimeDays": 7,
       "paused": false,
@@ -2580,19 +2603,28 @@
         "ts": "2026-03-23T01:19:24.023Z",
         "picker": "korgan",
         "action": "picked"
+      },
+      {
+        "ts": "2026-03-27T23:45:28.342Z",
+        "picker": "korgan",
+        "action": "picked"
       }
     ],
-    "points_snapshot": 41,
-    "points_snapshot_created_at": "2026-03-23T01:19:24.024Z",
     "points_snapshot_created_by": "korgan",
-    "picked_at": "2026-03-23T01:19:24.024Z",
     "points_history": [
       {
         "ts": "2026-03-23T01:19:24.024Z",
         "snapshot": 41,
         "by": "korgan"
       }
-    ]
+    ],
+    "lastCompletedAt": "2026-03-27T23:45:29.973Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-03-27T23:45:29.974Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1767482463758-42021",
@@ -3575,11 +3607,11 @@
     "id": "1768741358105-73662",
     "title": "Garden Documentation Update",
     "description": "Photograph bed layouts, log observations",
-    "state": "InProgress",
+    "state": "Ready",
     "dependencies": [],
-    "picker": "korgan",
+    "picker": null,
     "created_at": "2026-01-18T13:02:38.105Z",
-    "updated_at": "2026-03-26T23:09:20.624Z",
+    "updated_at": "2026-03-27T22:01:46.195Z",
     "created_by": "korgan",
     "meta": {},
     "recurrence": {
@@ -3589,9 +3621,9 @@
       "leadTimeDays": 0,
       "paused": false
     },
-    "scheduledDueAt": "2026-03-23T06:00:00.000Z",
-    "priority": 41,
-    "urgency": 100,
+    "scheduledDueAt": "2026-04-22T06:00:00.000Z",
+    "priority": 7,
+    "urgency": 16,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -3630,16 +3662,13 @@
         "by": "korgan"
       }
     ],
-    "lastCompletedAt": "2026-02-21T16:03:57.358Z",
+    "lastCompletedAt": "2026-03-27T22:01:46.195Z",
     "awarded": {
       "to": "korgan",
       "points": 41,
-      "ts": "2026-02-21T16:03:57.360Z"
+      "ts": "2026-03-27T22:01:46.196Z"
     },
-    "points_snapshot_awarded": true,
-    "points_snapshot": 41,
-    "points_snapshot_created_at": "2026-03-26T23:09:20.624Z",
-    "picked_at": "2026-03-26T23:09:20.624Z"
+    "points_snapshot_awarded": true
   },
   {
     "id": "1768743703186-78271",
@@ -3975,7 +4004,7 @@
     },
     "scheduledDueAt": "2026-05-05T12:23:20.041Z",
     "priority": 24,
-    "urgency": 57,
+    "urgency": 58,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -4320,7 +4349,7 @@
     "meta": {},
     "scheduledDueAt": "2026-04-08T05:00:00.000Z",
     "priority": 26,
-    "urgency": 62,
+    "urgency": 63,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false
@@ -4685,8 +4714,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-03T11:00:00.000Z",
-    "priority": 22,
-    "urgency": 52,
+    "priority": 23,
+    "urgency": 54,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -4812,7 +4841,7 @@
     "meta": {},
     "scheduledDueAt": "2026-04-02T05:00:00.000Z",
     "priority": 34,
-    "urgency": 82,
+    "urgency": 83,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -4997,7 +5026,7 @@
       "paused": false
     },
     "priority": 26,
-    "urgency": 62,
+    "urgency": 63,
     "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
@@ -5242,11 +5271,11 @@
     "id": "1774139582247-22720",
     "title": "Check back back for grass clippings",
     "description": "",
-    "state": "Ready",
+    "state": "Done",
     "dependencies": [],
-    "picker": null,
+    "picker": "korgan",
     "created_at": "2026-03-22T00:33:02.247Z",
-    "updated_at": "2026-03-22T00:33:02.247Z",
+    "updated_at": "2026-03-27T23:45:06.509Z",
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-03-26T05:00:00.000Z",
@@ -5254,18 +5283,43 @@
     "urgency": 100,
     "importancePercentile": 0,
     "importanceRaw": 0,
-    "deadlock": false
+    "deadlock": false,
+    "picker_history": [
+      {
+        "ts": "2026-03-27T23:45:04.258Z",
+        "picker": "korgan",
+        "action": "picked"
+      }
+    ],
+    "points_snapshot": 41,
+    "points_snapshot_created_at": "2026-03-27T23:45:04.260Z",
+    "points_snapshot_created_by": "korgan",
+    "picked_at": "2026-03-27T23:45:04.260Z",
+    "points_history": [
+      {
+        "ts": "2026-03-27T23:45:04.260Z",
+        "snapshot": 41,
+        "by": "korgan"
+      }
+    ],
+    "lastCompletedAt": "2026-03-27T23:45:06.509Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 41,
+      "ts": "2026-03-27T23:45:06.511Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1774308859935-33319",
     "title": "Weed row 3",
-    "description": "Remedy for: transplant kale",
-    "state": "InProgress",
+    "description": "Remedy for: transplant kale\n\nTook about 9 hours! Need a better way.",
+    "state": "Done",
     "scheduledDueAt": "2026-03-22T05:00:00.000Z",
     "dependencies": [],
     "picker": "korgan",
     "created_at": "2026-03-23T23:34:19.935Z",
-    "updated_at": "2026-03-26T17:08:25.611Z",
+    "updated_at": "2026-03-27T22:01:37.780Z",
     "created_by": "korgan",
     "meta": {},
     "remedy_for": "1766754406067-57143",
@@ -5291,7 +5345,14 @@
         "snapshot": 96,
         "by": "korgan"
       }
-    ]
+    ],
+    "lastCompletedAt": "2026-03-27T22:00:44.946Z",
+    "awarded": {
+      "to": "korgan",
+      "points": 96,
+      "ts": "2026-03-27T22:00:44.948Z"
+    },
+    "points_snapshot_awarded": true
   },
   {
     "id": "1774566516896-1137",
