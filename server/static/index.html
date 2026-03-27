@@ -1545,10 +1545,36 @@
                 )
                     return;
                 try {
-                    const r = await fetch(
+                    let r = await fetch(
                         `${API_ROOT}/tasks/${encodeURIComponent(task.id)}`,
                         { method: "DELETE" },
                     );
+                    if (r.status === 409) {
+                        const j = await r
+                            .json()
+                            .catch(() => ({ error: "Delete blocked" }));
+                        const dependentTitles = Array.isArray(j.dependents)
+                            ? j.dependents.map((d) => d.title).filter(Boolean)
+                            : [];
+                        const dependentSummary =
+                            dependentTitles.length > 0
+                                ? `\n\nDependents:\n- ${dependentTitles.join("\n- ")}`
+                                : "";
+                        const proceed = confirm(
+                            `${j.error || "Other tasks depend on this task."}\nDeleting it will remove this dependency from those tasks.${dependentSummary}\n\nProceed anyway?`,
+                        );
+                        if (!proceed) return;
+                        r = await fetch(
+                            `${API_ROOT}/tasks/${encodeURIComponent(task.id)}`,
+                            {
+                                method: "DELETE",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({ confirm: true }),
+                            },
+                        );
+                    }
                     if (!r.ok) {
                         const j = await r
                             .json()
