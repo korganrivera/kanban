@@ -198,5 +198,3 @@ This board is for:
 - showing what is blocked
 - avoiding forgotten dependencies
 - making repeat work less annoying
-
-If the README ever starts feeling too technical again, it should be simplified.
