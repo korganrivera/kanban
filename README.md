@@ -1,6 +1,6 @@
 # Kanban Board
 
-![Kanban Board Screenshot](kanban_screenshot.png)
+![Kanban Board Screenshot](kanban_screenshot.jpg)
 
 This is a shared task board for keeping track of what needs doing, what is in
 progress, what is blocked, and what is done.
