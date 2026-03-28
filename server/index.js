@@ -45,6 +45,16 @@ const DEFAULT_WIP_LIMITS = {
 };
 
 let WIP_LIMITS = null;
+const PRIORITY_CONFIG = {
+  MAX_WINDOW_days: 30,
+  decay: 0.5,
+  w_u: 0.4,
+  w_i: 0.6,
+  rollingCrowdingBonusMax: 15,
+  overdueAgeBonusMax: 8,
+  overdueAgeWindowDays: 14,
+};
+const SNAPSHOT_REFRESH_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
 /* -------------------- authentication middleware -------------------- */
 
@@ -379,6 +389,9 @@ function computePriorities(tasks, nowIso = new Date(), config = {}) {
     decay: config.decay ?? 0.5,
     w_u: config.w_u ?? 0.4,
     w_i: config.w_i ?? 0.6,
+    rollingCrowdingBonusMax: config.rollingCrowdingBonusMax ?? 15,
+    overdueAgeBonusMax: config.overdueAgeBonusMax ?? 8,
+    overdueAgeWindowDays: config.overdueAgeWindowDays ?? 14,
   };
 
   const now = nowIso instanceof Date ? nowIso : new Date(nowIso);
@@ -518,21 +531,85 @@ function computePriorities(tasks, nowIso = new Date(), config = {}) {
     return 0;
   }
 
+  function computeRecurrenceCrowding(task) {
+    if (
+      !task.recurrence ||
+      typeof task.recurrence !== "object" ||
+      !task.scheduledDueAt
+    ) {
+      return 0;
+    }
+
+    const d = new Date(task.scheduledDueAt);
+    if (isNaN(d.getTime())) return 0;
+
+    const intervalDays =
+      Number(
+        task.recurrence.intervalDays ?? task.recurrence.interval ?? 0,
+      ) || 0;
+    if (intervalDays <= 0) return 0;
+
+    const daysPastDue =
+      (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24);
+    if (daysPastDue <= 0) return 0;
+
+    return Math.max(
+      0,
+      Math.min(100, Math.round((daysPastDue / intervalDays) * 100)),
+    );
+  }
+
+  function computeOverdueAge(task) {
+    if (!task.scheduledDueAt) return 0;
+
+    const d = new Date(task.scheduledDueAt);
+    if (isNaN(d.getTime())) return 0;
+
+    const daysPastDue =
+      (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24);
+    if (daysPastDue <= 0) return 0;
+
+    const windowDays = Number(cfg.overdueAgeWindowDays) || 0;
+    if (windowDays <= 0) return 0;
+
+    return Math.max(
+      0,
+      Math.min(100, Math.round((daysPastDue / windowDays) * 100)),
+    );
+  }
+
   /* ---------- final priority ---------- */
 
   return tasks.map((t) => {
     const r = rawR.get(t.id) || 0;
     const I = rawToPercentile(r);
     const U = computeUrgency(t);
+    const RC = computeRecurrenceCrowding(t);
+    const OA = computeOverdueAge(t);
+    const rollingCrowdingBonus = Math.round(
+      (cfg.rollingCrowdingBonusMax * RC) / 100,
+    );
+    const overdueAgeBonus = Math.round((cfg.overdueAgeBonusMax * OA) / 100);
     const P = Math.max(
       1,
-      Math.min(100, Math.round(cfg.w_u * U + cfg.w_i * I + 1)),
+      Math.min(
+        100,
+        Math.round(
+          cfg.w_u * U +
+            cfg.w_i * I +
+            rollingCrowdingBonus +
+            overdueAgeBonus +
+            1,
+        ),
+      ),
     );
 
     return Object.assign({}, t, {
       importanceRaw: r,
       importancePercentile: I,
       urgency: U,
+      recurrenceCrowding: RC,
+      overdueAge: OA,
       priority: P,
       deadlock: deadlockSet.has(t.id),
     });
@@ -542,9 +619,8 @@ function computePriorities(tasks, nowIso = new Date(), config = {}) {
 /* -------------------- recompute wrapper -------------------- */
 
 function recomputeAllPriorities(tasks = null) {
-  const cfg = { MAX_WINDOW_days: 30, decay: 0.5, w_u: 0.4, w_i: 0.6 };
   const ts = tasks ?? loadTasks();
-  const updated = computePriorities(ts, new Date(), cfg);
+  const updated = computePriorities(ts, new Date(), PRIORITY_CONFIG);
   const changed = [];
   for (const u of updated) {
     const t = ts.find((x) => x.id === u.id);
@@ -553,16 +629,22 @@ function recomputeAllPriorities(tasks = null) {
       priority: t.priority,
       urgency: t.urgency,
       importancePercentile: t.importancePercentile,
+      recurrenceCrowding: t.recurrenceCrowding,
+      overdueAge: t.overdueAge,
     };
     t.priority = u.priority;
     t.urgency = u.urgency;
     t.importancePercentile = u.importancePercentile;
     t.importanceRaw = u.importanceRaw;
+    t.recurrenceCrowding = u.recurrenceCrowding;
+    t.overdueAge = u.overdueAge;
     t.deadlock = u.deadlock;
     if (
       before.priority !== t.priority ||
       before.urgency !== t.urgency ||
-      before.importancePercentile !== t.importancePercentile
+      before.importancePercentile !== t.importancePercentile ||
+      before.recurrenceCrowding !== t.recurrenceCrowding ||
+      before.overdueAge !== t.overdueAge
     ) {
       changed.push({
         id: t.id,
@@ -571,6 +653,8 @@ function recomputeAllPriorities(tasks = null) {
           priority: t.priority,
           urgency: t.urgency,
           importancePercentile: t.importancePercentile,
+          recurrenceCrowding: t.recurrenceCrowding,
+          overdueAge: t.overdueAge,
         },
       });
     }
@@ -855,40 +939,59 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
       }
 
       if (newState === "InProgress") {
+        const claimTs = new Date();
+        const claimTsIso = claimTs.toISOString();
         task.state = "InProgress";
         if (newPicker !== undefined && newPicker !== "") {
           task.picker = newPicker;
           task.picker_history = task.picker_history || [];
           task.picker_history.push({
-            ts: new Date().toISOString(),
+            ts: claimTsIso,
             picker: newPicker,
             action: "picked",
           });
         }
-        if (typeof task.points_snapshot !== "number") {
-          const updated = computePriorities(tasks, new Date(), {
-            MAX_WINDOW_days: 30,
-            decay: 0.5,
-            w_u: 0.4,
-            w_i: 0.6,
-          });
+        const snapshotOwnerRaw = task.points_snapshot_created_by;
+        const snapshotOwner =
+          typeof snapshotOwnerRaw === "string"
+            ? snapshotOwnerRaw.trim()
+            : snapshotOwnerRaw;
+        const unclaimedAt = parseDateSafe(task.unclaimed_at);
+        const unclaimedLongEnough =
+          !!unclaimedAt &&
+          claimTs.getTime() - unclaimedAt.getTime() >=
+            SNAPSHOT_REFRESH_COOLDOWN_MS;
+        const claimedByDifferentUser =
+          typeof newPicker === "string" &&
+          newPicker !== "" &&
+          newPicker !== snapshotOwner;
+        const shouldRefreshSnapshot =
+          typeof task.points_snapshot !== "number" ||
+          claimedByDifferentUser ||
+          unclaimedLongEnough;
+
+        if (shouldRefreshSnapshot) {
+          const updated = computePriorities(tasks, claimTs, PRIORITY_CONFIG);
           const u = updated.find((x) => x.id === task.id);
           const snap =
             u && typeof u.priority === "number"
               ? u.priority
               : task.priority || 0;
           task.points_snapshot = snap;
-          task.points_snapshot_created_at = new Date().toISOString();
+          task.points_snapshot_created_at = claimTsIso;
           task.points_snapshot_created_by = task.picker || newPicker || null;
-          task.picked_at = new Date().toISOString();
+          task.picked_at = claimTsIso;
           task.points_history = task.points_history || [];
           task.points_history.push({
             ts: task.points_snapshot_created_at,
             snapshot: snap,
             by: task.points_snapshot_created_by,
           });
+        } else if (!task.picked_at) {
+          task.picked_at = claimTsIso;
         }
-        task.updated_at = new Date().toISOString();
+        task.unclaimed_at = undefined;
+        task.updated_at = claimTsIso;
         return persistAndReturn();
       }
 
@@ -1056,6 +1159,7 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
         if (newPicker === null || newPicker === "") {
           // Unclaim the task
           task.picker = null;
+          task.unclaimed_at = new Date().toISOString();
         } else {
           task.picker = newPicker;
           task.picker_history = task.picker_history || [];
@@ -1261,12 +1365,7 @@ app.post("/tasks/:id/remedy", async (req, res) => {
 
 app.get("/tasks/active", (req, res) => {
   const tasks = loadTasks();
-  const updated = computePriorities(tasks, new Date(), {
-    MAX_WINDOW_days: 30,
-    decay: 0.5,
-    w_u: 0.4,
-    w_i: 0.6,
-  });
+  const updated = computePriorities(tasks, new Date(), PRIORITY_CONFIG);
   const activeTasks = updated
     .filter((t) => ["Ready", "InProgress"].includes(t.state))
     .sort((a, b) => b.priority - a.priority);
