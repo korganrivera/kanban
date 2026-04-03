@@ -933,6 +933,10 @@ app.post("/tasks", requireAuth, async (req, res) => {
 
       if (req.body.scheduledDueAt)
         newTask.scheduledDueAt = req.body.scheduledDueAt;
+      if ("leadTimeDays" in req.body) {
+        const v = Number(req.body.leadTimeDays);
+        if (Number.isFinite(v)) newTask.leadTimeDays = v;
+      }
       if (req.body.lastCompletedAt)
         newTask.lastCompletedAt = req.body.lastCompletedAt;
 
@@ -1605,6 +1609,10 @@ app.patch("/tasks/:id", requireAuth, async (req, res) => {
       if ("scheduledDueAt" in req.body) {
         task.scheduledDueAt = req.body.scheduledDueAt || null;
       }
+      if ("leadTimeDays" in req.body) {
+        const v = Number(req.body.leadTimeDays);
+        task.leadTimeDays = Number.isFinite(v) ? v : task.leadTimeDays;
+      }
 
       let recurrenceEdited = false;
       if (req.body.recurrence && typeof req.body.recurrence === "object") {
@@ -1614,6 +1622,7 @@ app.patch("/tasks/:id", requireAuth, async (req, res) => {
           delete task.recurrence;
         } else {
           task.recurrence = task.recurrence || {};
+          delete task.leadTimeDays;
           if ("leadTimeDays" in req.body.recurrence) {
             const v = Number(req.body.recurrence.leadTimeDays);
             task.recurrence.leadTimeDays = Number.isFinite(v)
