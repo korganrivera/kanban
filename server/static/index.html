@@ -831,6 +831,10 @@
             let tasksCache = [];
             let fetchInFlight = false;
             let sidebarTaskId = null;
+            let authRedirectInProgress = false;
+            let authPollInterval = null;
+            let ws = null;
+            let reconnectTimeout = null;
 
             function toast(msg, timeout = 2600) {
                 const t = document.getElementById("toast");
@@ -838,6 +842,53 @@
                 t.style.display = "block";
                 clearTimeout(t._to);
                 t._to = setTimeout(() => (t.style.display = "none"), timeout);
+            }
+
+            function redirectToLogin(message = "Session expired. Please log in again.") {
+                if (authRedirectInProgress) return;
+                authRedirectInProgress = true;
+                if (reconnectTimeout) {
+                    clearTimeout(reconnectTimeout);
+                    reconnectTimeout = null;
+                }
+                if (authPollInterval) {
+                    clearInterval(authPollInterval);
+                    authPollInterval = null;
+                }
+                if (ws) {
+                    ws.onclose = null;
+                    ws.close();
+                    ws = null;
+                }
+                toast(message, 1200);
+                setTimeout(() => {
+                    window.location.href = "/login.html";
+                }, 150);
+            }
+
+            const nativeFetch = window.fetch.bind(window);
+            window.fetch = async (...args) => {
+                const res = await nativeFetch(...args);
+                if (res.status === 401) {
+                    redirectToLogin();
+                }
+                return res;
+            };
+
+            async function pollAuthStatus() {
+                if (authRedirectInProgress) return;
+                try {
+                    const res = await nativeFetch(`${API_ROOT}/auth/whoami`, {
+                        cache: "no-store",
+                    });
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    if (!data.authenticated) {
+                        redirectToLogin();
+                    }
+                } catch (err) {
+                    console.error("Auth poll failed:", err);
+                }
             }
 
             /* ---------------- Date helpers ---------------- */
@@ -2114,9 +2165,6 @@
             };
 
             /* ---------------- WebSocket Setup ---------------- */
-            let ws = null;
-            let reconnectTimeout = null;
-
             function connectWebSocket() {
                 const protocol =
                     window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -2158,6 +2206,7 @@
                 };
 
                 ws.onclose = () => {
+                    if (authRedirectInProgress) return;
                     console.log("WebSocket disconnected");
                     const statusEl = document.getElementById("wsStatus");
                     if (statusEl) {
@@ -2524,6 +2573,9 @@
                     await loadWipLimits();
                     fetchAndRender();
                     connectWebSocket();
+                    if (!authPollInterval) {
+                        authPollInterval = setInterval(pollAuthStatus, 60000);
+                    }
                 } catch (err) {
                     console.error("Auth check failed:", err);
                     window.location.href = "/login.html";

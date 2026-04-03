@@ -14,6 +14,95 @@ if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
 const TASKS_FILE = path.join(DATA_DIR, "tasks.json");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const WIP_LIMITS_FILE = path.join(DATA_DIR, "wip_limits.json");
+const SESSIONS_FILE = path.join(DATA_DIR, "sessions.json");
+
+class JsonSessionStore extends session.Store {
+  constructor(filePath) {
+    super();
+    this.filePath = filePath;
+    this.sessions = this.load();
+    this.pruneExpired();
+  }
+
+  load() {
+    try {
+      const raw = fs.readFileSync(this.filePath, "utf8");
+      if (!raw || raw.trim() === "") return {};
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch (err) {
+      if (err && err.code === "ENOENT") return {};
+      console.error(`Error loading session store ${this.filePath}:`, err);
+      return {};
+    }
+  }
+
+  save() {
+    try {
+      const tmp = `${this.filePath}.tmp`;
+      fs.writeFileSync(tmp, JSON.stringify(this.sessions, null, 2), "utf8");
+      fs.renameSync(tmp, this.filePath);
+    } catch (err) {
+      console.error(`Error saving session store ${this.filePath}:`, err);
+    }
+  }
+
+  isExpired(sess) {
+    const expiresAt = sess && sess.cookie && sess.cookie.expires;
+    if (!expiresAt) return false;
+    const ts = new Date(expiresAt).getTime();
+    return Number.isFinite(ts) && ts <= Date.now();
+  }
+
+  pruneExpired() {
+    let changed = false;
+    for (const [sid, sess] of Object.entries(this.sessions)) {
+      if (this.isExpired(sess)) {
+        delete this.sessions[sid];
+        changed = true;
+      }
+    }
+    if (changed) this.save();
+  }
+
+  get(sid, cb) {
+    const sess = this.sessions[sid];
+    if (!sess) return cb(null, null);
+    if (this.isExpired(sess)) {
+      delete this.sessions[sid];
+      this.save();
+      return cb(null, null);
+    }
+    cb(null, sess);
+  }
+
+  set(sid, sess, cb) {
+    this.sessions[sid] = sess;
+    this.save();
+    cb && cb(null);
+  }
+
+  destroy(sid, cb) {
+    if (sid in this.sessions) {
+      delete this.sessions[sid];
+      this.save();
+    }
+    cb && cb(null);
+  }
+
+  touch(sid, sess, cb) {
+    this.sessions[sid] = sess;
+    this.save();
+    cb && cb(null);
+  }
+}
+
+const sessionStore = new JsonSessionStore(SESSIONS_FILE);
+const sessionPruneTimer = setInterval(
+  () => sessionStore.pruneExpired(),
+  60 * 60 * 1000,
+);
+sessionPruneTimer.unref();
 
 app.use(express.json());
 
@@ -21,8 +110,10 @@ app.use(express.json());
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "kanban-secret-change-in-production",
+    store: sessionStore,
     resave: false,
     saveUninitialized: false,
+    rolling: true,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
       httpOnly: true,
