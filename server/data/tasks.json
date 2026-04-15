@@ -19,12 +19,9 @@
     },
     "scheduledDueAt": "2027-04-08T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 2.8140590181419386e-122,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
     "picker_history": [
       {
         "ts": "2026-04-06T22:04:06.892Z",
@@ -46,7 +43,8 @@
       "points": 39,
       "ts": "2026-04-09T16:23:08.462Z"
     },
-    "points_snapshot_awarded": true
+    "points_snapshot_awarded": true,
+    "importance": 0
   },
   {
     "id": "1766700196887-89014",
@@ -70,8 +68,7 @@
     },
     "scheduledDueAt": "2027-03-15T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 6.1346141782991766e-114,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -106,8 +103,7 @@
       "ts": "2026-03-23T00:01:53.157Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700237372-47259",
@@ -130,14 +126,12 @@
       "leadTimeDays": 7,
       "paused": false
     },
-    "priority": 32,
-    "urgency": 78,
-    "importancePercentile": 0,
+    "priority": 3,
+    "urgency": 2.3865128185967253,
     "importanceRaw": 0,
     "deadlock": false,
     "scheduledDueAt": "2026-04-22T05:00:00.000Z",
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700309271-97061",
@@ -159,8 +153,7 @@
     },
     "scheduledDueAt": "2027-01-22T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 6.917691947083148e-96,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -190,8 +183,7 @@
       "ts": "2026-01-22T18:07:05.894Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700339884-28095",
@@ -213,8 +205,7 @@
     },
     "scheduledDueAt": "2027-02-08T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 8.58136282501287e-102,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -239,8 +230,7 @@
       "ts": "2026-02-07T12:06:26.605Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700369474-18123",
@@ -262,8 +252,7 @@
     },
     "scheduledDueAt": "2027-02-22T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.1734323777996974e-106,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -288,8 +277,7 @@
       "ts": "2026-02-20T14:56:36.209Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700407477-58716",
@@ -311,8 +299,7 @@
     },
     "scheduledDueAt": "2027-02-08T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 8.58136282501287e-102,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -337,8 +324,7 @@
       "ts": "2026-02-06T21:00:41.698Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700435646-79631",
@@ -360,8 +346,7 @@
     },
     "scheduledDueAt": "2027-03-15T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 6.1346141782991766e-114,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -386,8 +371,7 @@
       "ts": "2026-03-20T18:11:14.349Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700462257-80939",
@@ -411,8 +395,7 @@
     },
     "scheduledDueAt": "2027-03-01T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 4.339193013611817e-109,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -437,8 +420,7 @@
       "ts": "2026-03-06T01:39:06.365Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700494297-93620",
@@ -460,8 +442,7 @@
     },
     "scheduledDueAt": "2027-03-15T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 6.1346141782991766e-114,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -486,8 +467,7 @@
       "ts": "2026-03-20T18:11:13.195Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700519392-63789",
@@ -509,12 +489,10 @@
     },
     "scheduledDueAt": "2026-05-15T05:00:00.000Z",
     "priority": 1,
-    "urgency": 1,
-    "importancePercentile": 0,
+    "urgency": 2.5597953904109988e-8,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700542478-67244",
@@ -536,8 +514,7 @@
     },
     "scheduledDueAt": "2027-03-08T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.6045744403851454e-111,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -562,8 +539,7 @@
       "ts": "2026-03-20T17:53:09.480Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700570149-59077",
@@ -585,8 +561,7 @@
     },
     "scheduledDueAt": "2027-02-08T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 8.58136282501287e-102,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -611,8 +586,7 @@
       "ts": "2026-02-06T21:00:29.675Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700592359-75787",
@@ -634,8 +608,7 @@
     },
     "scheduledDueAt": "2027-02-08T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 8.58136282501287e-102,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -660,8 +633,7 @@
       "ts": "2026-02-06T21:28:46.908Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700627709-5936",
@@ -683,8 +655,7 @@
     },
     "scheduledDueAt": "2027-02-22T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.1734323777996974e-106,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -709,8 +680,7 @@
       "ts": "2026-02-19T21:47:47.392Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700650119-63955",
@@ -732,8 +702,7 @@
     },
     "scheduledDueAt": "2027-02-22T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.1734323777996974e-106,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -758,8 +727,7 @@
       "ts": "2026-03-06T20:26:59.377Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700672858-1876",
@@ -781,8 +749,7 @@
     },
     "scheduledDueAt": "2027-03-08T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.6045744403851454e-111,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -807,8 +774,7 @@
       "ts": "2026-03-19T14:13:04.008Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700697865-7908",
@@ -830,8 +796,7 @@
     },
     "scheduledDueAt": "2027-03-08T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.6045744403851454e-111,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -856,8 +821,7 @@
       "ts": "2026-03-10T22:21:19.017Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700720864-19456",
@@ -879,8 +843,7 @@
     },
     "scheduledDueAt": "2027-03-08T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.6045744403851454e-111,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -905,8 +868,7 @@
       "ts": "2026-03-12T19:46:32.540Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700752182-28548",
@@ -927,13 +889,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 41,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 47,
+    "urgency": 46.132270434526255,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 2
+    "importance": 0
   },
   {
     "id": "1766700781675-49822",
@@ -955,8 +915,7 @@
     },
     "scheduledDueAt": "2027-02-18T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 2.8787265242637397e-105,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -981,8 +940,7 @@
       "ts": "2026-02-11T17:40:54.615Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700803760-98320",
@@ -1004,8 +962,7 @@
     },
     "scheduledDueAt": "2027-02-21T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 2.6115217836114925e-106,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -1030,8 +987,7 @@
       "ts": "2026-02-14T12:07:57.976Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700824396-97611",
@@ -1053,8 +1009,7 @@
     },
     "scheduledDueAt": "2027-03-15T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 6.1346141782991766e-114,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -1079,8 +1034,7 @@
       "ts": "2026-03-20T14:10:58.464Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766700892582-50865",
@@ -1101,13 +1055,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-22T05:00:00.000Z",
-    "priority": 32,
-    "urgency": 78,
-    "importancePercentile": 0,
+    "priority": 3,
+    "urgency": 2.3865128185967253,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766701051929-59835",
@@ -1128,13 +1080,10 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 41,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 47,
+    "urgency": 46.132270434526255,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 2,
     "picker_history": [
       {
         "ts": "2026-04-10T23:13:41.957Z",
@@ -1152,7 +1101,8 @@
         "snapshot": 35,
         "by": "korgan"
       }
-    ]
+    ],
+    "importance": 0
   },
   {
     "id": "1766701073997-22259",
@@ -1174,12 +1124,9 @@
     },
     "scheduledDueAt": "2027-04-15T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.0406006739228419e-124,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
     "picker_history": [
       {
         "ts": "2026-04-10T23:14:06.363Z",
@@ -1201,7 +1148,8 @@
       "points": 35,
       "ts": "2026-04-10T23:14:18.152Z"
     },
-    "points_snapshot_awarded": true
+    "points_snapshot_awarded": true,
+    "importance": 0
   },
   {
     "id": "1766701091544-37692",
@@ -1225,12 +1173,9 @@
     },
     "scheduledDueAt": "2027-04-09T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.2644382235864288e-122,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
     "picker_history": [
       {
         "ts": "2026-04-10T13:41:21.580Z",
@@ -1262,7 +1207,8 @@
       "points": 42,
       "ts": "2026-04-10T20:16:41.869Z"
     },
-    "points_snapshot_awarded": true
+    "points_snapshot_awarded": true,
+    "importance": 0
   },
   {
     "id": "1766701114494-74419",
@@ -1283,13 +1229,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-22T05:00:00.000Z",
-    "priority": 32,
-    "urgency": 78,
-    "importancePercentile": 0,
+    "priority": 3,
+    "urgency": 2.3865128185967253,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766701147281-20688",
@@ -1311,12 +1255,9 @@
     },
     "scheduledDueAt": "2027-04-15T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.0406006739228419e-124,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
     "picker_history": [
       {
         "ts": "2026-04-13T13:48:44.265Z",
@@ -1338,7 +1279,8 @@
       "points": 39,
       "ts": "2026-04-13T15:32:14.771Z"
     },
-    "points_snapshot_awarded": true
+    "points_snapshot_awarded": true,
+    "importance": 0
   },
   {
     "id": "1766701208210-75737",
@@ -1364,8 +1306,7 @@
     },
     "scheduledDueAt": "2027-01-08T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 5.058938685576452e-91,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -1394,8 +1335,7 @@
       "ts": "2026-01-03T12:56:24.980Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766701245085-55141",
@@ -1416,13 +1356,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-22T05:00:00.000Z",
-    "priority": 32,
-    "urgency": 78,
-    "importancePercentile": 0,
+    "priority": 3,
+    "urgency": 2.3865128185967253,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766701264309-79540",
@@ -1444,12 +1382,10 @@
     },
     "scheduledDueAt": "2026-06-05T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.294368564363155e-15,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766701281511-25434",
@@ -1471,12 +1407,10 @@
     },
     "scheduledDueAt": "2026-06-01T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 3.1754135891428023e-14,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766701317857-11796",
@@ -1498,12 +1432,10 @@
     },
     "scheduledDueAt": "2026-07-22T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 6.061574362006329e-32,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766701343721-33516",
@@ -1525,12 +1457,10 @@
     },
     "scheduledDueAt": "2026-07-01T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.1987613532746359e-24,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766701383309-54232",
@@ -1552,12 +1482,10 @@
     },
     "scheduledDueAt": "2026-08-15T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 2.780554326934195e-40,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766701403667-92731",
@@ -1579,12 +1507,10 @@
     },
     "scheduledDueAt": "2026-08-15T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 2.780554326934195e-40,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766701460303-39410",
@@ -1606,9 +1532,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-03-25T05:00:00.000Z",
-    "priority": 53,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 50,
+    "urgency": 49.49999981727824,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -1639,8 +1564,7 @@
         "by": "korgan"
       }
     ],
-    "recurrenceCrowding": 24,
-    "overdueAge": 100
+    "importance": 0
   },
   {
     "id": "1766701489395-21051",
@@ -1662,12 +1586,10 @@
     },
     "scheduledDueAt": "2026-08-08T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 7.51935317286054e-38,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766701508528-74578",
@@ -1689,12 +1611,10 @@
     },
     "scheduledDueAt": "2026-09-08T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.2754908054074106e-48,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766701539586-17055",
@@ -1716,12 +1636,10 @@
     },
     "scheduledDueAt": "2026-11-08T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 7.900055324037404e-70,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766701567857-91318",
@@ -1743,12 +1661,10 @@
     },
     "scheduledDueAt": "2026-09-01T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 3.449263962114189e-46,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766701591533-52167",
@@ -1770,12 +1686,10 @@
     },
     "scheduledDueAt": "2026-09-01T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 3.449263962114189e-46,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766701739627-14299",
@@ -1797,12 +1711,10 @@
     },
     "scheduledDueAt": "2026-12-04T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 7.316525811832374e-79,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766701842941-96136",
@@ -1824,12 +1736,9 @@
     },
     "scheduledDueAt": "2027-04-01T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 7.609958705613081e-120,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
     "picker_history": [
       {
         "ts": "2026-04-02T11:37:24.355Z",
@@ -1851,7 +1760,8 @@
       "points": 42,
       "ts": "2026-04-02T11:37:34.994Z"
     },
-    "points_snapshot_awarded": true
+    "points_snapshot_awarded": true,
+    "importance": 0
   },
   {
     "id": "1766706533093-22404",
@@ -1871,9 +1781,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-17T00:56:29.319Z",
-    "priority": 9,
-    "urgency": 21,
-    "importancePercentile": 0,
+    "priority": 39,
+    "urgency": 37.61890287640869,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -2288,8 +2197,7 @@
       "ts": "2026-04-15T00:56:29.321Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766753376036-95907",
@@ -2313,8 +2221,7 @@
     },
     "scheduledDueAt": "2027-02-08T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 8.58136282501287e-102,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -2344,8 +2251,7 @@
       "ts": "2026-02-06T19:41:07.958Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766753502851-89388",
@@ -2367,12 +2273,10 @@
     },
     "scheduledDueAt": "2026-07-22T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 6.061574362006329e-32,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766753606372-52047",
@@ -2394,8 +2298,7 @@
     },
     "scheduledDueAt": "2027-03-08T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.6045744403851454e-111,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -2420,8 +2323,7 @@
       "ts": "2026-03-10T22:21:17.592Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766753646472-43385",
@@ -2443,8 +2345,7 @@
     },
     "scheduledDueAt": "2027-03-22T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 2.268496718455505e-116,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -2469,8 +2370,7 @@
       "ts": "2026-03-20T17:53:12.275Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766753718487-51541",
@@ -2492,8 +2392,7 @@
     },
     "scheduledDueAt": "2027-03-22T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 2.268496718455505e-116,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -2516,15 +2415,14 @@
         "by": "korgan"
       }
     ],
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
     "lastCompletedAt": "2026-03-30T00:40:37.851Z",
     "awarded": {
       "to": "korgan",
       "points": 41,
       "ts": "2026-03-30T00:40:37.853Z"
     },
-    "points_snapshot_awarded": true
+    "points_snapshot_awarded": true,
+    "importance": 0
   },
   {
     "id": "1766753755106-77118",
@@ -2546,12 +2444,10 @@
     },
     "scheduledDueAt": "2026-07-22T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 6.061574362006329e-32,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766753800394-53847",
@@ -2573,8 +2469,7 @@
     },
     "scheduledDueAt": "2027-03-15T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 6.1346141782991766e-114,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -2599,8 +2494,7 @@
       "ts": "2026-03-13T14:40:30.975Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766754015125-85202",
@@ -2624,8 +2518,7 @@
     },
     "scheduledDueAt": "2027-03-25T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 2.0579337934202505e-117,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -2648,15 +2541,14 @@
         "by": "korgan"
       }
     ],
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
     "lastCompletedAt": "2026-04-01T13:52:24.651Z",
     "awarded": {
       "to": "korgan",
       "points": 41,
       "ts": "2026-04-01T13:52:24.651Z"
     },
-    "points_snapshot_awarded": true
+    "points_snapshot_awarded": true,
+    "importance": 0
   },
   {
     "id": "1766754077258-12040",
@@ -2677,13 +2569,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 41,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 47,
+    "urgency": 46.132270434526255,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 2
+    "importance": 0
   },
   {
     "id": "1766754114764-85386",
@@ -2704,13 +2594,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-15T05:00:00.000Z",
-    "priority": 41,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 47,
+    "urgency": 46.132270434526255,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 2
+    "importance": 0
   },
   {
     "id": "1766754296179-93047",
@@ -2733,13 +2621,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-22T05:00:00.000Z",
-    "priority": 32,
-    "urgency": 78,
-    "importancePercentile": 0,
+    "priority": 3,
+    "urgency": 2.3865128185967253,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1766754406067-57143",
@@ -2763,8 +2649,7 @@
     },
     "scheduledDueAt": "2027-03-22T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 2.268496718455505e-116,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -2787,15 +2672,14 @@
         "by": "korgan"
       }
     ],
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
     "lastCompletedAt": "2026-03-29T00:24:14.662Z",
     "awarded": {
       "to": "korgan",
       "points": 41,
       "ts": "2026-03-29T00:24:14.663Z"
     },
-    "points_snapshot_awarded": true
+    "points_snapshot_awarded": true,
+    "importance": 0
   },
   {
     "id": "1767294627154-26489",
@@ -2809,9 +2693,8 @@
     "created_by": "korgan",
     "meta": {},
     "remedy_for": "1766701208210-75737",
-    "priority": 56,
+    "priority": 34,
     "urgency": 0,
-    "importancePercentile": 91,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -2839,8 +2722,7 @@
       "ts": "2026-01-02T18:13:39.671Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 33
   },
   {
     "id": "1767482398339-57361",
@@ -2855,7 +2737,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -2884,8 +2765,7 @@
       "ts": "2026-01-09T16:15:25.293Z"
     },
     "points_snapshot_awarded": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1767482433061-42171",
@@ -2900,7 +2780,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "scheduledDueAt": null,
@@ -2930,8 +2809,7 @@
       "ts": "2026-01-08T14:22:45.664Z"
     },
     "points_snapshot_awarded": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1767482452965-79640",
@@ -2945,8 +2823,7 @@
     "created_by": "korgan",
     "meta": {},
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.6045744403851454e-111,
     "importanceRaw": 0,
     "deadlock": false,
     "scheduledDueAt": "2027-03-08T06:00:00.000Z",
@@ -2984,8 +2861,7 @@
       "ts": "2026-03-27T23:45:29.974Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1767482463758-42021",
@@ -3000,7 +2876,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -3029,8 +2904,7 @@
       "ts": "2026-01-08T14:23:20.639Z"
     },
     "points_snapshot_awarded": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1767482473692-41196",
@@ -3045,11 +2919,9 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1767482483871-35076",
@@ -3064,7 +2936,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -3098,8 +2969,7 @@
       "ts": "2026-01-09T17:21:04.830Z"
     },
     "points_snapshot_awarded": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1767482497983-85979",
@@ -3114,7 +2984,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -3142,8 +3011,7 @@
       "ts": "2026-01-16T14:09:57.384Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1767482503204-73352",
@@ -3158,7 +3026,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -3191,8 +3058,7 @@
       "ts": "2026-03-10T22:21:16.218Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1767482511183-38914",
@@ -3207,7 +3073,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -3236,8 +3101,7 @@
       "ts": "2026-01-09T17:22:38.671Z"
     },
     "points_snapshot_awarded": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1767482519846-891",
@@ -3252,7 +3116,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -3281,8 +3144,7 @@
       "ts": "2026-01-08T14:23:02.808Z"
     },
     "points_snapshot_awarded": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1767482526703-46541",
@@ -3297,7 +3159,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -3325,8 +3186,7 @@
       "ts": "2026-01-16T12:53:09.651Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1767482537434-69622",
@@ -3341,11 +3201,9 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1767483806922-65611",
@@ -3360,7 +3218,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -3389,8 +3246,7 @@
       "ts": "2026-01-09T15:22:25.569Z"
     },
     "points_snapshot_awarded": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1767483939386-37693",
@@ -3405,7 +3261,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "scheduledDueAt": null,
@@ -3434,8 +3289,7 @@
       "ts": "2026-01-14T16:41:46.947Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1767789564643-28163",
@@ -3450,11 +3304,9 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1767915641350-69030",
@@ -3469,7 +3321,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -3498,8 +3349,7 @@
       "ts": "2026-01-08T23:41:04.668Z"
     },
     "points_snapshot_awarded": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1768052164682-18955",
@@ -3512,9 +3362,8 @@
     "updated_at": "2026-01-15T14:23:19.244Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 56,
+    "priority": 34,
     "urgency": 0,
-    "importancePercentile": 91,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -3542,8 +3391,7 @@
       "ts": "2026-01-15T14:23:19.248Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 33
   },
   {
     "id": "1768052331603-25048",
@@ -3558,7 +3406,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -3586,8 +3433,7 @@
       "ts": "2026-01-16T14:28:30.120Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1768052339788-67032",
@@ -3602,7 +3448,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -3630,8 +3475,7 @@
       "ts": "2026-01-11T00:27:06.718Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1768091173319-72588",
@@ -3646,12 +3490,10 @@
     "meta": {},
     "scheduledDueAt": "2026-06-15T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 4.342122800756656e-19,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1768091726375-92352",
@@ -3665,9 +3507,8 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-01-15T06:00:00.000Z",
-    "priority": 100,
-    "urgency": 100,
-    "importancePercentile": 91,
+    "priority": 84,
+    "urgency": 49.5,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -3695,8 +3536,7 @@
       "ts": "2026-01-15T16:23:52.799Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 33
   },
   {
     "id": "1768138386003-64043",
@@ -3711,7 +3551,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -3739,8 +3578,7 @@
       "ts": "2026-01-16T15:11:26.290Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1768138410995-10510",
@@ -3755,7 +3593,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -3783,8 +3620,7 @@
       "ts": "2026-01-16T13:31:32.693Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1768213511524-22087",
@@ -3799,7 +3635,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -3827,8 +3662,7 @@
       "ts": "2026-01-14T00:00:51.714Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1768213555950-10231",
@@ -3843,7 +3677,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -3871,8 +3704,7 @@
       "ts": "2026-01-12T12:53:30.876Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1768421056653-76745",
@@ -3886,8 +3718,7 @@
     "created_by": "korgan",
     "meta": {},
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 5.850908140581602e-57,
     "importanceRaw": 0,
     "deadlock": false,
     "scheduledDueAt": "2026-10-02T05:00:00.000Z",
@@ -3929,8 +3760,7 @@
       "ts": "2026-02-27T20:19:22.518Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1768421114267-83427",
@@ -3946,8 +3776,7 @@
       "block_note": "waiting to apply bone meal"
     },
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.157099153060256e-49,
     "importanceRaw": 0,
     "deadlock": false,
     "scheduledDueAt": "2026-09-11T05:00:00.000Z",
@@ -3984,8 +3813,7 @@
       "ts": "2026-02-06T17:41:44.540Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1768741186460-56953",
@@ -4007,12 +3835,10 @@
     },
     "scheduledDueAt": "2027-01-01T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.368070614129654e-88,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1768741358105-73662",
@@ -4033,9 +3859,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-22T06:00:00.000Z",
-    "priority": 32,
-    "urgency": 77,
-    "importancePercentile": 0,
+    "priority": 3,
+    "urgency": 2.3119278317654075,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -4080,8 +3905,7 @@
       "ts": "2026-03-27T22:01:46.196Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1768743703186-78271",
@@ -4096,7 +3920,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -4124,8 +3947,7 @@
       "ts": "2026-02-12T13:50:52.478Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1768899336093-82128",
@@ -4146,13 +3968,10 @@
       "paused": false
     },
     "scheduledDueAt": "2027-04-15T05:00:00.000Z",
-    "priority": 56,
-    "urgency": 0,
-    "importancePercentile": 91,
+    "priority": 34,
+    "urgency": 1.0406006739228419e-124,
     "importanceRaw": 1,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
     "picker_history": [
       {
         "ts": "2026-04-10T13:45:04.789Z",
@@ -4174,7 +3993,8 @@
       "points": 90,
       "ts": "2026-04-10T22:15:30.860Z"
     },
-    "points_snapshot_awarded": true
+    "points_snapshot_awarded": true,
+    "importance": 33
   },
   {
     "id": "1768901904484-5097",
@@ -4189,12 +4009,10 @@
     "meta": {},
     "scheduledDueAt": "2027-01-22T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 6.917691947083148e-96,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1769113446987-43675",
@@ -4212,9 +4030,8 @@
     "meta": {
       "block_note": "need bone meal"
     },
-    "priority": 49,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 51,
+    "urgency": 49.5,
     "importanceRaw": 0,
     "deadlock": false,
     "scheduledDueAt": "2026-01-29T06:00:00.000Z",
@@ -4253,8 +4070,7 @@
       "ts": "2026-02-06T16:19:41.361Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 0
   },
   {
     "id": "1769115450631-74486",
@@ -4276,12 +4092,10 @@
     },
     "scheduledDueAt": "2026-06-22T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.605657835743137e-21,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1769126695781-48435",
@@ -4299,14 +4113,11 @@
     "meta": {
       "block_note": "need transport"
     },
-    "priority": 100,
-    "urgency": 100,
-    "importancePercentile": 91,
+    "priority": 83,
+    "urgency": 49.47027901304973,
     "importanceRaw": 1,
     "deadlock": false,
     "scheduledDueAt": "2026-04-09T05:00:00.000Z",
-    "recurrenceCrowding": 0,
-    "overdueAge": 45,
     "leadTimeDays": 0,
     "picker_history": [
       {
@@ -4330,7 +4141,8 @@
         "snapshot": 96,
         "by": "korgan"
       }
-    ]
+    ],
+    "importance": 33
   },
   {
     "id": "1769126709131-53365",
@@ -4345,14 +4157,12 @@
     "updated_at": "2026-03-19T14:16:10.022Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 49,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 50,
+    "urgency": 49.49999959334524,
     "importanceRaw": 0,
     "deadlock": false,
     "scheduledDueAt": "2026-03-26T05:00:00.000Z",
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 0
   },
   {
     "id": "1769204544490-30363",
@@ -4367,12 +4177,10 @@
     "meta": {},
     "scheduledDueAt": "2026-05-22T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 9.465774500698016e-11,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1769385535123-10588",
@@ -4386,9 +4194,8 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-01-26T23:00:00.000Z",
-    "priority": 49,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 51,
+    "urgency": 49.5,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -4416,8 +4223,7 @@
       "ts": "2026-01-27T23:42:18.278Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 0
   },
   {
     "id": "1769864671855-97944",
@@ -4431,9 +4237,8 @@
     "created_by": "korgan",
     "meta": {},
     "remedy_for": "1768421114267-83427",
-    "priority": 61,
+    "priority": 42,
     "urgency": 0,
-    "importancePercentile": 100,
     "importanceRaw": 2.5,
     "deadlock": false,
     "scheduledDueAt": null,
@@ -4462,8 +4267,7 @@
       "ts": "2026-02-04T00:08:33.737Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 41.25
   },
   {
     "id": "1770119858492-26960",
@@ -4483,9 +4287,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-05-05T12:23:20.041Z",
-    "priority": 32,
-    "urgency": 78,
-    "importancePercentile": 0,
+    "priority": 1,
+    "urgency": 0.000059647919129734155,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -4510,8 +4313,7 @@
       "ts": "2026-02-03T12:23:20.042Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1770120004724-26206",
@@ -4533,8 +4335,7 @@
     },
     "scheduledDueAt": "2027-02-01T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 2.3206271195885573e-99,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -4559,8 +4360,7 @@
       "ts": "2026-02-11T17:24:37.060Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1770120681559-3938",
@@ -4575,7 +4375,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -4603,8 +4402,7 @@
       "ts": "2026-02-05T17:46:31.132Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1770312971865-51403",
@@ -4618,9 +4416,8 @@
     "created_by": "korgan",
     "meta": {},
     "remedy_for": "1766753376036-95907",
-    "priority": 56,
+    "priority": 34,
     "urgency": 0,
-    "importancePercentile": 91,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -4648,8 +4445,7 @@
       "ts": "2026-02-06T16:19:47.984Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 33
   },
   {
     "id": "1770313546499-72892",
@@ -4665,7 +4461,6 @@
     "remedy_for": "1768421114267-83427",
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -4693,8 +4488,7 @@
       "ts": "2026-02-12T13:50:37.197Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1770314021546-32280",
@@ -4708,9 +4502,8 @@
     "created_by": "korgan",
     "meta": {},
     "remedy_for": "1769113446987-43675",
-    "priority": 100,
-    "urgency": 100,
-    "importancePercentile": 91,
+    "priority": 84,
+    "urgency": 49.5,
     "importanceRaw": 1,
     "deadlock": false,
     "scheduledDueAt": "2026-02-05T06:00:00.000Z",
@@ -4739,8 +4532,7 @@
       "ts": "2026-02-06T16:19:28.866Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 33
   },
   {
     "id": "1770342066796-93971",
@@ -4754,9 +4546,8 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-02-06T06:00:00.000Z",
-    "priority": 49,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 51,
+    "urgency": 49.5,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -4784,8 +4575,7 @@
       "ts": "2026-02-06T18:32:14.533Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 0
   },
   {
     "id": "1770402779320-11250",
@@ -4799,9 +4589,8 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-02-06T18:00:00.000Z",
-    "priority": 49,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 51,
+    "urgency": 49.5,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -4829,8 +4618,7 @@
       "ts": "2026-02-08T00:32:28.764Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 0
   },
   {
     "id": "1770468735712-5181",
@@ -4845,13 +4633,11 @@
     "meta": {},
     "scheduledDueAt": "2027-04-08T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 2.8140590181419386e-122,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
-    "leadTimeDays": 0
+    "leadTimeDays": 0,
+    "importance": 0
   },
   {
     "id": "1770516377275-70904",
@@ -4865,9 +4651,8 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-03-04T06:00:00.000Z",
-    "priority": 49,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 50,
+    "urgency": 49.499999999999986,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -4895,8 +4680,7 @@
       "ts": "2026-03-06T20:27:49.233Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 0
   },
   {
     "id": "1770516436714-79951",
@@ -4910,9 +4694,8 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-03-11T05:00:00.000Z",
-    "priority": 49,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 50,
+    "urgency": 49.499999999997506,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -4940,8 +4723,7 @@
       "ts": "2026-03-12T19:46:54.385Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 0
   },
   {
     "id": "1770838941535-17829",
@@ -4955,9 +4737,8 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-02-12T06:00:00.000Z",
-    "priority": 49,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 51,
+    "urgency": 49.5,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -4985,8 +4766,7 @@
       "ts": "2026-02-12T16:29:46.899Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 0
   },
   {
     "id": "1770904339643-23386",
@@ -5000,9 +4780,8 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-02-12T06:00:00.000Z",
-    "priority": 49,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 51,
+    "urgency": 49.5,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -5030,8 +4809,7 @@
       "ts": "2026-02-12T16:29:53.800Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 0
   },
   {
     "id": "1770904961270-21266",
@@ -5045,9 +4823,8 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-02-12T06:00:00.000Z",
-    "priority": 49,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 51,
+    "urgency": 49.5,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -5075,8 +4852,7 @@
       "ts": "2026-02-12T16:29:55.245Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 0
   },
   {
     "id": "1771015050655-26540",
@@ -5092,7 +4868,6 @@
     "scheduledDueAt": null,
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -5113,8 +4888,7 @@
         "by": "korgan"
       }
     ],
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1771508162050-8314",
@@ -5128,9 +4902,8 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-02-19T06:00:00.000Z",
-    "priority": 49,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 51,
+    "urgency": 49.5,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -5158,8 +4931,7 @@
       "ts": "2026-02-19T21:47:41.907Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 0
   },
   {
     "id": "1771708096272-72766",
@@ -5174,7 +4946,6 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -5208,8 +4979,7 @@
       "ts": "2026-02-26T18:56:49.515Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1772324960339-77177",
@@ -5229,9 +4999,8 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-16T23:39:27.754Z",
-    "priority": 32,
-    "urgency": 78,
-    "importancePercentile": 0,
+    "priority": 39,
+    "urgency": 38.000981182899096,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -5276,8 +5045,7 @@
       "ts": "2026-04-09T23:39:27.756Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1772325007270-41459",
@@ -5291,9 +5059,8 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-03-01T06:00:00.000Z",
-    "priority": 100,
-    "urgency": 100,
-    "importancePercentile": 91,
+    "priority": 84,
+    "urgency": 49.5,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -5321,8 +5088,7 @@
       "ts": "2026-03-05T19:57:39.998Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 33
   },
   {
     "id": "1772325070034-76539",
@@ -5336,9 +5102,8 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-02-28T06:00:00.000Z",
-    "priority": 49,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 51,
+    "urgency": 49.5,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -5366,8 +5131,7 @@
       "ts": "2026-03-01T00:31:15.164Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 0
   },
   {
     "id": "1772325645206-6143",
@@ -5382,8 +5146,7 @@
     "meta": {},
     "scheduledDueAt": "2027-04-02T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 3.41937486216792e-120,
     "importanceRaw": 0,
     "deadlock": false,
     "recurrence": {
@@ -5393,8 +5156,6 @@
       "intervalDays": 365,
       "weekdays": []
     },
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
     "picker_history": [
       {
         "ts": "2026-04-02T11:37:38.310Z",
@@ -5421,7 +5182,8 @@
       "points": 41,
       "ts": "2026-04-02T18:47:55.579Z"
     },
-    "points_snapshot_awarded": true
+    "points_snapshot_awarded": true,
+    "importance": 0
   },
   {
     "id": "1773242523717-60444",
@@ -5443,12 +5205,10 @@
     },
     "scheduledDueAt": "2026-05-16T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.1501902114529503e-8,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1773242557063-41819",
@@ -5470,12 +5230,10 @@
     },
     "scheduledDueAt": "2026-08-16T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.2493835953930037e-40,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1773242579842-15477",
@@ -5497,12 +5255,10 @@
     },
     "scheduledDueAt": "2026-10-02T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 5.850908140581602e-57,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1773242604136-40044",
@@ -5524,12 +5280,10 @@
     },
     "scheduledDueAt": "2026-11-16T06:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 1.3126394382130742e-72,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1773951094388-93388",
@@ -5552,8 +5306,7 @@
       "paused": false
     },
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 6.1346141782991766e-114,
     "importanceRaw": 0,
     "deadlock": false,
     "scheduledDueAt": "2027-03-15T05:00:00.000Z",
@@ -5584,8 +5337,7 @@
       "ts": "2026-03-23T00:01:54.545Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1773951132466-15775",
@@ -5606,13 +5358,10 @@
       "paused": false
     },
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 2.8140590181419386e-122,
     "importanceRaw": 0,
     "deadlock": false,
     "scheduledDueAt": "2027-04-08T05:00:00.000Z",
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
     "picker_history": [
       {
         "ts": "2026-04-09T01:39:53.933Z",
@@ -5639,7 +5388,8 @@
       "points": 41,
       "ts": "2026-04-10T23:12:13.753Z"
     },
-    "points_snapshot_awarded": true
+    "points_snapshot_awarded": true,
+    "importance": 0
   },
   {
     "id": "1774031366497-42101",
@@ -5654,9 +5404,8 @@
     "created_by": "korgan",
     "meta": {},
     "remedy_for": "1766700196887-89014",
-    "priority": 100,
-    "urgency": 100,
-    "importancePercentile": 91,
+    "priority": 83,
+    "urgency": 49.4999999999387,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -5684,8 +5433,7 @@
       "ts": "2026-03-22T00:25:34.950Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 33
   },
   {
     "id": "1774052001441-12161",
@@ -5718,7 +5466,6 @@
     ],
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "scheduledDueAt": null,
@@ -5729,8 +5476,7 @@
       "ts": "2026-03-21T08:38:35.412Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1774052001441-83612",
@@ -5745,13 +5491,10 @@
     "updated_at": "2026-04-13T15:32:57.027Z",
     "created_by": "Auren",
     "meta": {},
-    "priority": 45,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 50,
+    "urgency": 49.47027901304973,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 45,
     "scheduledDueAt": "2026-04-09T05:00:00.000Z",
     "leadTimeDays": 0,
     "picker_history": [
@@ -5771,7 +5514,8 @@
         "snapshot": 44,
         "by": "korgan"
       }
-    ]
+    ],
+    "importance": 0
   },
   {
     "id": "1774076626219-20953",
@@ -5786,12 +5530,10 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
     "scheduledDueAt": null,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1774076670086-90711",
@@ -5806,11 +5548,9 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1774076701949-35732",
@@ -5825,11 +5565,9 @@
     "meta": {},
     "priority": 1,
     "urgency": 0,
-    "importancePercentile": 0,
     "importanceRaw": 0,
     "deadlock": false,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0
+    "importance": 0
   },
   {
     "id": "1774079031501-69301",
@@ -5843,9 +5581,8 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-03-21T05:00:00.000Z",
-    "priority": 49,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 50,
+    "urgency": 49.499999992551864,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -5873,8 +5610,7 @@
       "ts": "2026-03-22T22:48:16.968Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 0
   },
   {
     "id": "1774080772665-20097",
@@ -5887,14 +5623,11 @@
     "updated_at": "2026-04-02T11:37:14.610Z",
     "created_by": "korgan",
     "meta": {},
-    "priority": 49,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 50,
+    "urgency": 49.49999959334524,
     "importanceRaw": 0,
     "deadlock": false,
     "scheduledDueAt": "2026-03-26T05:00:00.000Z",
-    "recurrenceCrowding": 0,
-    "overdueAge": 100,
     "picker_history": [
       {
         "ts": "2026-04-02T11:37:07.799Z",
@@ -5919,7 +5652,8 @@
       "points": 45,
       "ts": "2026-04-02T11:37:14.611Z"
     },
-    "points_snapshot_awarded": true
+    "points_snapshot_awarded": true,
+    "importance": 0
   },
   {
     "id": "1774139582247-22720",
@@ -5933,9 +5667,8 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-03-26T05:00:00.000Z",
-    "priority": 49,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 50,
+    "urgency": 49.49999959334524,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -5963,8 +5696,7 @@
       "ts": "2026-03-27T23:45:06.511Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 0
   },
   {
     "id": "1774308859935-33319",
@@ -5979,9 +5711,8 @@
     "created_by": "korgan",
     "meta": {},
     "remedy_for": "1766754406067-57143",
-    "priority": 100,
-    "urgency": 100,
-    "importancePercentile": 91,
+    "priority": 83,
+    "urgency": 49.499999983423855,
     "importanceRaw": 1,
     "deadlock": false,
     "picker_history": [
@@ -6009,8 +5740,7 @@
       "ts": "2026-03-27T22:00:44.948Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 33
   },
   {
     "id": "1774566516896-1137",
@@ -6024,9 +5754,8 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-03-26T05:00:00.000Z",
-    "priority": 49,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 50,
+    "urgency": 49.49999959334524,
     "importanceRaw": 0,
     "deadlock": false,
     "picker_history": [
@@ -6054,8 +5783,7 @@
       "ts": "2026-03-26T23:08:59.021Z"
     },
     "points_snapshot_awarded": true,
-    "recurrenceCrowding": 0,
-    "overdueAge": 100
+    "importance": 0
   },
   {
     "id": "1774989717230-72794",
@@ -6070,12 +5798,9 @@
     "created_by": "korgan",
     "meta": {},
     "remedy_for": "1766754015125-85202",
-    "priority": 100,
-    "urgency": 100,
-    "importancePercentile": 91,
+    "priority": 83,
+    "urgency": 49.4999332997992,
     "importanceRaw": 1,
-    "recurrenceCrowding": 0,
-    "overdueAge": 99,
     "deadlock": false,
     "picker_history": [
       {
@@ -6101,7 +5826,8 @@
       "points": 100,
       "ts": "2026-04-01T13:24:37.983Z"
     },
-    "points_snapshot_awarded": true
+    "points_snapshot_awarded": true,
+    "importance": 33
   },
   {
     "id": "1774990397400-77058",
@@ -6123,11 +5849,8 @@
     },
     "scheduledDueAt": "2027-04-01T05:00:00.000Z",
     "priority": 1,
-    "urgency": 0,
-    "importancePercentile": 0,
+    "urgency": 7.609958705613081e-120,
     "importanceRaw": 0,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
     "deadlock": false,
     "picker_history": [
       {
@@ -6150,7 +5873,8 @@
       "points": 41,
       "ts": "2026-04-01T14:55:24.600Z"
     },
-    "points_snapshot_awarded": true
+    "points_snapshot_awarded": true,
+    "importance": 0
   },
   {
     "id": "1775163641928-1043",
@@ -6164,12 +5888,9 @@
     "created_by": "korgan",
     "meta": {},
     "scheduledDueAt": "2026-04-03T05:00:00.000Z",
-    "priority": 48,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 50,
+    "urgency": 49.49975525805577,
     "importanceRaw": 0,
-    "recurrenceCrowding": 0,
-    "overdueAge": 88,
     "deadlock": false,
     "picker_history": [
       {
@@ -6196,7 +5917,8 @@
       "points": 41,
       "ts": "2026-04-03T21:34:09.897Z"
     },
-    "points_snapshot_awarded": true
+    "points_snapshot_awarded": true,
+    "importance": 0
   },
   {
     "id": "1775828608942-28389",
@@ -6211,14 +5933,12 @@
     "created_by": "korgan",
     "meta": {},
     "remedy_for": "1769126695781-48435",
-    "priority": 100,
-    "urgency": 98,
-    "importancePercentile": 99,
+    "priority": 81,
+    "urgency": 42.581815502611796,
     "importanceRaw": 1.5,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
     "deadlock": false,
-    "leadTimeDays": 0
+    "leadTimeDays": 0,
+    "importance": 37.125
   },
   {
     "id": "1775840155830-22683",
@@ -6233,12 +5953,9 @@
     "created_by": "korgan",
     "meta": {},
     "remedy_for": "1766701091544-37692",
-    "priority": 100,
-    "urgency": 100,
-    "importancePercentile": 91,
+    "priority": 83,
+    "urgency": 49.47027901304973,
     "importanceRaw": 1,
-    "recurrenceCrowding": 0,
-    "overdueAge": 45,
     "deadlock": false,
     "picker_history": [
       {
@@ -6264,7 +5981,8 @@
       "points": 97,
       "ts": "2026-04-10T20:16:36.834Z"
     },
-    "points_snapshot_awarded": true
+    "points_snapshot_awarded": true,
+    "importance": 33
   },
   {
     "id": "1776035583134-34723",
@@ -6284,12 +6002,9 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-13T05:00:00.000Z",
-    "priority": 44,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 50,
+    "urgency": 48.78102770588556,
     "importanceRaw": 0,
-    "recurrenceCrowding": 11,
-    "overdueAge": 16,
     "deadlock": false,
     "picker_history": [
       {
@@ -6308,7 +6023,8 @@
         "snapshot": 41,
         "by": "korgan"
       }
-    ]
+    ],
+    "importance": 0
   },
   {
     "id": "1776035736041-16677",
@@ -6328,13 +6044,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-14T05:00:00.000Z",
-    "priority": 43,
-    "urgency": 100,
-    "importancePercentile": 0,
+    "priority": 49,
+    "urgency": 47.927882378594745,
     "importanceRaw": 0,
-    "recurrenceCrowding": 6,
-    "overdueAge": 9,
-    "deadlock": false
+    "deadlock": false,
+    "importance": 0
   },
   {
     "id": "1776035762827-58193",
@@ -6354,13 +6068,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-16T05:00:00.000Z",
-    "priority": 39,
-    "urgency": 96,
-    "importancePercentile": 0,
+    "priority": 44,
+    "urgency": 42.581815502611796,
     "importanceRaw": 0,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
-    "deadlock": false
+    "deadlock": false,
+    "importance": 0
   },
   {
     "id": "1776035788257-79768",
@@ -6380,13 +6092,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-18T05:00:00.000Z",
-    "priority": 36,
-    "urgency": 87,
-    "importancePercentile": 0,
+    "priority": 28,
+    "urgency": 27.42823682569818,
     "importanceRaw": 0,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
-    "deadlock": false
+    "deadlock": false,
+    "importance": 0
   },
   {
     "id": "1776035816718-204",
@@ -6406,13 +6116,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-19T05:00:00.000Z",
-    "priority": 34,
-    "urgency": 82,
-    "importancePercentile": 0,
+    "priority": 19,
+    "urgency": 17.73612539057589,
     "importanceRaw": 0,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
-    "deadlock": false
+    "deadlock": false,
+    "importance": 0
   },
   {
     "id": "1776035838201-15240",
@@ -6432,13 +6140,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-23T05:00:00.000Z",
-    "priority": 26,
-    "urgency": 63,
-    "importancePercentile": 0,
+    "priority": 2,
+    "urgency": 1.101575231164737,
     "importanceRaw": 0,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
-    "deadlock": false
+    "deadlock": false,
+    "importance": 0
   },
   {
     "id": "1776035858670-77990",
@@ -6458,13 +6164,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-24T05:00:00.000Z",
-    "priority": 24,
-    "urgency": 58,
-    "importancePercentile": 0,
+    "priority": 2,
+    "urgency": 0.5011105965238257,
     "importanceRaw": 0,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
-    "deadlock": false
+    "deadlock": false,
+    "importance": 0
   },
   {
     "id": "1776035880471-52926",
@@ -6484,13 +6188,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-26T05:00:00.000Z",
-    "priority": 21,
-    "urgency": 49,
-    "importancePercentile": 0,
+    "priority": 1,
+    "urgency": 0.10199657176714225,
     "importanceRaw": 0,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
-    "deadlock": false
+    "deadlock": false,
+    "importance": 0
   },
   {
     "id": "1776035898845-73986",
@@ -6510,13 +6212,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-27T05:00:00.000Z",
-    "priority": 19,
-    "urgency": 44,
-    "importancePercentile": 0,
+    "priority": 1,
+    "urgency": 0.04588207531415428,
     "importanceRaw": 0,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
-    "deadlock": false
+    "deadlock": false,
+    "importance": 0
   },
   {
     "id": "1776035919534-97128",
@@ -6536,13 +6236,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-04-29T05:00:00.000Z",
-    "priority": 15,
-    "urgency": 35,
-    "importancePercentile": 0,
+    "priority": 1,
+    "urgency": 0.009270289131531283,
     "importanceRaw": 0,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
-    "deadlock": false
+    "deadlock": false,
+    "importance": 0
   },
   {
     "id": "1776035937050-27165",
@@ -6562,13 +6260,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-05-01T05:00:00.000Z",
-    "priority": 11,
-    "urgency": 25,
-    "importancePercentile": 0,
+    "priority": 1,
+    "urgency": 0.0018719188878284492,
     "importanceRaw": 0,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
-    "deadlock": false
+    "deadlock": false,
+    "importance": 0
   },
   {
     "id": "1776035971855-98902",
@@ -6588,13 +6284,11 @@
       "paused": false
     },
     "scheduledDueAt": "2026-05-02T05:00:00.000Z",
-    "priority": 9,
-    "urgency": 20,
-    "importancePercentile": 0,
+    "priority": 1,
+    "urgency": 0.0008411248907636883,
     "importanceRaw": 0,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
-    "deadlock": false
+    "deadlock": false,
+    "importance": 0
   },
   {
     "id": "1776087181748-9013",
@@ -6609,12 +6303,10 @@
     "meta": {},
     "scheduledDueAt": "2026-04-16T17:02:00.000Z",
     "leadTimeDays": 0,
-    "priority": 94,
-    "urgency": 96,
-    "importancePercentile": 91,
+    "priority": 74,
+    "urgency": 39.83443994413164,
     "importanceRaw": 1,
-    "recurrenceCrowding": 0,
-    "overdueAge": 0,
-    "deadlock": false
+    "deadlock": false,
+    "importance": 33
   }
 ]
