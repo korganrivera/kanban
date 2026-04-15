@@ -137,13 +137,9 @@ const DEFAULT_WIP_LIMITS = {
 
 let WIP_LIMITS = null;
 const PRIORITY_CONFIG = {
-  MAX_WINDOW_days: 30,
-  decay: 0.5,
-  w_u: 0.4,
-  w_i: 0.6,
-  rollingCrowdingBonusMax: 15,
-  overdueAgeBonusMax: 8,
-  overdueAgeWindowDays: 14,
+  importanceK: 0.5,
+  urgencyLambda: 0.8,
+  urgencyMidpointDays: 3,
 };
 const SNAPSHOT_REFRESH_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
@@ -474,28 +470,14 @@ function wouldCreateCycle(tasks, taskId, depId) {
 
 /* -------------------- priority engine -------------------- */
 
-function computePriorities(tasks, nowIso = new Date(), config = {}) {
-  const cfg = {
-    MAX_WINDOW: config.MAX_WINDOW_days ?? 30,
-    decay: config.decay ?? 0.5,
-    w_u: config.w_u ?? 0.4,
-    w_i: config.w_i ?? 0.6,
-    rollingCrowdingBonusMax: config.rollingCrowdingBonusMax ?? 15,
-    overdueAgeBonusMax: config.overdueAgeBonusMax ?? 8,
-    overdueAgeWindowDays: config.overdueAgeWindowDays ?? 14,
-  };
-
-  const now = nowIso instanceof Date ? nowIso : new Date(nowIso);
-
-  /* ---------- dependency graph ---------- */
-
+function buildPriorityContext(tasks) {
   const byId = new Map(tasks.map((t) => [t.id, t]));
   const dependents = new Map();
   for (const t of tasks) dependents.set(t.id, []);
   for (const t of tasks) {
-    (t.dependencies || []).forEach((dep) => {
+    for (const dep of t.dependencies || []) {
       if (dependents.has(dep)) dependents.get(dep).push(t.id);
-    });
+    }
   }
 
   const inDegree = new Map();
@@ -511,198 +493,123 @@ function computePriorities(tasks, nowIso = new Date(), config = {}) {
   }
 
   const q = [];
-  for (const [id, deg] of inDegree.entries()) if (deg === 0) q.push(id);
+  for (const [id, deg] of inDegree.entries()) {
+    if (deg === 0) q.push(id);
+  }
+
   const topo = [];
   while (q.length) {
     const id = q.shift();
     topo.push(id);
-    for (const kid of dependents.get(id) || []) {
-      if (!inDegree.has(kid)) continue;
-      inDegree.set(kid, inDegree.get(kid) - 1);
-      if (inDegree.get(kid) === 0) q.push(kid);
+    for (const childId of dependents.get(id) || []) {
+      if (!inDegree.has(childId)) continue;
+      inDegree.set(childId, inDegree.get(childId) - 1);
+      if (inDegree.get(childId) === 0) q.push(childId);
     }
   }
 
   const topoSet = new Set(topo);
-  const cycleNodes = tasks.filter((t) => !topoSet.has(t.id)).map((t) => t.id);
-  const deadlockSet = new Set(cycleNodes);
+  const cycleNodes = new Set(
+    tasks.filter((t) => !topoSet.has(t.id)).map((t) => t.id),
+  );
 
-  /* ---------- importance propagation ---------- */
+  return {
+    byId,
+    dependents,
+    cycleNodes,
+    rawImportanceMemo: new Map(),
+  };
+}
 
-  const rawR = new Map();
-  for (const t of tasks) rawR.set(t.id, 0);
-
-  for (let i = topo.length - 1; i >= 0; --i) {
-    const id = topo[i];
-    let sum = 0;
-    for (const childId of dependents.get(id) || []) {
-      const childRaw = rawR.get(childId) || 0;
-      sum += 1 + cfg.decay * childRaw;
-    }
-    rawR.set(id, sum);
+function computeRawImportance(task, context, visiting = new Set()) {
+  if (!task || !context) return 0;
+  if (context.rawImportanceMemo.has(task.id)) {
+    return context.rawImportanceMemo.get(task.id);
   }
-
-  for (const id of cycleNodes) rawR.set(id, 0);
-
-  const allRaw = Array.from(rawR.values()).sort((a, b) => a - b);
-
-  function rawToPercentile(val) {
-    // If there is only one value, or none, return 0 (no meaningful percentile)
-    if (allRaw.length <= 1) return 0;
-
-    // Count how many values are strictly less than val
-    const lessCount = allRaw.filter((v) => v < val).length;
-
-    // Use denom = allRaw.length - 1 so the max possible percentile is 100
-    const denom = allRaw.length - 1;
-    const pct = denom > 0 ? (lessCount / denom) * 100 : 0;
-
-    return Math.max(0, Math.min(100, Math.round(pct)));
-  }
-
-  /* ---------- urgency calculation (UPDATED) ---------- */
-
-  function computeUrgency(task) {
-    // 1. Hard deadline always wins
-    if (task.deadline) {
-      const d = new Date(task.deadline);
-      if (isNaN(d.getTime())) return 0;
-      const msLeft = d.getTime() - now.getTime();
-      const daysLeft = msLeft / (1000 * 60 * 60 * 24);
-      if (daysLeft <= 0) return 100;
-      if (daysLeft >= cfg.MAX_WINDOW) return 0;
-      return Math.max(
-        0,
-        Math.min(100, Math.round(100 * (1 - daysLeft / cfg.MAX_WINDOW))),
-      );
-    }
-
-    // 2. Rolling recurrence urgency grows as the due date approaches
-    if (task.scheduledDueAt) {
-      const d = new Date(task.scheduledDueAt);
-      if (isNaN(d.getTime())) return 0;
-
-      const isRolling =
-        task.recurrence &&
-        typeof task.recurrence === "object" &&
-        task.recurrence.type === "rolling";
-
-      const intervalDays =
-        Number(
-          (task.recurrence && task.recurrence.intervalDays) ??
-            (task.recurrence && task.recurrence.interval) ??
-            0,
-        ) || 0;
-
-      if (isRolling && intervalDays > 0) {
-        // urgency should grow during the interval *leading up to* scheduledDueAt
-        const msUntil = d.getTime() - now.getTime();
-        const daysUntil = msUntil / (1000 * 60 * 60 * 24);
-
-        if (daysUntil <= 0) return 100; // past due -> max urgency
-        if (daysUntil >= intervalDays) return 0; // far away -> no urgency
-        // scale from 0 -> 100 as we go from intervalDays -> 0
-        return Math.max(
-          0,
-          Math.min(100, Math.round(100 * (1 - daysUntil / intervalDays))),
-        );
-      }
-
-      // 3. Fallback: soft deadline behavior (non-rolling)
-      const msLeft = d.getTime() - now.getTime();
-      const daysLeft = msLeft / (1000 * 60 * 60 * 24);
-      if (daysLeft <= 0) return 100;
-      if (daysLeft >= cfg.MAX_WINDOW) return 0;
-      return Math.max(
-        0,
-        Math.min(100, Math.round(100 * (1 - daysLeft / cfg.MAX_WINDOW))),
-      );
-    }
-
+  if (context.cycleNodes.has(task.id) || visiting.has(task.id)) {
+    context.rawImportanceMemo.set(task.id, 0);
     return 0;
   }
 
-  function computeRecurrenceCrowding(task) {
-    if (
-      !task.recurrence ||
-      typeof task.recurrence !== "object" ||
-      !task.scheduledDueAt
-    ) {
-      return 0;
-    }
+  visiting.add(task.id);
 
-    const d = new Date(task.scheduledDueAt);
-    if (isNaN(d.getTime())) return 0;
-
-    const intervalDays =
-      Number(
-        task.recurrence.intervalDays ?? task.recurrence.interval ?? 0,
-      ) || 0;
-    if (intervalDays <= 0) return 0;
-
-    const daysPastDue =
-      (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24);
-    if (daysPastDue <= 0) return 0;
-
-    return Math.max(
-      0,
-      Math.min(100, Math.round((daysPastDue / intervalDays) * 100)),
-    );
+  let rawImportance = 0;
+  for (const dependentId of context.dependents.get(task.id) || []) {
+    const dependent = context.byId.get(dependentId);
+    if (!dependent) continue;
+    rawImportance += 1 + 0.5 * computeRawImportance(dependent, context, visiting);
   }
 
-  function computeOverdueAge(task) {
-    if (!task.scheduledDueAt) return 0;
+  visiting.delete(task.id);
+  context.rawImportanceMemo.set(task.id, rawImportance);
+  return rawImportance;
+}
 
-    const d = new Date(task.scheduledDueAt);
-    if (isNaN(d.getTime())) return 0;
+function computeImportanceScore(rawImportance, k = PRIORITY_CONFIG.importanceK) {
+  const R = Number(rawImportance);
+  const tuning = Number(k);
+  if (!(R > 0) || !(tuning > 0)) return 0;
+  return (49.5 * R) / (R + tuning);
+}
 
-    const daysPastDue =
-      (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24);
-    if (daysPastDue <= 0) return 0;
+function computeUrgency(
+  daysUntilDue,
+  lambda = PRIORITY_CONFIG.urgencyLambda,
+  d0 = PRIORITY_CONFIG.urgencyMidpointDays,
+) {
+  if (!Number.isFinite(daysUntilDue)) return 0;
+  const steepness = Number(lambda);
+  const midpoint = Number(d0);
+  if (!(steepness > 0) || !Number.isFinite(midpoint)) return 0;
+  return 49.5 / (1 + Math.exp(steepness * (daysUntilDue - midpoint)));
+}
 
-    const windowDays = Number(cfg.overdueAgeWindowDays) || 0;
-    if (windowDays <= 0) return 0;
+function deriveDaysUntilDue(task, now = new Date()) {
+  const dueAt = parseDateSafe(task.deadline || task.scheduledDueAt);
+  if (!dueAt) return null;
+  return (dueAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+}
 
-    return Math.max(
-      0,
-      Math.min(100, Math.round((daysPastDue / windowDays) * 100)),
-    );
-  }
+function computePriority(task, context, now = new Date(), config = {}) {
+  const k = config.importanceK ?? PRIORITY_CONFIG.importanceK;
+  const lambda = config.urgencyLambda ?? PRIORITY_CONFIG.urgencyLambda;
+  const d0 = config.urgencyMidpointDays ?? PRIORITY_CONFIG.urgencyMidpointDays;
+  const rawImportance = computeRawImportance(task, context);
+  const importance = computeImportanceScore(rawImportance, k);
+  const daysUntilDue = deriveDaysUntilDue(task, now);
+  const urgency =
+    daysUntilDue === null ? 0 : computeUrgency(daysUntilDue, lambda, d0);
+  const priority = Math.round(1 + importance + urgency);
 
-  /* ---------- final priority ---------- */
+  return {
+    rawImportance,
+    importance,
+    daysUntilDue,
+    urgency,
+    priority,
+    deadlock: context.cycleNodes.has(task.id),
+  };
+}
+
+function computePriorities(tasks, nowIso = new Date(), config = {}) {
+  const cfg = {
+    importanceK: config.importanceK ?? PRIORITY_CONFIG.importanceK,
+    urgencyLambda: config.urgencyLambda ?? PRIORITY_CONFIG.urgencyLambda,
+    urgencyMidpointDays:
+      config.urgencyMidpointDays ?? PRIORITY_CONFIG.urgencyMidpointDays,
+  };
+  const now = nowIso instanceof Date ? nowIso : new Date(nowIso);
+  const context = buildPriorityContext(tasks);
 
   return tasks.map((t) => {
-    const r = rawR.get(t.id) || 0;
-    const I = rawToPercentile(r);
-    const U = computeUrgency(t);
-    const RC = computeRecurrenceCrowding(t);
-    const OA = computeOverdueAge(t);
-    const rollingCrowdingBonus = Math.round(
-      (cfg.rollingCrowdingBonusMax * RC) / 100,
-    );
-    const overdueAgeBonus = Math.round((cfg.overdueAgeBonusMax * OA) / 100);
-    const P = Math.max(
-      1,
-      Math.min(
-        100,
-        Math.round(
-          cfg.w_u * U +
-            cfg.w_i * I +
-            rollingCrowdingBonus +
-            overdueAgeBonus +
-            1,
-        ),
-      ),
-    );
+    const metrics = computePriority(t, context, now, cfg);
 
     return Object.assign({}, t, {
-      importanceRaw: r,
-      importancePercentile: I,
-      urgency: U,
-      recurrenceCrowding: RC,
-      overdueAge: OA,
-      priority: P,
-      deadlock: deadlockSet.has(t.id),
+      importanceRaw: metrics.rawImportance,
+      importance: metrics.importance,
+      urgency: metrics.urgency,
+      priority: metrics.priority,
+      deadlock: metrics.deadlock,
     });
   });
 }
@@ -719,23 +626,22 @@ function recomputeAllPriorities(tasks = null) {
     const before = {
       priority: t.priority,
       urgency: t.urgency,
-      importancePercentile: t.importancePercentile,
-      recurrenceCrowding: t.recurrenceCrowding,
-      overdueAge: t.overdueAge,
+      importance: t.importance,
+      importanceRaw: t.importanceRaw,
     };
     t.priority = u.priority;
     t.urgency = u.urgency;
-    t.importancePercentile = u.importancePercentile;
+    t.importance = u.importance;
     t.importanceRaw = u.importanceRaw;
-    t.recurrenceCrowding = u.recurrenceCrowding;
-    t.overdueAge = u.overdueAge;
     t.deadlock = u.deadlock;
+    delete t.importancePercentile;
+    delete t.recurrenceCrowding;
+    delete t.overdueAge;
     if (
       before.priority !== t.priority ||
       before.urgency !== t.urgency ||
-      before.importancePercentile !== t.importancePercentile ||
-      before.recurrenceCrowding !== t.recurrenceCrowding ||
-      before.overdueAge !== t.overdueAge
+      before.importance !== t.importance ||
+      before.importanceRaw !== t.importanceRaw
     ) {
       changed.push({
         id: t.id,
@@ -743,9 +649,8 @@ function recomputeAllPriorities(tasks = null) {
         after: {
           priority: t.priority,
           urgency: t.urgency,
-          importancePercentile: t.importancePercentile,
-          recurrenceCrowding: t.recurrenceCrowding,
-          overdueAge: t.overdueAge,
+          importance: t.importance,
+          importanceRaw: t.importanceRaw,
         },
       });
     }
@@ -1863,23 +1768,46 @@ function broadcastTasksUpdate() {
   }
 }
 
-//server.listen(PORT, () => {
-server.listen(PORT, "0.0.0.0", () => {
-  WIP_LIMITS = loadWipLimits();
-  console.log(`Server listening on port ${PORT}`);
-  console.log("WIP limits loaded:", WIP_LIMITS);
-});
+function startServer() {
+  server.listen(PORT, "0.0.0.0", () => {
+    WIP_LIMITS = loadWipLimits();
+    console.log(`Server listening on port ${PORT}`);
+    console.log("WIP limits loaded:", WIP_LIMITS);
+  });
 
-setInterval(
-  () => {
-    enqueueMutation(async () => {
-      try {
-        recomputeAllPriorities();
-        console.log("Periodic recompute done:", new Date().toISOString());
-      } catch (err) {
-        console.error("Periodic recompute error:", err);
-      }
-    }).catch((err) => console.error("Periodic recompute enqueue failed:", err));
-  },
-  10 * 60 * 1000,
-);
+  const recomputeTimer = setInterval(
+    () => {
+      enqueueMutation(async () => {
+        try {
+          recomputeAllPriorities();
+          console.log("Periodic recompute done:", new Date().toISOString());
+        } catch (err) {
+          console.error("Periodic recompute error:", err);
+        }
+      }).catch((err) =>
+        console.error("Periodic recompute enqueue failed:", err),
+      );
+    },
+    10 * 60 * 1000,
+  );
+  recomputeTimer.unref();
+
+  return server;
+}
+
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = {
+  PRIORITY_CONFIG,
+  buildPriorityContext,
+  computeRawImportance,
+  computeImportanceScore,
+  computeUrgency,
+  deriveDaysUntilDue,
+  computePriority,
+  computePriorities,
+  recomputeAllPriorities,
+  startServer,
+};
