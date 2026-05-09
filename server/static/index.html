@@ -1385,6 +1385,15 @@
                 return "#ef4444";
             }
 
+            function sortPriority(task) {
+                const importance = Number(task.importance);
+                const urgency = Number(task.urgency);
+                if (Number.isFinite(importance) && Number.isFinite(urgency)) {
+                    return 1 + importance + urgency;
+                }
+                return Number(task.priority) || 0;
+            }
+
             /* ---------------- Effective-state wrapper used by UI ---------------- */
             function getTaskState(task) {
                 // use server-provided effectiveState if available, otherwise derive client-side
@@ -1485,9 +1494,9 @@
                             return bDate - aDate;
                         });
                     } else {
-                        // Sort all other columns by priority (highest first)
+                        // Sort all other columns by unrounded priority (highest first)
                         groups[st].sort(
-                            (a, b) => (b.priority || 0) - (a.priority || 0),
+                            (a, b) => sortPriority(b) - sortPriority(a),
                         );
                     }
                     groups[st].forEach((task) =>
