@@ -405,7 +405,7 @@
                 position: fixed;
                 right: 0;
                 top: 0;
-                height: 100%;
+                height: 100vh;
                 width: 360px;
                 max-width: 92vw;
                 background: linear-gradient(
@@ -419,8 +419,9 @@
                 z-index: 100;
                 display: none;
                 color: var(--text);
+                box-sizing: border-box;
                 overflow-y: auto;
-                max-height: 100vh;
+                padding-bottom: 32px;
             }
             .sidebar h3 {
                 margin: 0 0 8px 0;
@@ -833,8 +834,6 @@
                     Add Dependency
                 </button>
             </div>
-            <div id="sb_dep_list" style="margin-top: 8px"></div>
-
             <div class="actions">
                 <button id="sbSave">Save</button>
                 <button id="sbCancel" class="ghost">Cancel</button>
@@ -1043,6 +1042,7 @@
             let tasksCache = [];
             let fetchInFlight = false;
             let sidebarTaskId = null;
+            let createModeDependencies = [];
             let authRedirectInProgress = false;
             let authPollInterval = null;
             let ws = null;
@@ -1515,12 +1515,15 @@
 
             /* ---------------- Card creation ---------------- */
             function makeCard(task) {
-                const derived = deriveEffectiveState(
-                    task,
-                    tasksCache,
-                    new Date(),
-                );
-                const s = derived.effectiveState;
+                const derived = task.effectiveState
+                    ? {
+                          effectiveState: task.effectiveState,
+                          readyAt: task.readyAt,
+                          scheduledDueAt: task.scheduledDueAt,
+                          overdue: !!task.overdue,
+                      }
+                    : deriveEffectiveState(task, tasksCache, new Date());
+                const s = getTaskState(task);
                 const draggable =
                     s === "Ready" || s === "InProgress" || s === "Blocked";
                 const card = el("div", {
@@ -1888,6 +1891,9 @@
                     }
                     toast("Deleted");
                     await fetchAndRender();
+                    if (sidebarTaskId === task.id) {
+                        closeSidebar();
+                    }
                 } catch (err) {
                     console.error(err);
                     toast("Network error");
@@ -1915,6 +1921,138 @@
                 const data = await fetchTasks();
                 if (!Array.isArray(data)) return;
                 renderTasks(data);
+            }
+
+            function makeDependencyRow(depId, depTask, onRemove, onOpen) {
+                const depItem = document.createElement("div");
+                depItem.style.display = "flex";
+                depItem.style.justifyContent = "space-between";
+                depItem.style.alignItems = "center";
+                depItem.style.gap = "8px";
+                depItem.style.padding = "4px 0";
+                depItem.style.borderBottom =
+                    "1px solid rgba(255,255,255,0.05)";
+
+                const title = depTask ? depTask.title : `Task ${depId}`;
+                const depText =
+                    onOpen && depTask
+                        ? document.createElement("a")
+                        : document.createElement("span");
+                depText.textContent = title;
+                depText.style.flex = "1";
+                depText.style.fontSize = "0.9rem";
+                depText.style.minWidth = "0";
+                depText.style.overflowWrap = "anywhere";
+                if (onOpen && depTask) {
+                    depText.href = "#";
+                    depText.style.color = "var(--accent)";
+                    depText.style.textDecoration = "underline";
+                    depText.style.cursor = "pointer";
+                    depText.onclick = (e) => {
+                        e.preventDefault();
+                        onOpen(depTask);
+                    };
+                }
+
+                const removeBtn = document.createElement("button");
+                removeBtn.textContent = "Remove";
+                removeBtn.style.padding = "2px 8px";
+                removeBtn.style.fontSize = "0.8rem";
+                removeBtn.className = "ghost";
+                removeBtn.onclick = onRemove;
+
+                depItem.appendChild(depText);
+                depItem.appendChild(removeBtn);
+                return depItem;
+            }
+
+            function sortTasksByTitle(tasks) {
+                return tasks.slice().sort((a, b) => {
+                    const titleA = String(a.title || "").toLocaleLowerCase();
+                    const titleB = String(b.title || "").toLocaleLowerCase();
+                    if (titleA !== titleB) {
+                        return titleA.localeCompare(titleB);
+                    }
+                    return String(a.id || "").localeCompare(String(b.id || ""));
+                });
+            }
+
+            function getDependencyCandidates(tasks) {
+                return sortTasksByTitle(
+                    tasks.filter((task) => getTaskState(task) !== "Done"),
+                );
+            }
+
+            function buildDuplicateTitleSet(tasks) {
+                const counts = new Map();
+                tasks.forEach((task) => {
+                    const key = String(task.title || "")
+                        .trim()
+                        .toLocaleLowerCase();
+                    if (!key) return;
+                    counts.set(key, (counts.get(key) || 0) + 1);
+                });
+                return new Set(
+                    Array.from(counts.entries())
+                        .filter(([, count]) => count > 1)
+                        .map(([title]) => title),
+                );
+            }
+
+            function dependencyOptionText(task, duplicateTitles) {
+                const title = task.title || "Untitled Task";
+                const key = String(title).trim().toLocaleLowerCase();
+                if (!duplicateTitles.has(key)) return title;
+
+                const state = getTaskState(task);
+                const dueAt = task.scheduledDueAt || task.deadline;
+                if (dueAt) return `${title} - ${state}, due ${fmtDate(dueAt)}`;
+                if (task.created_at) {
+                    return `${title} - ${state}, created ${fmtDate(task.created_at)}`;
+                }
+                return `${title} - ${state}`;
+            }
+
+            function renderCreateModeDependencies() {
+                const selected = new Set(createModeDependencies);
+                const depsEl = document.getElementById("sb_dependencies");
+                const addDepSelect =
+                    document.getElementById("sb_add_dependency");
+                const candidates = getDependencyCandidates(tasksCache);
+                const duplicateTitles = buildDuplicateTitleSet(candidates);
+
+                addDepSelect.innerHTML =
+                    '<option value="">-- Select task that must be completed first --</option>';
+                candidates.forEach((task) => {
+                    if (!selected.has(task.id)) {
+                        const option = document.createElement("option");
+                        option.value = task.id;
+                        option.textContent = dependencyOptionText(
+                            task,
+                            duplicateTitles,
+                        );
+                        addDepSelect.appendChild(option);
+                    }
+                });
+
+                if (createModeDependencies.length === 0) {
+                    depsEl.textContent = "None";
+                    return;
+                }
+
+                depsEl.innerHTML = "";
+                createModeDependencies.forEach((depId) => {
+                    const depTask = tasksCache.find((t) => t.id === depId);
+                    depsEl.appendChild(
+                        makeDependencyRow(depId, depTask, () => {
+                            createModeDependencies =
+                                createModeDependencies.filter(
+                                    (id) => id !== depId,
+                                );
+                            renderCreateModeDependencies();
+                        }),
+                    );
+                });
             }
 
             /* ---------------- Quick add ---------------- */
@@ -1954,6 +2092,7 @@
 
             /* ---------------- Sidebar editor ---------------- */
             function openSidebar(task) {
+                createModeDependencies = [];
                 sidebarTaskId = task.id;
                 const sb = document.getElementById("sidebar");
                 document.getElementById("sbTitle").textContent =
@@ -2035,41 +2174,113 @@
                     task.created_at,
                 );
 
-                // Show dependencies with clickable links
+                // Show dependencies with inline removal controls.
                 const depsEl = document.getElementById("sb_dependencies");
                 if (!task.dependencies || task.dependencies.length === 0) {
                     depsEl.textContent = "None";
                 } else {
                     depsEl.innerHTML = "";
-                    task.dependencies.forEach((depId, index) => {
+                    task.dependencies.forEach((depId) => {
                         const depTask = tasksCache.find((t) => t.id === depId);
-                        const link = document.createElement("a");
-                        link.href = "#";
-                        link.style.color = "var(--accent)";
-                        link.style.textDecoration = "underline";
-                        link.style.cursor = "pointer";
-                        link.textContent = depTask
-                            ? depTask.title
-                            : `Task ${depId}`;
-                        link.onclick = (e) => {
-                            e.preventDefault();
-                            if (depTask) {
-                                openSidebar(depTask);
-                            }
-                        };
-                        depsEl.appendChild(link);
-                        if (index < task.dependencies.length - 1) {
-                            depsEl.appendChild(document.createTextNode(", "));
-                        }
+                        depsEl.appendChild(
+                            makeDependencyRow(
+                                depId,
+                                depTask,
+                                async () => {
+                                    const depTitle = depTask
+                                        ? depTask.title
+                                        : `Task ${depId}`;
+                                    const newDeps = task.dependencies.filter(
+                                        (d) => d !== depId,
+                                    );
+                                    const otherDependents = tasksCache.filter(
+                                        (t) =>
+                                            t.id !== task.id &&
+                                            Array.isArray(t.dependencies) &&
+                                            t.dependencies.includes(depId),
+                                    );
+                                    const canOfferRemedyCleanup =
+                                        depTask &&
+                                        depTask.remedy_for === task.id &&
+                                        otherDependents.length === 0;
+                                    if (
+                                        !confirm(
+                                            `Remove dependency "${depTitle}" from "${task.title}"?`,
+                                        )
+                                    ) {
+                                        return;
+                                    }
+                                    const shouldDeleteRemedy =
+                                        canOfferRemedyCleanup &&
+                                        confirm(
+                                            `Delete the now-unused remedy task "${depTitle}" as well?`,
+                                        );
+                                    try {
+                                        const res = await fetch(
+                                            `${API_ROOT}/tasks/${encodeURIComponent(task.id)}`,
+                                            {
+                                                method: "PATCH",
+                                                headers: {
+                                                    "Content-Type":
+                                                        "application/json",
+                                                },
+                                                body: JSON.stringify({
+                                                    dependencies: newDeps,
+                                                }),
+                                            },
+                                        );
+                                        if (res.ok) {
+                                            if (shouldDeleteRemedy) {
+                                                const deleteRes = await fetch(
+                                                    `${API_ROOT}/tasks/${encodeURIComponent(depId)}`,
+                                                    {
+                                                        method: "DELETE",
+                                                    },
+                                                );
+                                                if (!deleteRes.ok) {
+                                                    toast(
+                                                        "Dependency removed, but remedy cleanup failed",
+                                                    );
+                                                    await fetchAndRender();
+                                                    const updatedTask =
+                                                        await res.json();
+                                                    openSidebar(updatedTask);
+                                                    return;
+                                                }
+                                            }
+                                            toast(
+                                                shouldDeleteRemedy
+                                                    ? "Dependency removed and remedy deleted"
+                                                    : "Dependency removed",
+                                            );
+                                            await fetchAndRender();
+                                            const updatedTask =
+                                                await res.json();
+                                            openSidebar(updatedTask);
+                                        } else {
+                                            toast(
+                                                "Failed to remove dependency",
+                                            );
+                                        }
+                                    } catch (err) {
+                                        console.error(err);
+                                        toast("Network error");
+                                    }
+                                },
+                                openSidebar,
+                            ),
+                        );
                     });
                 }
 
                 // Populate dependency management UI
                 const addDepSelect =
                     document.getElementById("sb_add_dependency");
+                const candidates = getDependencyCandidates(tasksCache);
+                const duplicateTitles = buildDuplicateTitleSet(candidates);
                 addDepSelect.innerHTML =
                     '<option value="">-- Select task that must be completed first --</option>';
-                tasksCache.forEach((t) => {
+                candidates.forEach((t) => {
                     if (
                         t.id !== task.id &&
                         (!task.dependencies ||
@@ -2077,118 +2288,13 @@
                     ) {
                         const option = document.createElement("option");
                         option.value = t.id;
-                        option.textContent = t.title;
+                        option.textContent = dependencyOptionText(
+                            t,
+                            duplicateTitles,
+                        );
                         addDepSelect.appendChild(option);
                     }
                 });
-
-                // Show current dependencies with remove buttons
-                const depListEl = document.getElementById("sb_dep_list");
-                depListEl.innerHTML = "";
-                if (task.dependencies && task.dependencies.length > 0) {
-                    task.dependencies.forEach((depId) => {
-                        const depTask = tasksCache.find((t) => t.id === depId);
-                        const depItem = document.createElement("div");
-                        depItem.style.display = "flex";
-                        depItem.style.justifyContent = "space-between";
-                        depItem.style.alignItems = "center";
-                        depItem.style.padding = "4px 0";
-                        depItem.style.borderBottom =
-                            "1px solid rgba(255,255,255,0.05)";
-
-                        const depText = document.createElement("span");
-                        depText.textContent = depTask
-                            ? depTask.title
-                            : `Task ${depId}`;
-                        depText.style.flex = "1";
-                        depText.style.fontSize = "0.9rem";
-
-                        const removeBtn = document.createElement("button");
-                        removeBtn.textContent = "Remove";
-                        removeBtn.style.padding = "2px 8px";
-                        removeBtn.style.fontSize = "0.8rem";
-                        removeBtn.className = "ghost";
-                        removeBtn.onclick = async () => {
-                            const newDeps = task.dependencies.filter(
-                                (d) => d !== depId,
-                            );
-                            const otherDependents = tasksCache.filter(
-                                (t) =>
-                                    t.id !== task.id &&
-                                    Array.isArray(t.dependencies) &&
-                                    t.dependencies.includes(depId),
-                            );
-                            const canOfferRemedyCleanup =
-                                depTask &&
-                                depTask.remedy_for === task.id &&
-                                otherDependents.length === 0;
-                            if (
-                                !confirm(
-                                    `Remove dependency "${depTask.title}" from "${task.title}"?`,
-                                )
-                            ) {
-                                return;
-                            }
-                            const shouldDeleteRemedy =
-                                canOfferRemedyCleanup &&
-                                confirm(
-                                    `Delete the now-unused remedy task "${depTask.title}" as well?`,
-                                );
-                            try {
-                                const res = await fetch(
-                                    `${API_ROOT}/tasks/${encodeURIComponent(task.id)}`,
-                                    {
-                                        method: "PATCH",
-                                        headers: {
-                                            "Content-Type": "application/json",
-                                        },
-                                        body: JSON.stringify({
-                                            dependencies: newDeps,
-                                        }),
-                                    },
-                                );
-                                if (res.ok) {
-                                    if (shouldDeleteRemedy) {
-                                        const deleteRes = await fetch(
-                                            `${API_ROOT}/tasks/${encodeURIComponent(depId)}`,
-                                            {
-                                                method: "DELETE",
-                                            },
-                                        );
-                                        if (!deleteRes.ok) {
-                                            toast(
-                                                "Dependency removed, but remedy cleanup failed",
-                                            );
-                                            await fetchAndRender();
-                                            const updatedTask =
-                                                await res.json();
-                                            openSidebar(updatedTask);
-                                            return;
-                                        }
-                                    }
-                                    toast(
-                                        shouldDeleteRemedy
-                                            ? "Dependency removed and remedy deleted"
-                                            : "Dependency removed",
-                                    );
-                                    await fetchAndRender();
-                                    // Refresh sidebar with updated task
-                                    const updatedTask = await res.json();
-                                    openSidebar(updatedTask);
-                                } else {
-                                    toast("Failed to remove dependency");
-                                }
-                            } catch (err) {
-                                console.error(err);
-                                toast("Network error");
-                            }
-                        };
-
-                        depItem.appendChild(depText);
-                        depItem.appendChild(removeBtn);
-                        depListEl.appendChild(depItem);
-                    });
-                }
 
                 sb.style.display = "block";
                 sb.setAttribute("aria-hidden", "false");
@@ -2216,14 +2322,26 @@
             document
                 .getElementById("sb_add_dep_btn")
                 .addEventListener("click", async () => {
+                    const depId =
+                        document.getElementById("sb_add_dependency").value;
+                    if (!depId) return toast("Please select a task");
+
+                    if (!sidebarTaskId) {
+                        if (createModeDependencies.includes(depId)) {
+                            return toast("Dependency already added");
+                        }
+                        if (!tasksCache.some((t) => t.id === depId)) {
+                            return toast("Dependency task not found");
+                        }
+                        createModeDependencies.push(depId);
+                        renderCreateModeDependencies();
+                        return toast("Dependency added");
+                    }
+
                     const currentTask = tasksCache.find(
                         (t) => t.id === sidebarTaskId,
                     );
                     if (!currentTask) return;
-
-                    const depId =
-                        document.getElementById("sb_add_dependency").value;
-                    if (!depId) return toast("Please select a task");
 
                     const newDeps = [
                         ...(currentTask.dependencies || []),
@@ -2317,6 +2435,9 @@
                         if (sidebarTaskId)
                             payload.recurrence = { type: "none" };
                     }
+                    if (!sidebarTaskId && createModeDependencies.length > 0) {
+                        payload.dependencies = createModeDependencies.slice();
+                    }
 
                     try {
                         if (!sidebarTaskId) {
@@ -2369,6 +2490,7 @@
                 .addEventListener("click", (e) => {
                     e.preventDefault();
                     sidebarTaskId = null;
+                    createModeDependencies = [];
 
                     document.getElementById("sbTitle").textContent =
                         "Create task";
@@ -2397,12 +2519,7 @@
                     document.getElementById("sb_dependencies").textContent =
                         "None";
 
-                    // Clear dependency management UI
-                    const addDepSelect =
-                        document.getElementById("sb_add_dependency");
-                    addDepSelect.innerHTML =
-                        '<option value="">-- Select task that must be completed first --</option>';
-                    document.getElementById("sb_dep_list").innerHTML = "";
+                    renderCreateModeDependencies();
 
                     const sb = document.getElementById("sidebar");
                     sb.style.display = "block";
