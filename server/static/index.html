@@ -1277,11 +1277,29 @@
                 const scheduledAt = parseDateSafe(task.scheduledDueAt);
                 const readyAtIso = calcReadyAtIso(task);
                 const readyAt = parseDateSafe(readyAtIso);
-                const overdue = scheduledAt
-                    ? now.getTime() >= scheduledAt.getTime()
-                    : false;
+                let overdue = false;
+                if (scheduledAt) {
+                    if (task.recurrence && typeof task.recurrence === "object") {
+                        const intervalDays =
+                            Number(
+                                task.recurrence.intervalDays ??
+                                    task.recurrence.interval ??
+                                    0,
+                            ) || 0;
+                        if (intervalDays > 0) {
+                            const halfMs =
+                                (intervalDays / 2) * 24 * 60 * 60 * 1000;
+                            overdue =
+                                now.getTime() >=
+                                scheduledAt.getTime() + halfMs;
+                        } else {
+                            overdue = now.getTime() >= scheduledAt.getTime();
+                        }
+                    } else {
+                        overdue = now.getTime() >= scheduledAt.getTime();
+                    }
+                }
 
-                // Honor explicit stored states first
                 if (task.state === "Done") {
                     return {
                         effectiveState: "Done",
@@ -1312,16 +1330,6 @@
                         overdue,
                     };
                 }
-                if (task.state === "Suspended") {
-                    return {
-                        effectiveState: "Suspended",
-                        readyAt: readyAtIso,
-                        scheduledDueAt: scheduledAt
-                            ? scheduledAt.toISOString()
-                            : null,
-                        overdue,
-                    };
-                }
 
                 // recurrence pause forces Suspended
                 if (task.recurrence && task.recurrence.paused) {
@@ -1332,6 +1340,18 @@
                             ? scheduledAt.toISOString()
                             : null,
                         overdue,
+                    };
+                }
+
+                // time gates: waiting until readyAt
+                if (readyAt && now.getTime() < readyAt.getTime()) {
+                    return {
+                        effectiveState: "Waiting",
+                        readyAt: readyAtIso,
+                        scheduledDueAt: scheduledAt
+                            ? scheduledAt.toISOString()
+                            : null,
+                        overdue: false,
                     };
                 }
 
@@ -1358,13 +1378,13 @@
                     };
                 }
 
-                // time gates: waiting until readyAt
-                if (readyAt && now.getTime() < readyAt.getTime()) {
+                // If stored state was Suspended, respect it after all other checks.
+                if (task.state === "Suspended") {
                     return {
-                        effectiveState: "Waiting",
+                        effectiveState: "Suspended",
                         readyAt: readyAtIso,
                         scheduledDueAt: scheduledAt.toISOString(),
-                        overdue: false,
+                        overdue,
                     };
                 }
 
@@ -1375,6 +1395,34 @@
                     scheduledDueAt: scheduledAt.toISOString(),
                     overdue,
                 };
+            }
+
+            function getTaskEffectiveInfo(task) {
+                if (task && task.effectiveState) {
+                    return {
+                        effectiveState: task.effectiveState,
+                        readyAt: task.readyAt || null,
+                        scheduledDueAt:
+                            "scheduledDueAt" in task
+                                ? task.scheduledDueAt
+                                : null,
+                        overdue: !!task.overdue,
+                    };
+                }
+
+                try {
+                    return deriveEffectiveState(task, tasksCache, new Date());
+                } catch (e) {
+                    return {
+                        effectiveState: task && task.state ? task.state : "Ready",
+                        readyAt: null,
+                        scheduledDueAt:
+                            task && "scheduledDueAt" in task
+                                ? task.scheduledDueAt
+                                : null,
+                        overdue: false,
+                    };
+                }
             }
 
             /* ---------------- Priority color helper ---------------- */
@@ -1396,22 +1444,7 @@
 
             /* ---------------- Effective-state wrapper used by UI ---------------- */
             function getTaskState(task) {
-                // use server-provided effectiveState if available, otherwise derive client-side
-                if (task && task.effectiveState) {
-                    return task.effectiveState;
-                }
-                // fallback: derive effective state client-side using current tasksCache
-                try {
-                    const eff = deriveEffectiveState(
-                        task,
-                        tasksCache,
-                        new Date(),
-                    );
-                    return eff.effectiveState;
-                } catch (e) {
-                    // fallback: stored state
-                    return task && task.state ? task.state : "Ready";
-                }
+                return getTaskEffectiveInfo(task).effectiveState;
             }
 
             /* ---------------- DOM helpers ---------------- */
@@ -1524,15 +1557,8 @@
 
             /* ---------------- Card creation ---------------- */
             function makeCard(task) {
-                const derived = task.effectiveState
-                    ? {
-                          effectiveState: task.effectiveState,
-                          readyAt: task.readyAt,
-                          scheduledDueAt: task.scheduledDueAt,
-                          overdue: !!task.overdue,
-                      }
-                    : deriveEffectiveState(task, tasksCache, new Date());
-                const s = getTaskState(task);
+                const derived = getTaskEffectiveInfo(task);
+                const s = derived.effectiveState;
                 const draggable =
                     s === "Ready" || s === "InProgress" || s === "Blocked";
                 const card = el("div", {
@@ -1759,11 +1785,7 @@
             async function onClaimClicked(task) {
                 if (getTaskState(task) !== "Ready") {
                     // show the derived readyAt if available
-                    const derived = deriveEffectiveState(
-                        task,
-                        tasksCache,
-                        new Date(),
-                    );
+                    const derived = getTaskEffectiveInfo(task);
                     return toast(
                         `Task not actionable until ${derived.readyAt ? fmtDate(derived.readyAt) : derived.scheduledDueAt ? fmtDate(derived.scheduledDueAt) : "scheduled time"}`,
                     );
