@@ -846,6 +846,7 @@ app.post("/tasks", requireAuth, async (req, res) => {
         newTask.lastCompletedAt = req.body.lastCompletedAt;
 
       tasks.push(newTask);
+      syncSuspendedStateFromDependencies(newTask, tasks);
 
       recomputeAllPriorities(tasks);
       saveTasks(tasks);
