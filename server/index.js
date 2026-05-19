@@ -815,6 +815,7 @@ app.post("/tasks", requireAuth, async (req, res) => {
         updated_at: new Date().toISOString(),
         created_by: req.session.userId,
         meta: {},
+        timeCritical: !!req.body.timeCritical,
       };
 
       // Only create recurrence when explicitly provided and not 'none'
@@ -1518,6 +1519,9 @@ app.patch("/tasks/:id", requireAuth, async (req, res) => {
       if ("leadTimeDays" in req.body) {
         const v = Number(req.body.leadTimeDays);
         task.leadTimeDays = Number.isFinite(v) ? v : task.leadTimeDays;
+      }
+      if ("timeCritical" in req.body) {
+        task.timeCritical = !!req.body.timeCritical;
       }
 
       let recurrenceEdited = false;

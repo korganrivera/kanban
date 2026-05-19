@@ -331,6 +331,36 @@
                 filter: grayscale(6%);
                 cursor: default;
             }
+            .card.time-critical-active {
+                background: linear-gradient(180deg, #fff7ed, #ffedd5);
+                border-color: rgba(234, 88, 12, 0.55);
+                border-left: 4px solid #f97316;
+                box-shadow:
+                    0 0 0 1px rgba(234, 88, 12, 0.16),
+                    0 8px 18px rgba(234, 88, 12, 0.14);
+            }
+            html[data-palette="classic-dark"] .card.time-critical-active {
+                background: linear-gradient(180deg, #2a1708, #1f1208);
+                border-color: rgba(251, 146, 60, 0.62);
+            }
+            .critical-badge {
+                display: inline-flex;
+                align-items: center;
+                min-height: 20px;
+                padding: 0 7px;
+                border-radius: 999px;
+                background: rgba(249, 115, 22, 0.12);
+                color: #c2410c;
+                border: 1px solid rgba(249, 115, 22, 0.3);
+                font-size: 0.76rem;
+                font-weight: 800;
+                text-transform: uppercase;
+            }
+            html[data-palette="classic-dark"] .critical-badge {
+                background: rgba(249, 115, 22, 0.18);
+                color: #fdba74;
+                border-color: rgba(251, 146, 60, 0.4);
+            }
             .card .title {
                 font-weight: 700;
                 margin-bottom: 4px;
@@ -796,6 +826,11 @@
                 <input id="sb_paused" type="checkbox" />
             </div>
 
+            <div class="row" style="margin-top: 8px; align-items: center">
+                <label style="flex: 1">Time critical</label>
+                <input id="sb_time_critical" type="checkbox" />
+            </div>
+
             <label style="margin-top: 10px">Claimed by</label>
             <div id="sb_claimed" class="muted-small">—</div>
 
@@ -1228,6 +1263,23 @@
                 return inputLocalToIso(`${datePart}T${timePart}`);
             }
 
+            function localDateKey(date) {
+                if (!(date instanceof Date) || isNaN(date.getTime())) {
+                    return null;
+                }
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const day = String(date.getDate()).padStart(2, "0");
+                return `${year}-${month}-${day}`;
+            }
+
+            function compareLocalDateOnly(a, b) {
+                const aKey = localDateKey(a);
+                const bKey = localDateKey(b);
+                if (!aKey || !bKey) return 0;
+                return aKey.localeCompare(bKey);
+            }
+
             /* ---------------- Low-level helpers for derivation ---------------- */
             function parseDateSafe(v) {
                 if (!v) return null;
@@ -1442,6 +1494,35 @@
                 return Number(task.priority) || 0;
             }
 
+            function isTimeCriticalActive(task, derived = null) {
+                if (!task || !task.timeCritical) return false;
+                const info = derived || getTaskEffectiveInfo(task);
+                if (info.effectiveState === "Done" || info.effectiveState === "Waiting") {
+                    return false;
+                }
+                const due = parseDateSafe(info.scheduledDueAt || task.scheduledDueAt);
+                if (!due) return false;
+                return compareLocalDateOnly(due, new Date()) <= 0;
+            }
+
+            function dueTime(task) {
+                const due = parseDateSafe(task.scheduledDueAt);
+                return due ? due.getTime() : Infinity;
+            }
+
+            function compareActiveColumnTasks(a, b) {
+                const aCritical = isTimeCriticalActive(a);
+                const bCritical = isTimeCriticalActive(b);
+                if (aCritical !== bCritical) return aCritical ? -1 : 1;
+                if (aCritical && bCritical) {
+                    const dueDiff = dueTime(a) - dueTime(b);
+                    if (dueDiff) return dueDiff;
+                }
+                const priorityDiff = sortPriority(b) - sortPriority(a);
+                if (priorityDiff) return priorityDiff;
+                return dueTime(a) - dueTime(b);
+            }
+
             /* ---------------- Effective-state wrapper used by UI ---------------- */
             function getTaskState(task) {
                 return getTaskEffectiveInfo(task).effectiveState;
@@ -1527,10 +1608,9 @@
                             return bDate - aDate;
                         });
                     } else {
-                        // Sort all other columns by unrounded priority (highest first)
-                        groups[st].sort(
-                            (a, b) => sortPriority(b) - sortPriority(a),
-                        );
+                        // Keep priority honest, but let due time-critical tasks
+                        // bypass the queue inside their current column.
+                        groups[st].sort(compareActiveColumnTasks);
                     }
                     groups[st].forEach((task) =>
                         listEl.appendChild(makeCard(task)),
@@ -1559,10 +1639,14 @@
             function makeCard(task) {
                 const derived = getTaskEffectiveInfo(task);
                 const s = derived.effectiveState;
+                const timeCriticalActive = isTimeCriticalActive(task, derived);
                 const draggable =
                     s === "Ready" || s === "InProgress" || s === "Blocked";
                 const card = el("div", {
-                    class: "card" + (s === "Waiting" ? " waiting" : ""),
+                    class:
+                        "card" +
+                        (s === "Waiting" ? " waiting" : "") +
+                        (timeCriticalActive ? " time-critical-active" : ""),
                     draggable,
                 });
                 card.dataset.id = task.id;
@@ -1625,6 +1709,13 @@
                     {
                         style: "margin-top:6px;display:flex;gap:6px;align-items:center;",
                     },
+                    timeCriticalActive
+                        ? el(
+                              "div",
+                              { class: "critical-badge" },
+                              "Time critical",
+                          )
+                        : null,
                     derived.overdue
                         ? el(
                               "div",
@@ -2160,6 +2251,8 @@
                 document.getElementById("sb_paused").checked = !!(
                     task.recurrence && task.recurrence.paused
                 );
+                document.getElementById("sb_time_critical").checked =
+                    !!task.timeCritical;
 
                 const r = task.recurrence || { type: "none" };
                 document.getElementById("sb_recur_type").value =
@@ -2425,6 +2518,9 @@
                     payload.description = document
                         .getElementById("sb_description")
                         .value.trim();
+                    payload.timeCritical = !!document.getElementById(
+                        "sb_time_critical",
+                    ).checked;
                     const schedDateVal = document.getElementById(
                         "sb_scheduled_date",
                     ).value;
@@ -2531,6 +2627,8 @@
                     document.getElementById("sb_scheduled_time").value = "";
                     document.getElementById("sb_lead").value = "0";
                     document.getElementById("sb_paused").checked = false;
+                    document.getElementById("sb_time_critical").checked =
+                        false;
                     document.getElementById("sb_recur_type").value = "none";
                     document.getElementById("sb_recur_interval").value = "";
                     document
