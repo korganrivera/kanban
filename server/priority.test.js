@@ -6,6 +6,7 @@ const {
   computeRawImportance,
   computeImportanceScore,
   computeUrgency,
+  computeEffectiveState,
   computePriority,
   computePriorities,
 } = require("./index.js");
@@ -127,4 +128,22 @@ test("dependency cycles do not recurse forever and fall back safely", () => {
   assert.equal(results[1].deadlock, true);
   assert.equal(results[0].priority, 1);
   assert.equal(results[1].priority, 1);
+});
+
+test("in-progress task rescheduled into the future waits until ready", () => {
+  const future = task("future", {
+    state: "InProgress",
+    scheduledDueAt: "2026-04-20T12:00:00.000Z",
+    leadTimeDays: 0,
+  });
+
+  const beforeDue = computeEffectiveState(future, [future], NOW);
+  assert.equal(beforeDue.effectiveState, "Waiting");
+
+  const atDue = computeEffectiveState(
+    future,
+    [future],
+    new Date("2026-04-20T12:00:00.000Z"),
+  );
+  assert.equal(atDue.effectiveState, "InProgress");
 });

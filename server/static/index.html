@@ -1372,17 +1372,6 @@
                         overdue,
                     };
                 }
-                if (task.state === "InProgress") {
-                    return {
-                        effectiveState: "InProgress",
-                        readyAt: readyAtIso,
-                        scheduledDueAt: scheduledAt
-                            ? scheduledAt.toISOString()
-                            : null,
-                        overdue,
-                    };
-                }
-
                 // recurrence pause forces Suspended
                 if (task.recurrence && task.recurrence.paused) {
                     return {
@@ -1434,6 +1423,14 @@
                 if (task.state === "Suspended") {
                     return {
                         effectiveState: "Suspended",
+                        readyAt: readyAtIso,
+                        scheduledDueAt: scheduledAt.toISOString(),
+                        overdue,
+                    };
+                }
+                if (task.state === "InProgress") {
+                    return {
+                        effectiveState: "InProgress",
                         readyAt: readyAtIso,
                         scheduledDueAt: scheduledAt.toISOString(),
                         overdue,

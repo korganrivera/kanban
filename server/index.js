@@ -351,14 +351,6 @@ function computeEffectiveState(task, allTasks = [], now = new Date()) {
       overdue,
     };
   }
-  if (task.state === "InProgress") {
-    return {
-      effectiveState: "InProgress",
-      readyAt: readyAtIso,
-      scheduledDueAt: scheduledAt ? scheduledAt.toISOString() : null,
-      overdue,
-    };
-  }
   // Note: Don't return early for Suspended state - let timing logic override it
 
   if (task.recurrence && task.recurrence.paused) {
@@ -404,6 +396,14 @@ function computeEffectiveState(task, allTasks = [], now = new Date()) {
   if (task.state === "Suspended") {
     return {
       effectiveState: "Suspended",
+      readyAt: readyAtIso,
+      scheduledDueAt: scheduledAt ? scheduledAt.toISOString() : null,
+      overdue,
+    };
+  }
+  if (task.state === "InProgress") {
+    return {
+      effectiveState: "InProgress",
       readyAt: readyAtIso,
       scheduledDueAt: scheduledAt ? scheduledAt.toISOString() : null,
       overdue,
@@ -1811,6 +1811,7 @@ module.exports = {
   computeImportanceScore,
   computeUrgency,
   deriveDaysUntilDue,
+  computeEffectiveState,
   computePriority,
   computePriorities,
   recomputeAllPriorities,
