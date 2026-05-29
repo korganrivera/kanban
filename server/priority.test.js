@@ -9,6 +9,8 @@ const {
   computeEffectiveState,
   computePriority,
   computePriorities,
+  wouldExceedWip,
+  clearClaimUnlessClaimRetained,
 } = require("./index.js");
 
 function task(id, overrides = {}) {
@@ -133,6 +135,7 @@ test("dependency cycles do not recurse forever and fall back safely", () => {
 test("in-progress task rescheduled into the future waits until ready", () => {
   const future = task("future", {
     state: "InProgress",
+    picker: "korgan",
     scheduledDueAt: "2026-04-20T12:00:00.000Z",
     leadTimeDays: 0,
   });
@@ -146,4 +149,92 @@ test("in-progress task rescheduled into the future waits until ready", () => {
     new Date("2026-04-20T12:00:00.000Z"),
   );
   assert.equal(atDue.effectiveState, "InProgress");
+});
+
+test("unclaimed in-progress task becomes ready when its future gate opens", () => {
+  const future = task("future", {
+    state: "InProgress",
+    picker: null,
+    scheduledDueAt: "2026-04-20T12:00:00.000Z",
+    leadTimeDays: 0,
+  });
+
+  const beforeDue = computeEffectiveState(future, [future], NOW);
+  assert.equal(beforeDue.effectiveState, "Waiting");
+
+  const atDue = computeEffectiveState(
+    future,
+    [future],
+    new Date("2026-04-20T12:00:00.000Z"),
+  );
+  assert.equal(atDue.effectiveState, "Ready");
+});
+
+test("wip limits count effective column state instead of stored state", () => {
+  const tasks = [
+    task("visible-1", { state: "InProgress", picker: "korgan" }),
+    task("visible-2", { state: "InProgress", picker: "korgan" }),
+    task("visible-3", { state: "InProgress", picker: "korgan" }),
+    task("waiting", {
+      state: "InProgress",
+      picker: "korgan",
+      scheduledDueAt: "2026-04-20T12:00:00.000Z",
+      leadTimeDays: 0,
+    }),
+    task("candidate", { state: "Ready" }),
+  ];
+
+  assert.equal(
+    wouldExceedWip(
+      tasks,
+      "InProgress",
+      "candidate",
+      NOW,
+      { InProgress: 4 },
+    ),
+    false,
+  );
+});
+
+test("claimed task is declaimed when it is no longer effectively in progress", () => {
+  const future = task("future", {
+    state: "InProgress",
+    picker: "korgan",
+    picked_at: "2026-04-15T12:00:00.000Z",
+    scheduledDueAt: "2026-04-20T12:00:00.000Z",
+    leadTimeDays: 0,
+  });
+  const tasks = [future];
+
+  assert.equal(clearClaimUnlessClaimRetained(future, tasks, NOW), true);
+  assert.equal(future.picker, null);
+  assert.equal(future.picked_at, undefined);
+  assert.equal(future.unclaimed_at, NOW.toISOString());
+  assert.equal(future.state, "Ready");
+});
+
+test("claimed task remains claimed while effectively in progress", () => {
+  const active = task("active", {
+    state: "InProgress",
+    picker: "korgan",
+    picked_at: "2026-04-15T12:00:00.000Z",
+  });
+  const tasks = [active];
+
+  assert.equal(clearClaimUnlessClaimRetained(active, tasks, NOW), false);
+  assert.equal(active.picker, "korgan");
+  assert.equal(active.picked_at, "2026-04-15T12:00:00.000Z");
+});
+
+test("done task keeps claim metadata for completion attribution", () => {
+  const done = task("done", {
+    state: "Done",
+    picker: "korgan",
+    picked_at: "2026-04-15T12:00:00.000Z",
+  });
+  const tasks = [done];
+
+  assert.equal(clearClaimUnlessClaimRetained(done, tasks, NOW), false);
+  assert.equal(done.picker, "korgan");
+  assert.equal(done.picked_at, "2026-04-15T12:00:00.000Z");
 });

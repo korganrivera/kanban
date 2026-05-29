@@ -1491,6 +1491,16 @@
                 return Number(task.priority) || 0;
             }
 
+            const CARD_DESCRIPTION_MAX_CHARS = 140;
+
+            function truncateCardDescription(description) {
+                const text = String(description || "")
+                    .replace(/\s+/g, " ")
+                    .trim();
+                if (text.length <= CARD_DESCRIPTION_MAX_CHARS) return text;
+                return `${text.slice(0, CARD_DESCRIPTION_MAX_CHARS - 3).trimEnd()}...`;
+            }
+
             function isTimeCriticalActive(task, derived = null) {
                 if (!task || !task.timeCritical) return false;
                 const info = derived || getTaskEffectiveInfo(task);
@@ -1681,7 +1691,14 @@
                       )
                     : null;
                 const desc = task.description
-                    ? el("div", { class: "meta" }, task.description)
+                    ? el(
+                          "div",
+                          {
+                              class: "meta",
+                              title: String(task.description),
+                          },
+                          truncateCardDescription(task.description),
+                      )
                     : null;
 
                 const times = el(

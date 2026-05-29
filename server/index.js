@@ -285,6 +285,12 @@ function anyDependencyUnresolved(tasks, task) {
   });
 }
 
+function hasActiveClaim(task) {
+  const picker =
+    typeof task?.picker === "string" ? task.picker.trim() : task?.picker;
+  return !!picker;
+}
+
 function syncSuspendedStateFromDependencies(task, allTasks = []) {
   if (!task || task.state === "Done") return;
 
@@ -383,7 +389,10 @@ function computeEffectiveState(task, allTasks = [], now = new Date()) {
   }
 
   if (!scheduledAt) {
-    const fallback = task.state || "Ready";
+    const fallback =
+      task.state === "InProgress" && !hasActiveClaim(task)
+        ? "Ready"
+        : task.state || "Ready";
     return {
       effectiveState: fallback,
       readyAt: readyAtIso,
@@ -401,7 +410,7 @@ function computeEffectiveState(task, allTasks = [], now = new Date()) {
       overdue,
     };
   }
-  if (task.state === "InProgress") {
+  if (task.state === "InProgress" && hasActiveClaim(task)) {
     return {
       effectiveState: "InProgress",
       readyAt: readyAtIso,
@@ -437,14 +446,45 @@ function awardPoints(userKey, points, reason = "") {
 
 /* -------------------- WIP helpers -------------------- */
 
-function wouldExceedWip(tasks, targetState, excludeTaskId = null) {
-  const limits = WIP_LIMITS || loadWipLimits();
+function wouldExceedWip(
+  tasks,
+  targetState,
+  excludeTaskId = null,
+  now = new Date(),
+  limitsOverride = null,
+) {
+  const limits = limitsOverride || WIP_LIMITS || loadWipLimits();
   const limit = limits[targetState];
   if (!Number.isFinite(limit)) return false;
   const count = tasks.filter(
-    (t) => t.state === targetState && t.id !== excludeTaskId,
+    (t) =>
+      t.id !== excludeTaskId &&
+      computeEffectiveState(t, tasks, now).effectiveState === targetState,
   ).length;
   return count + 1 > limit;
+}
+
+function clearTaskClaim(task, tsIso = new Date().toISOString()) {
+  if (!task) return false;
+  const hadClaim =
+    (task.picker !== null && task.picker !== undefined) ||
+    (task.picked_at !== null && task.picked_at !== undefined);
+  task.picker = null;
+  task.picked_at = undefined;
+  if (hadClaim) {
+    task.unclaimed_at = tsIso;
+  }
+  return hadClaim;
+}
+
+function clearClaimUnlessClaimRetained(task, tasks, now = new Date()) {
+  const effective = computeEffectiveState(task, tasks, now).effectiveState;
+  if (effective === "InProgress" || effective === "Done") return false;
+  const cleared = clearTaskClaim(task, now.toISOString());
+  if (cleared && task.state === "InProgress") {
+    task.state = "Ready";
+  }
+  return cleared;
 }
 
 /* -------------------- dependency / cycle helpers -------------------- */
@@ -946,12 +986,6 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
         task.state = "InProgress";
         if (newPicker !== undefined && newPicker !== "") {
           task.picker = newPicker;
-          task.picker_history = task.picker_history || [];
-          task.picker_history.push({
-            ts: claimTsIso,
-            picker: newPicker,
-            action: "picked",
-          });
         }
         const snapshotOwnerRaw = task.points_snapshot_created_by;
         const snapshotOwner =
@@ -1009,16 +1043,12 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
         task.state = "Blocked";
         if (newPicker !== undefined && newPicker !== "") {
           task.picker = newPicker;
-          task.picker_history = task.picker_history || [];
-          task.picker_history.push({
-            ts: new Date().toISOString(),
-            picker: newPicker,
-            action: "blocked",
-          });
         }
         task.meta = task.meta || {};
         task.meta.block_note = note;
-        task.updated_at = new Date().toISOString();
+        const updatedAtIso = new Date().toISOString();
+        clearClaimUnlessClaimRetained(task, tasks, new Date(updatedAtIso));
+        task.updated_at = updatedAtIso;
         return persistAndReturn();
       }
 
@@ -1151,6 +1181,7 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
           }
         }
 
+        clearClaimUnlessClaimRetained(task, tasks, new Date(completedAtIso));
         recomputeAllPriorities(tasks);
         saveTasks(tasks);
         return task;
@@ -1164,15 +1195,11 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
           task.unclaimed_at = new Date().toISOString();
         } else {
           task.picker = newPicker;
-          task.picker_history = task.picker_history || [];
-          task.picker_history.push({
-            ts: new Date().toISOString(),
-            picker: newPicker,
-            action: "state-change",
-          });
         }
       }
-      task.updated_at = new Date().toISOString();
+      const updatedAtIso = new Date().toISOString();
+      clearClaimUnlessClaimRetained(task, tasks, new Date(updatedAtIso));
+      task.updated_at = updatedAtIso;
 
       recomputeAllPriorities(tasks);
       saveTasks(tasks);
@@ -1212,7 +1239,9 @@ app.patch("/tasks/:id/block", requireAuth, async (req, res) => {
       task.state = "Blocked";
       task.meta = task.meta || {};
       task.meta.block_note = req.body.note || "";
-      task.updated_at = new Date().toISOString();
+      const updatedAtIso = new Date().toISOString();
+      clearClaimUnlessClaimRetained(task, tasks, new Date(updatedAtIso));
+      task.updated_at = updatedAtIso;
       recomputeAllPriorities(tasks);
       saveTasks(tasks);
       return task;
@@ -1242,7 +1271,9 @@ app.patch("/tasks/:id/suspend", requireAuth, async (req, res) => {
         };
       }
       task.state = "Suspended";
-      task.updated_at = new Date().toISOString();
+      const updatedAtIso = new Date().toISOString();
+      clearClaimUnlessClaimRetained(task, tasks, new Date(updatedAtIso));
+      task.updated_at = updatedAtIso;
       recomputeAllPriorities(tasks);
       saveTasks(tasks);
       return task;
@@ -1631,7 +1662,9 @@ app.patch("/tasks/:id", requireAuth, async (req, res) => {
         syncSuspendedStateFromDependencies(task, tasks);
       }
 
-      task.updated_at = new Date().toISOString();
+      const updatedAtIso = new Date().toISOString();
+      clearClaimUnlessClaimRetained(task, tasks, new Date(updatedAtIso));
+      task.updated_at = updatedAtIso;
 
       recomputeAllPriorities(tasks);
       saveTasks(tasks);
@@ -1815,5 +1848,7 @@ module.exports = {
   computePriority,
   computePriorities,
   recomputeAllPriorities,
+  wouldExceedWip,
+  clearClaimUnlessClaimRetained,
   startServer,
 };
