@@ -532,22 +532,50 @@
                 margin: 50px auto;
                 padding: 30px;
                 border-radius: 12px;
-                max-width: 800px;
+                max-width: 860px;
                 position: relative;
                 border: 1px solid var(--border);
                 box-shadow: 0 12px 32px rgba(140, 149, 159, 0.2);
+            }
+            .heatmap-top-row {
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+                margin-top: 8px;
+            }
+            .heatmap-axis-spacer {
+                width: 40px;
+                height: 10px;
+                flex: 0 0 40px;
+            }
+            .heatmap-week-summary,
+            .heatmap-day-summary {
+                display: grid;
+                gap: 2px;
+                font-size: 0;
+            }
+            .heatmap-week-summary {
+                grid-template-columns: repeat(53, 10px);
+                grid-template-rows: 10px;
+            }
+            .heatmap-day-summary {
+                grid-template-columns: 10px;
+                grid-template-rows: repeat(7, 10px);
+                flex: 0 0 10px;
             }
             .heatmap-wrapper {
                 display: flex;
                 align-items: flex-start;
                 gap: 10px;
-                margin: 20px 0;
+                margin: 10px 0 20px;
             }
             .heatmap-days {
                 display: flex;
                 flex-direction: column;
                 gap: 2px;
                 padding-top: 0px;
+                width: 20px;
+                flex: 0 0 20px;
             }
             .heatmap-day-label {
                 height: 10px;
@@ -596,7 +624,7 @@
                 color: var(--muted);
                 height: 15px;
                 width: 636px;
-                margin-left: 30px;
+                margin-left: 50px;
             }
             .heatmap-month-label {
                 position: absolute;
@@ -1029,6 +1057,14 @@
                 </div>
 
                 <div id="heatmap-months" class="heatmap-months"></div>
+                <div class="heatmap-top-row">
+                    <div class="heatmap-axis-spacer"></div>
+                    <div
+                        id="heatmap-week-summary"
+                        class="heatmap-week-summary"
+                        aria-label="Weekly task completion intensity"
+                    ></div>
+                </div>
                 <div class="heatmap-wrapper">
                     <div class="heatmap-days">
                         <div class="heatmap-day-label">Sun</div>
@@ -1039,6 +1075,11 @@
                         <div class="heatmap-day-label"></div>
                         <div class="heatmap-day-label">Sat</div>
                     </div>
+                    <div
+                        id="heatmap-day-summary"
+                        class="heatmap-day-summary"
+                        aria-label="Weekday task completion intensity"
+                    ></div>
                     <div id="heatmap-grid" class="heatmap"></div>
                 </div>
 
@@ -2829,19 +2870,28 @@
 
                 // Find max value for scaling
                 const maxValue = Math.max(...Object.values(data));
-                const getLevel = (count) => {
+                const getLevelForMax = (count, max) => {
                     if (count === 0) return 0;
-                    if (maxValue <= 1) return 4;
-                    const normalized = count / maxValue;
+                    if (max <= 1) return 4;
+                    const normalized = count / max;
                     if (normalized <= 0.25) return 1;
                     if (normalized <= 0.5) return 2;
                     if (normalized <= 0.75) return 3;
                     return 4;
                 };
+                const getLevel = (count) => getLevelForMax(count, maxValue);
 
                 // Clear existing heatmap
                 const grid = document.getElementById("heatmap-grid");
+                const weekSummary = document.getElementById(
+                    "heatmap-week-summary",
+                );
+                const daySummary = document.getElementById(
+                    "heatmap-day-summary",
+                );
                 grid.innerHTML = "";
+                weekSummary.innerHTML = "";
+                daySummary.innerHTML = "";
 
                 // Start from the most recent Sunday (like GitHub)
                 const endDate = new Date(now);
@@ -2903,6 +2953,66 @@
                     monthsDiv.appendChild(monthSpan);
                 });
 
+                const dayNames = [
+                    "Sunday",
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday",
+                ];
+                const weekTotals = Array(53).fill(0);
+                const dayTotals = Array(7).fill(0);
+
+                for (let day = 0; day < 7; day++) {
+                    for (let week = 0; week < 53; week++) {
+                        const date = new Date(startDate);
+                        date.setDate(startDate.getDate() + week * 7 + day);
+
+                        if (date <= now) {
+                            const dateKey = date.toISOString().split("T")[0];
+                            const count = data[dateKey] || 0;
+                            weekTotals[week] += count;
+                            dayTotals[day] += count;
+                        }
+                    }
+                }
+
+                const weekMaxValue = Math.max(...weekTotals);
+                const dayMaxValue = Math.max(...dayTotals);
+                const appendSummarySquare = (container, count, max, title) => {
+                    const square = document.createElement("div");
+                    square.className = "heatmap-square";
+                    square.classList.add(
+                        `level-${getLevelForMax(count, max)}`,
+                    );
+                    square.title = title;
+                    container.appendChild(square);
+                };
+
+                weekTotals.forEach((count, week) => {
+                    const weekStart = new Date(startDate);
+                    weekStart.setDate(startDate.getDate() + week * 7);
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekStart.getDate() + 6);
+                    appendSummarySquare(
+                        weekSummary,
+                        count,
+                        weekMaxValue,
+                        `${count} task${count !== 1 ? "s" : ""} completed from ${weekStart.toLocaleDateString()} to ${weekEnd.toLocaleDateString()}`,
+                    );
+                });
+
+                dayTotals.forEach((count, day) => {
+                    appendSummarySquare(
+                        daySummary,
+                        count,
+                        dayMaxValue,
+                        `${dayNames[day]} total: ${count} task${count !== 1 ? "s" : ""} completed in the last year`,
+                    );
+                });
+
                 // Generate grid squares - fill by day of week (rows) then by week (columns)
                 // This matches your C version: graph[day][week]
                 for (let day = 0; day < 7; day++) {
@@ -2921,15 +3031,6 @@
                             square.classList.add(`level-${level}`);
 
                             // Add tooltip
-                            const dayNames = [
-                                "Sunday",
-                                "Monday",
-                                "Tuesday",
-                                "Wednesday",
-                                "Thursday",
-                                "Friday",
-                                "Saturday",
-                            ];
                             square.title = `${dayNames[day]}, ${date.toLocaleDateString()}: ${count} task${count !== 1 ? "s" : ""} completed`;
                         } else {
                             square.classList.add("level-0");
