@@ -1,4 +1,30 @@
-# Automated backups
+# Kanban systemd services
+
+## Server
+
+Install the persistent user service from the server directory:
+
+```bash
+./scripts/install-service.sh
+```
+
+The service starts with the user systemd manager, restarts after failures, and
+loads optional overrides from `~/.config/kanban/server.env`. For example:
+
+```text
+PORT=3000
+KANBAN_HOST=127.0.0.1
+COOKIE_SECURE=false
+```
+
+Check it with:
+
+```bash
+systemctl --user status kanban-server.service
+curl http://127.0.0.1:3000/healthz
+```
+
+## Automated backups
 
 The timer runs the checked-in backup script every six hours. Its destination
 must be outside the live data directory, preferably on another disk or a

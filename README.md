@@ -96,6 +96,13 @@ Then open:
 
 `http://localhost:3000`
 
+For automatic startup and failure recovery, install the included user service:
+
+```bash
+cd kanban/server
+./scripts/install-service.sh
+```
+
 ## Logging In
 
 The first time you use the board, registration is available so an initial

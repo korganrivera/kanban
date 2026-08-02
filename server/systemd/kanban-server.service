@@ -1,0 +1,22 @@
+[Unit]
+Description=Kanban board server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/code/kanban/server
+Environment=NODE_ENV=production
+EnvironmentFile=-%h/.config/kanban/server.env
+ExecStart=/usr/bin/node index.js
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=15s
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/code/kanban/server/data
+
+[Install]
+WantedBy=default.target
