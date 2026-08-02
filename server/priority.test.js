@@ -1,5 +1,13 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+
+const testDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "kanban-priority-test-"));
+process.env.KANBAN_DATA_DIR = testDataDir;
+process.env.SESSION_SECRET = "priority-test-session-secret-at-least-32-characters";
+test.after(() => fs.rmSync(testDataDir, { recursive: true, force: true }));
 
 const {
   buildPriorityContext,
@@ -11,6 +19,8 @@ const {
   computePriorities,
   wouldExceedWip,
   clearClaimUnlessClaimRetained,
+  reverseCompletionAward,
+  restoreTaskCompletion,
 } = require("./index.js");
 
 function task(id, overrides = {}) {
@@ -237,4 +247,113 @@ test("done task keeps claim metadata for completion attribution", () => {
   assert.equal(clearClaimUnlessClaimRetained(done, tasks, NOW), false);
   assert.equal(done.picker, "korgan");
   assert.equal(done.picked_at, "2026-04-15T12:00:00.000Z");
+});
+
+test("completion undo restores a recurring task and released dependent", () => {
+  const completedAt = "2026-04-15T13:00:00.000Z";
+  const original = task("recurring", {
+    state: "InProgress",
+    picker: "korgan",
+    picked_at: "2026-04-15T12:00:00.000Z",
+    scheduledDueAt: "2026-04-15T12:30:00.000Z",
+    recurrence: { type: "rolling", intervalDays: 7 },
+    updated_at: "2026-04-15T12:00:00.000Z",
+  });
+  const completed = task("recurring", {
+    state: "Ready",
+    picker: null,
+    scheduledDueAt: "2026-04-22T13:00:00.000Z",
+    recurrence: { type: "rolling", intervalDays: 7 },
+    updated_at: completedAt,
+    completionUndo: {
+      completedAt,
+      previousTask: original,
+      releasedDependents: [
+        {
+          id: "dependent",
+          previousState: "Suspended",
+          previousUpdatedAt: "2026-04-14T09:00:00.000Z",
+          releasedAt: completedAt,
+        },
+      ],
+    },
+  });
+  const dependent = task("dependent", {
+    state: "Ready",
+    dependencies: ["recurring"],
+    updated_at: completedAt,
+  });
+  const tasks = [completed, dependent];
+
+  restoreTaskCompletion(
+    completed,
+    tasks,
+    "2026-04-15T13:01:00.000Z",
+  );
+
+  assert.equal(completed.state, "InProgress");
+  assert.equal(completed.picker, "korgan");
+  assert.equal(completed.scheduledDueAt, "2026-04-15T12:30:00.000Z");
+  assert.equal(completed.completionUndo, undefined);
+  assert.equal(completed.updated_at, "2026-04-15T13:01:00.000Z");
+  assert.equal(dependent.state, "Suspended");
+  assert.equal(dependent.updated_at, "2026-04-14T09:00:00.000Z");
+});
+
+test("completion undo reverses only its exact points history entry", () => {
+  const users = {
+    korgan: {
+      points: 90,
+      history: [
+        { ts: "old", points: 40, reason: "Older completion" },
+        {
+          ts: "new",
+          points: 50,
+          reason: "Completed task task-1 (Task 1)",
+          completionId: "task-1:new",
+        },
+      ],
+    },
+  };
+
+  const result = reverseCompletionAward(users, {
+    user: "korgan",
+    completionId: "task-1:new",
+  });
+
+  assert.deepEqual(result, { reversed: true, points: 50 });
+  assert.equal(users.korgan.points, 40);
+  assert.deepEqual(users.korgan.history, [
+    { ts: "old", points: 40, reason: "Older completion" },
+  ]);
+});
+
+test("a completed occurrence satisfies a dependency on a recurring task", () => {
+  const recurring = task("recurring", {
+    state: "Ready",
+    recurrence: { type: "rolling", intervalDays: 7 },
+    lastCompletedAt: "2026-04-15T12:00:00.000Z",
+    scheduledDueAt: "2026-04-22T12:00:00.000Z",
+    created_at: "2026-04-01T12:00:00.000Z",
+  });
+  const dependent = task("dependent", {
+    dependencies: ["recurring"],
+    created_at: "2026-04-10T12:00:00.000Z",
+  });
+
+  assert.equal(
+    computeEffectiveState(dependent, [recurring, dependent], NOW).effectiveState,
+    "Ready",
+  );
+});
+
+test("done dependents no longer inflate an active task's importance", () => {
+  const prerequisite = task("prerequisite");
+  const completedDependent = task("done", {
+    state: "Done",
+    dependencies: ["prerequisite"],
+  });
+  const context = buildPriorityContext([prerequisite, completedDependent]);
+
+  assert.equal(computeRawImportance(prerequisite, context), 0);
 });

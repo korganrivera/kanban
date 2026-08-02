@@ -197,7 +197,7 @@
                     <input
                         type="password"
                         id="registerPassword"
-                        placeholder="Choose a password (min 6 characters)"
+                        placeholder="Choose a password (min 10 characters)"
                         autocomplete="new-password"
                     />
 
@@ -241,6 +241,20 @@
                     }
                 } catch (err) {
                     console.error("Auth check failed:", err);
+                }
+            }
+
+            async function checkRegistrationStatus() {
+                try {
+                    const res = await fetch(`${API_ROOT}/auth/registration-status`);
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    if (!data.enabled) {
+                        document.querySelector(".toggle-mode").style.display = "none";
+                        document.getElementById("registerForm").classList.remove("active");
+                    }
+                } catch (err) {
+                    console.error("Registration status check failed:", err);
                 }
             }
 
@@ -335,8 +349,8 @@
                     return;
                 }
 
-                if (password.length < 6) {
-                    showError("register", "Password must be at least 6 characters");
+                if (password.length < 10) {
+                    showError("register", "Password must be at least 10 characters");
                     return;
                 }
 
@@ -384,6 +398,7 @@
 
             // Check if already authenticated on page load
             checkAuth();
+            checkRegistrationStatus();
         </script>
     </body>
 </html>

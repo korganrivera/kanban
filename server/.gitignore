@@ -1,2 +1,8 @@
 .codex
-data/sessions.json
+data/*.json
+data/backups/
+data/session-secret
+data/*.corrupt-*
+data/pending-transaction.json
+node_modules/
+npm-debug.log*

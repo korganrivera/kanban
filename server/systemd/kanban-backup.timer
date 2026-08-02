@@ -1,0 +1,11 @@
+[Unit]
+Description=Back up kanban data every six hours
+
+[Timer]
+OnBootSec=10m
+OnUnitActiveSec=6h
+Persistent=true
+RandomizedDelaySec=5m
+
+[Install]
+WantedBy=timers.target

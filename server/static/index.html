@@ -383,6 +383,14 @@
                 overflow-wrap: break-word;
                 hyphens: auto;
             }
+            .card .block-note {
+                font-size: 0.84rem;
+                color: #fbbf24;
+                margin-bottom: 6px;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                hyphens: auto;
+            }
             .recurrence-icon {
                 display: inline-block;
                 font-size: 14px;
@@ -486,6 +494,9 @@
             .sidebar textarea {
                 min-height: 96px;
                 resize: vertical;
+            }
+            #sb_block_note {
+                min-height: 72px;
             }
             .sidebar .row {
                 display: flex;
@@ -771,6 +782,11 @@
 
             <label>Description</label>
             <textarea id="sb_description"></textarea>
+
+            <div id="sb_block_note_wrap">
+                <label>Block note</label>
+                <textarea id="sb_block_note"></textarea>
+            </div>
 
             <label>Scheduled due (local)</label>
             <div class="row">
@@ -1110,14 +1126,17 @@
             </div>
         </div>
 
+        <script src="/task-state.js"></script>
         <script>
             /* ---------------- Utilities ---------------- */
             const API_ROOT = "";
             const PALETTE_STORAGE_KEY = "kanban.palette";
             const DEFAULT_PALETTE = "github-light";
             let tasksCache = [];
+            let completionHistory = [];
             let fetchInFlight = false;
             let sidebarTaskId = null;
+            let sidebarOpenedUpdatedAt = null;
             let createModeDependencies = [];
             let authRedirectInProgress = false;
             let authPollInterval = null;
@@ -1321,185 +1340,10 @@
                 return aKey.localeCompare(bKey);
             }
 
-            /* ---------------- Low-level helpers for derivation ---------------- */
-            function parseDateSafe(v) {
-                if (!v) return null;
-                const d = new Date(v);
-                return isNaN(d.getTime()) ? null : d;
-            }
-            function calcReadyAtIso(task) {
-                const sd = parseDateSafe(task.scheduledDueAt);
-                if (!sd) return null;
-                const lead =
-                    Number(
-                        task.recurrence &&
-                            Number.isFinite(
-                                Number(task.recurrence.leadTimeDays),
-                            )
-                            ? Number(task.recurrence.leadTimeDays)
-                            : Number.isFinite(Number(task.leadTimeDays))
-                              ? Number(task.leadTimeDays)
-                              : 0,
-                    ) || 0;
-                const readyMs =
-                    sd.getTime() - Math.round(lead * 24 * 60 * 60 * 1000);
-                return new Date(readyMs).toISOString();
-            }
-            function anyDependencyUnresolvedLocal(allTasks, task) {
-                if (
-                    !Array.isArray(task.dependencies) ||
-                    task.dependencies.length === 0
-                )
-                    return false;
-                const byId = new Map((allTasks || []).map((t) => [t.id, t]));
-                return task.dependencies.some((did) => {
-                    const dt = byId.get(did);
-                    return !dt || dt.state !== "Done";
-                });
-            }
-
-            /* ---------------- deriveEffectiveState (client-side) ----------------
-               Mirrors server logic but runs in browser. Returns object:
-               { effectiveState, readyAt, scheduledDueAt, overdue }
-            -------------------------------------------------------------------- */
-            function deriveEffectiveState(
-                task,
-                allTasks = tasksCache,
-                now = new Date(),
-            ) {
-                const scheduledAt = parseDateSafe(task.scheduledDueAt);
-                const readyAtIso = calcReadyAtIso(task);
-                const readyAt = parseDateSafe(readyAtIso);
-                let overdue = false;
-                if (scheduledAt) {
-                    if (task.recurrence && typeof task.recurrence === "object") {
-                        const intervalDays =
-                            Number(
-                                task.recurrence.intervalDays ??
-                                    task.recurrence.interval ??
-                                    0,
-                            ) || 0;
-                        if (intervalDays > 0) {
-                            const halfMs =
-                                (intervalDays / 2) * 24 * 60 * 60 * 1000;
-                            overdue =
-                                now.getTime() >=
-                                scheduledAt.getTime() + halfMs;
-                        } else {
-                            overdue = now.getTime() >= scheduledAt.getTime();
-                        }
-                    } else {
-                        overdue = now.getTime() >= scheduledAt.getTime();
-                    }
-                }
-
-                if (task.state === "Done") {
-                    return {
-                        effectiveState: "Done",
-                        readyAt: readyAtIso,
-                        scheduledDueAt: scheduledAt
-                            ? scheduledAt.toISOString()
-                            : null,
-                        overdue: false,
-                    };
-                }
-                if (task.state === "Blocked") {
-                    return {
-                        effectiveState: "Blocked",
-                        readyAt: readyAtIso,
-                        scheduledDueAt: scheduledAt
-                            ? scheduledAt.toISOString()
-                            : null,
-                        overdue,
-                    };
-                }
-                // recurrence pause forces Suspended
-                if (task.recurrence && task.recurrence.paused) {
-                    return {
-                        effectiveState: "Suspended",
-                        readyAt: readyAtIso,
-                        scheduledDueAt: scheduledAt
-                            ? scheduledAt.toISOString()
-                            : null,
-                        overdue,
-                    };
-                }
-
-                // time gates: waiting until readyAt
-                if (readyAt && now.getTime() < readyAt.getTime()) {
-                    return {
-                        effectiveState: "Waiting",
-                        readyAt: readyAtIso,
-                        scheduledDueAt: scheduledAt
-                            ? scheduledAt.toISOString()
-                            : null,
-                        overdue: false,
-                    };
-                }
-
-                // unresolved dependencies => Suspended
-                if (anyDependencyUnresolvedLocal(allTasks, task)) {
-                    return {
-                        effectiveState: "Suspended",
-                        readyAt: readyAtIso,
-                        scheduledDueAt: scheduledAt
-                            ? scheduledAt.toISOString()
-                            : null,
-                        overdue,
-                    };
-                }
-
-                // no scheduled date => fallback to stored state or Ready
-                if (!scheduledAt) {
-                    const fallback = task.state || "Ready";
-                    return {
-                        effectiveState: fallback,
-                        readyAt: readyAtIso,
-                        scheduledDueAt: null,
-                        overdue: false,
-                    };
-                }
-
-                // If stored state was Suspended, respect it after all other checks.
-                if (task.state === "Suspended") {
-                    return {
-                        effectiveState: "Suspended",
-                        readyAt: readyAtIso,
-                        scheduledDueAt: scheduledAt.toISOString(),
-                        overdue,
-                    };
-                }
-                if (task.state === "InProgress") {
-                    return {
-                        effectiveState: "InProgress",
-                        readyAt: readyAtIso,
-                        scheduledDueAt: scheduledAt.toISOString(),
-                        overdue,
-                    };
-                }
-
-                // otherwise actionable
-                return {
-                    effectiveState: "Ready",
-                    readyAt: readyAtIso,
-                    scheduledDueAt: scheduledAt.toISOString(),
-                    overdue,
-                };
-            }
+            const { parseDateSafe, computeEffectiveState: deriveEffectiveState } =
+                window.KanbanTaskState;
 
             function getTaskEffectiveInfo(task) {
-                if (task && task.effectiveState) {
-                    return {
-                        effectiveState: task.effectiveState,
-                        readyAt: task.readyAt || null,
-                        scheduledDueAt:
-                            "scheduledDueAt" in task
-                                ? task.scheduledDueAt
-                                : null,
-                        overdue: !!task.overdue,
-                    };
-                }
-
                 try {
                     return deriveEffectiveState(task, tasksCache, new Date());
                 } catch (e) {
@@ -1740,6 +1584,18 @@
                           truncateCardDescription(task.description),
                       )
                     : null;
+                const blockNote =
+                    task.meta && task.meta.block_note
+                        ? String(task.meta.block_note).trim()
+                        : "";
+                const blockNotePreview =
+                    s === "Blocked" && blockNote
+                        ? el(
+                              "div",
+                              { class: "block-note" },
+                              `Blocked: ${truncateCardDescription(blockNote)}`,
+                          )
+                        : null;
 
                 const times = el(
                     "div",
@@ -1808,6 +1664,15 @@
                     actions.appendChild(done);
                 }
 
+                if (task.completionUndo) {
+                    const undo = el("button", {}, "Undo");
+                    undo.onclick = (ev) => {
+                        ev.stopPropagation();
+                        onUndoCompleteClicked(task);
+                    };
+                    actions.appendChild(undo);
+                }
+
                 const del = el("button", {}, "Delete");
                 del.onclick = (ev) => {
                     ev.stopPropagation();
@@ -1829,6 +1694,7 @@
                 if (claimer) card.appendChild(claimer);
                 if (recurrenceLine) card.appendChild(recurrenceLine);
                 if (desc) card.appendChild(desc);
+                if (blockNotePreview) card.appendChild(blockNotePreview);
                 card.appendChild(times);
                 card.appendChild(badges);
                 card.appendChild(actions);
@@ -1880,11 +1746,6 @@
 
                         // Build request body
                         const body = { state: dstState };
-
-                        // Handle unclaiming when moving to Ready
-                        if (dstState === "Ready" && task.picker) {
-                            body.picker = null;
-                        }
 
                         // When moving to InProgress, backend auto-sets picker to logged-in user
 
@@ -1989,6 +1850,28 @@
                 }
             }
 
+            async function onUndoCompleteClicked(task) {
+                try {
+                    const res = await fetch(
+                        `${API_ROOT}/tasks/${encodeURIComponent(task.id)}/undo-complete`,
+                        { method: "POST" },
+                    );
+                    if (!res.ok) {
+                        const j = await res
+                            .json()
+                            .catch(() => ({ error: "unknown" }));
+                        await fetchAndRender();
+                        return toast(j.error || "Could not undo completion");
+                    }
+                    toast("Completion undone");
+                    await fetchAndRender();
+                    await refreshUserPoints();
+                } catch (err) {
+                    console.error(err);
+                    toast("Network error");
+                }
+            }
+
             async function onRemedyClicked(task) {
                 const title = prompt(
                     "Remedy title (leave empty to auto-generate):",
@@ -2078,7 +1961,7 @@
 
             /* ---------------- Fetch & render ---------------- */
             async function fetchTasks() {
-                if (fetchInFlight) return;
+                if (fetchInFlight) return null;
                 fetchInFlight = true;
                 try {
                     const res = await fetch(`${API_ROOT}/tasks`);
@@ -2089,7 +1972,8 @@
                 } catch (err) {
                     fetchInFlight = false;
                     console.error(err);
-                    return [];
+                    toast("Could not refresh; showing the last known board");
+                    return null;
                 }
             }
 
@@ -2270,12 +2154,22 @@
             function openSidebar(task) {
                 createModeDependencies = [];
                 sidebarTaskId = task.id;
+                sidebarOpenedUpdatedAt = task.updated_at || null;
                 const sb = document.getElementById("sidebar");
                 document.getElementById("sbTitle").textContent =
                     `Edit: ${task.title || ""}`;
                 document.getElementById("sb_title").value = task.title || "";
                 document.getElementById("sb_description").value =
                     task.description || "";
+                const blockNote =
+                    task.meta && task.meta.block_note
+                        ? String(task.meta.block_note)
+                        : "";
+                const showBlockNote =
+                    getTaskState(task) === "Blocked" || blockNote.trim() !== "";
+                document.getElementById("sb_block_note_wrap").style.display =
+                    showBlockNote ? "block" : "none";
+                document.getElementById("sb_block_note").value = blockNote;
                 // For text input, show in readable format
                 if (task.scheduledDueAt) {
                     const d = new Date(task.scheduledDueAt);
@@ -2404,6 +2298,8 @@
                                                 },
                                                 body: JSON.stringify({
                                                     dependencies: newDeps,
+                                                    expectedUpdatedAt:
+                                                        task.updated_at,
                                                 }),
                                             },
                                         );
@@ -2484,6 +2380,7 @@
                 sb.style.display = "none";
                 sb.setAttribute("aria-hidden", "true");
                 sidebarTaskId = null;
+                sidebarOpenedUpdatedAt = null;
             }
 
             document
@@ -2531,7 +2428,10 @@
                             {
                                 method: "PATCH",
                                 headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ dependencies: newDeps }),
+                                body: JSON.stringify({
+                                    dependencies: newDeps,
+                                    expectedUpdatedAt: currentTask.updated_at,
+                                }),
                             },
                         );
                         if (res.ok) {
@@ -2572,6 +2472,22 @@
                     payload.description = document
                         .getElementById("sb_description")
                         .value.trim();
+                    const currentSidebarTask = sidebarTaskId
+                        ? tasksCache.find((t) => t.id === sidebarTaskId)
+                        : null;
+                    if (sidebarTaskId) {
+                        payload.expectedUpdatedAt = sidebarOpenedUpdatedAt;
+                    }
+                    if (
+                        currentSidebarTask &&
+                        (getTaskState(currentSidebarTask) === "Blocked" ||
+                            (currentSidebarTask.meta &&
+                                currentSidebarTask.meta.block_note))
+                    ) {
+                        payload.blockNote = document
+                            .getElementById("sb_block_note")
+                            .value.trim();
+                    }
                     payload.timeCritical = !!document.getElementById(
                         "sb_time_critical",
                     ).checked;
@@ -2671,12 +2587,17 @@
                 .addEventListener("click", (e) => {
                     e.preventDefault();
                     sidebarTaskId = null;
+                    sidebarOpenedUpdatedAt = null;
                     createModeDependencies = [];
 
                     document.getElementById("sbTitle").textContent =
                         "Create task";
                     document.getElementById("sb_title").value = "";
                     document.getElementById("sb_description").value = "";
+                    document.getElementById("sb_block_note").value = "";
+                    document.getElementById(
+                        "sb_block_note_wrap",
+                    ).style.display = "none";
                     document.getElementById("sb_scheduled_date").value = "";
                     document.getElementById("sb_scheduled_time").value = "";
                     document.getElementById("sb_lead").value = "0";
@@ -2839,24 +2760,20 @@
                     d <= now;
                     d.setDate(d.getDate() + 1)
                 ) {
-                    const dateKey = d.toISOString().split("T")[0];
+                    const dateKey = localDateKey(d);
                     dailyCounts[dateKey] = 0;
                 }
 
-                // Count completed tasks for each day
-                tasksCache.forEach((task) => {
-                    if (task.lastCompletedAt) {
-                        const completedDate = new Date(task.lastCompletedAt);
-                        if (
-                            completedDate >= oneYearAgo &&
-                            completedDate <= now
-                        ) {
-                            const dateKey = completedDate
-                                .toISOString()
-                                .split("T")[0];
-                            if (dailyCounts[dateKey] !== undefined) {
-                                dailyCounts[dateKey]++;
-                            }
+                // User completion history survives task deletion.
+                completionHistory.forEach((entry) => {
+                    const completedDate = new Date(entry.ts);
+                    if (
+                        completedDate >= oneYearAgo &&
+                        completedDate <= now
+                    ) {
+                        const dateKey = localDateKey(completedDate);
+                        if (dateKey && dailyCounts[dateKey] !== undefined) {
+                            dailyCounts[dateKey]++;
                         }
                     }
                 });
@@ -2971,7 +2888,7 @@
                         date.setDate(startDate.getDate() + week * 7 + day);
 
                         if (date <= now) {
-                            const dateKey = date.toISOString().split("T")[0];
+                            const dateKey = localDateKey(date);
                             const count = data[dateKey] || 0;
                             weekTotals[week] += count;
                             dayTotals[day] += count;
@@ -3025,7 +2942,7 @@
 
                         // Don't show future dates
                         if (date <= now) {
-                            const dateKey = date.toISOString().split("T")[0];
+                            const dateKey = localDateKey(date);
                             const count = data[dateKey] || 0;
                             const level = getLevel(count);
                             square.classList.add(`level-${level}`);
@@ -3058,10 +2975,9 @@
                     const count = data[sortedDates[i]];
                     if (count > 0) {
                         tempStreak++;
-                        if (i === 0) currentStreak = tempStreak;
+                        if (i === currentStreak) currentStreak++;
                         longestStreak = Math.max(longestStreak, tempStreak);
                     } else {
-                        if (i === 0) currentStreak = 0;
                         tempStreak = 0;
                     }
                 }
@@ -3164,6 +3080,9 @@
                     if (data.authenticated && data.points !== undefined) {
                         document.getElementById("userPoints").textContent =
                             data.points || 0;
+                        completionHistory = Array.isArray(data.completionHistory)
+                            ? data.completionHistory
+                            : [];
                     }
                 } catch (err) {
                     console.error("Failed to refresh user points:", err);
@@ -3187,6 +3106,9 @@
                     usernameEl.addEventListener("click", openHeatmap);
                     document.getElementById("userPoints").textContent =
                         data.points || 0;
+                    completionHistory = Array.isArray(data.completionHistory)
+                        ? data.completionHistory
+                        : [];
                     document.getElementById("currentUser").style.display =
                         "block";
                     document.getElementById("logoutBtn").style.display =
@@ -3198,6 +3120,9 @@
                     await loadWipLimits();
                     fetchAndRender();
                     connectWebSocket();
+                    setInterval(() => {
+                        if (tasksCache.length > 0) renderTasks(tasksCache);
+                    }, 15000);
                     if (!authPollInterval) {
                         authPollInterval = setInterval(pollAuthStatus, 60000);
                     }

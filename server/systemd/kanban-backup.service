@@ -1,0 +1,10 @@
+[Unit]
+Description=Back up kanban data
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/code/kanban/server
+EnvironmentFile=%h/.config/kanban/backup.env
+ExecStart=/usr/bin/npm run backup
+PrivateTmp=true
+NoNewPrivileges=true

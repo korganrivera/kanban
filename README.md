@@ -20,7 +20,7 @@ it like a live household or project board.
 - supports repeating tasks
 - supports task dependencies
 - moves scheduled tasks into `Ready` automatically when their time comes
-- warns when work piles up in a column
+- enforces configurable work-in-progress limits
 - keeps task data in local JSON files instead of a database
 
 ## The Columns
@@ -49,6 +49,8 @@ it like a live household or project board.
 
 - Drag it to another column.
 - Or use task buttons like claim or complete.
+- If you complete a task by mistake, use its `Undo` button before editing or
+  moving it again.
 
 ### Edit a task
 
@@ -62,7 +64,7 @@ it like a live household or project board.
 
 ### Repeating tasks
 
-- A repeating task can recreate itself after completion.
+- A repeating task is rescheduled after completion.
 - `Rolling` repeats from when you finished it.
 - `Anchored` repeats based on the calendar.
 
@@ -86,8 +88,8 @@ You need Node.js and npm installed.
 ```bash
 git clone <repository-url>
 cd kanban/server
-npm install
-node index.js
+npm ci
+npm start
 ```
 
 Then open:
@@ -96,14 +98,17 @@ Then open:
 
 ## Logging In
 
-The first time you use the board:
+The first time you use the board, registration is available so an initial
+account can be created:
 
 1. Open the site.
 2. Click `Register`.
 3. Make a username and password.
 4. Log in.
 
-After that, just log in normally.
+After that, just log in normally. Once a login account exists, public
+registration is disabled unless the server is started with
+`ALLOW_REGISTRATION=true`.
 
 ## Everyday Use
 
@@ -133,8 +138,9 @@ The task should become ready on Wednesday.
 
 You can set limits for how many tasks should sit in a column at once.
 
-This does not stop you from adding more tasks, but it gives you a warning when
-that column is overloaded.
+The board prevents moves that would exceed a configured limit. Time-critical
+tasks count toward the effective column they currently occupy, even if their
+stored state has not changed yet.
 
 ## Where The Data Lives
 
@@ -144,7 +150,9 @@ The board stores its data in:
 - `server/data/users.json`
 - `server/data/wip_limits.json`
 
-That means the app is easy to back up and easy to inspect.
+Set `KANBAN_DATA_DIR` to store them elsewhere. These runtime files are ignored
+by Git; use the backup commands below instead of version control for data
+protection.
 
 ## Important Files
 
@@ -157,37 +165,63 @@ That means the app is easy to back up and easy to inspect.
 - `server/data/`
   Stored data.
 
-## If You Want To Run It On Another Port
+## Server Configuration
 
 You can set environment variables like:
 
 ```bash
 PORT=3000
-SESSION_SECRET=change-this
+KANBAN_HOST=127.0.0.1
+KANBAN_DATA_DIR=/absolute/path/to/kanban-data
+SESSION_SECRET=use-a-long-random-value
+COOKIE_SECURE=false
+ALLOW_REGISTRATION=false
 ```
 
-`SESSION_SECRET` should be changed if this is anything other than casual local
-use.
+The server binds to loopback by default. Set `KANBAN_HOST=0.0.0.0` only when a
+firewall or authenticated reverse proxy controls network access. Set
+`COOKIE_SECURE=true` when serving through HTTPS. If `SESSION_SECRET` is omitted,
+the server generates a private persistent secret in the data directory.
 
 ## Plain-English Notes About How It Works
 
 - The board recalculates task priority automatically.
 - Tasks closer to being due tend to rise.
 - Tasks that unblock other tasks also tend to rise.
-- Repeating tasks make new future instances when completed.
+- Repeating tasks keep their history and are rescheduled when completed.
 - Live updates are sent to connected browsers so everyone sees changes quickly.
 
 You do not need to understand the internal scoring system to use the board.
 
-## Backup
+## Backups
 
-If you want a simple backup, copy the repo folder or archive it.
-
-Example:
+Back up the live data to a destination outside `KANBAN_DATA_DIR`, ideally on a
+different disk or host:
 
 ```bash
-tar -czf kanban-backup-$(date +%Y%m%d).tar.gz --exclude=node_modules kanban/
+cd server
+npm run backup -- /mnt/backups/kanban
+npm run backup:verify -- /mnt/backups/kanban/latest
 ```
+
+Each backup is written atomically with a SHA-256 manifest, and old snapshots
+are pruned according to `KANBAN_BACKUP_RETENTION` (30 by default). A systemd
+service and timer are provided in `server/systemd/`; see
+`server/systemd/README.md` for setup. The server also keeps a small set of
+rolling pre-write snapshots locally, but those do not replace an off-machine
+backup.
+
+## Maintenance
+
+```bash
+cd server
+npm test
+npm run data:audit
+npm audit --omit=dev
+```
+
+`npm run data:audit` checks task references, states, claims, dates, and WIP
+limits without modifying data.
 
 ## In Short
 

@@ -1,2 +1,8 @@
-server/data/users.json
+server/data/*.json
+server/data/backups/
+server/data/session-secret
+server/data/*.corrupt-*
+server/data/pending-transaction.json
+server/node_modules/
+npm-debug.log*
 .codex

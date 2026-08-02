@@ -1,20 +1,113 @@
-// index.js (recurrence handling: none option + standard behavior)
-// ... (first lines unchanged)
+"use strict";
 const express = require("express");
 const app = express();
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 const { WebSocketServer } = require("ws");
 const session = require("express-session");
 const bcrypt = require("bcrypt");
+const {
+  TASK_STATES,
+  anyDependencyUnresolved,
+  calcReadyAt,
+  computeEffectiveState,
+  hasActiveClaim,
+  parseDateSafe,
+} = require("./static/task-state.js");
 
-const DATA_DIR = path.join(__dirname, "data");
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
+const DATA_DIR = process.env.KANBAN_DATA_DIR
+  ? path.resolve(process.env.KANBAN_DATA_DIR)
+  : path.join(__dirname, "data");
+const BACKUP_DIR = process.env.KANBAN_BACKUP_DIR
+  ? path.resolve(process.env.KANBAN_BACKUP_DIR)
+  : path.join(DATA_DIR, "backups");
+fs.mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
+fs.chmodSync(DATA_DIR, 0o700);
 
 const TASKS_FILE = path.join(DATA_DIR, "tasks.json");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const WIP_LIMITS_FILE = path.join(DATA_DIR, "wip_limits.json");
 const SESSIONS_FILE = path.join(DATA_DIR, "sessions.json");
+const SESSION_SECRET_FILE = path.join(DATA_DIR, "session-secret");
+const TRANSACTION_FILE = path.join(DATA_DIR, "pending-transaction.json");
+
+for (const privateFile of [
+  TASKS_FILE,
+  USERS_FILE,
+  WIP_LIMITS_FILE,
+  SESSIONS_FILE,
+  SESSION_SECRET_FILE,
+]) {
+  try {
+    if (fs.existsSync(privateFile)) fs.chmodSync(privateFile, 0o600);
+  } catch (error) {
+    console.error(`Could not secure ${privateFile}:`, error);
+    throw error;
+  }
+}
+
+function fsyncDirectory(directory) {
+  let directoryFd;
+  try {
+    directoryFd = fs.openSync(directory, "r");
+    fs.fsyncSync(directoryFd);
+  } finally {
+    if (directoryFd !== undefined) fs.closeSync(directoryFd);
+  }
+}
+
+function writeFileAtomic(filePath, content, mode = 0o600) {
+  const directory = path.dirname(filePath);
+  fs.mkdirSync(directory, { recursive: true, mode: 0o700 });
+  const tempPath = `${filePath}.tmp-${process.pid}-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`;
+  let fileFd;
+  try {
+    fileFd = fs.openSync(tempPath, "wx", mode);
+    fs.writeFileSync(fileFd, content, "utf8");
+    fs.fsyncSync(fileFd);
+    fs.closeSync(fileFd);
+    fileFd = undefined;
+    fs.renameSync(tempPath, filePath);
+    fs.chmodSync(filePath, mode);
+    fsyncDirectory(directory);
+  } catch (error) {
+    if (fileFd !== undefined) fs.closeSync(fileFd);
+    try {
+      fs.unlinkSync(tempPath);
+    } catch (cleanupError) {
+      if (cleanupError.code !== "ENOENT") {
+        console.error(`Failed to clean up ${tempPath}:`, cleanupError);
+      }
+    }
+    throw error;
+  }
+}
+
+function quarantineCorruptFile(filePath) {
+  const quarantinePath = `${filePath}.corrupt-${new Date()
+    .toISOString()
+    .replace(/[:.]/g, "-")}`;
+  fs.renameSync(filePath, quarantinePath);
+  return quarantinePath;
+}
+
+function getSessionSecret() {
+  const configured = String(process.env.SESSION_SECRET || "").trim();
+  if (configured) return configured;
+  try {
+    const existing = fs.readFileSync(SESSION_SECRET_FILE, "utf8").trim();
+    if (existing.length >= 32) {
+      fs.chmodSync(SESSION_SECRET_FILE, 0o600);
+      return existing;
+    }
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
+  const generated = crypto.randomBytes(48).toString("hex");
+  writeFileAtomic(SESSION_SECRET_FILE, `${generated}\n`, 0o600);
+  return generated;
+}
 
 class JsonSessionStore extends session.Store {
   constructor(filePath) {
@@ -29,21 +122,33 @@ class JsonSessionStore extends session.Store {
       const raw = fs.readFileSync(this.filePath, "utf8");
       if (!raw || raw.trim() === "") return {};
       const parsed = JSON.parse(raw);
-      return parsed && typeof parsed === "object" ? parsed : {};
+      if (!parsed || Array.isArray(parsed) || typeof parsed !== "object") {
+        throw new Error("Session store must contain an object");
+      }
+      return parsed;
     } catch (err) {
       if (err && err.code === "ENOENT") return {};
       console.error(`Error loading session store ${this.filePath}:`, err);
+      try {
+        const quarantined = quarantineCorruptFile(this.filePath);
+        console.error(`Corrupt sessions quarantined at ${quarantined}`);
+      } catch (quarantineError) {
+        console.error("Failed to quarantine corrupt sessions:", quarantineError);
+      }
       return {};
     }
   }
 
   save() {
     try {
-      const tmp = `${this.filePath}.tmp`;
-      fs.writeFileSync(tmp, JSON.stringify(this.sessions, null, 2), "utf8");
-      fs.renameSync(tmp, this.filePath);
+      writeFileAtomic(
+        this.filePath,
+        `${JSON.stringify(this.sessions, null, 2)}\n`,
+        0o600,
+      );
     } catch (err) {
       console.error(`Error saving session store ${this.filePath}:`, err);
+      throw err;
     }
   }
 
@@ -70,59 +175,101 @@ class JsonSessionStore extends session.Store {
     if (!sess) return cb(null, null);
     if (this.isExpired(sess)) {
       delete this.sessions[sid];
-      this.save();
-      return cb(null, null);
+      try {
+        this.save();
+        return cb(null, null);
+      } catch (error) {
+        return cb(error);
+      }
     }
     cb(null, sess);
   }
 
   set(sid, sess, cb) {
-    this.sessions[sid] = sess;
-    this.save();
-    cb && cb(null);
+    try {
+      this.sessions[sid] = sess;
+      this.save();
+      cb && cb(null);
+    } catch (error) {
+      cb && cb(error);
+    }
   }
 
   destroy(sid, cb) {
-    if (sid in this.sessions) {
-      delete this.sessions[sid];
-      this.save();
+    try {
+      if (sid in this.sessions) {
+        delete this.sessions[sid];
+        this.save();
+      }
+      cb && cb(null);
+    } catch (error) {
+      cb && cb(error);
     }
-    cb && cb(null);
   }
 
   touch(sid, sess, cb) {
-    this.sessions[sid] = sess;
-    this.save();
-    cb && cb(null);
+    try {
+      this.sessions[sid] = sess;
+      this.save();
+      cb && cb(null);
+    } catch (error) {
+      cb && cb(error);
+    }
   }
 }
 
 const sessionStore = new JsonSessionStore(SESSIONS_FILE);
 const sessionPruneTimer = setInterval(
-  () => sessionStore.pruneExpired(),
+  () => {
+    try {
+      sessionStore.pruneExpired();
+    } catch (error) {
+      console.error("Session pruning failed:", error);
+    }
+  },
   60 * 60 * 1000,
 );
 sessionPruneTimer.unref();
 
-app.use(express.json());
+app.disable("x-powered-by");
+app.use(express.json({ limit: "256kb" }));
 
 // Session configuration
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "kanban-secret-change-in-production",
-    store: sessionStore,
-    resave: false,
-    saveUninitialized: false,
-    rolling: true,
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-      httpOnly: true,
-    },
-  }),
-);
+const sessionMiddleware = session({
+  secret: getSessionSecret(),
+  store: sessionStore,
+  resave: false,
+  saveUninitialized: false,
+  rolling: true,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.COOKIE_SECURE === "true",
+  },
+});
+app.use(sessionMiddleware);
+app.use((req, res, next) => {
+  res.set("X-Content-Type-Options", "nosniff");
+  res.set("X-Frame-Options", "DENY");
+  res.set("Referrer-Policy", "same-origin");
+  if (!["GET", "HEAD", "OPTIONS"].includes(req.method)) {
+    const origin = req.get("Origin");
+    if (origin) {
+      try {
+        if (new URL(origin).host !== req.get("Host")) {
+          return res.status(403).json({ error: "Cross-origin request denied" });
+        }
+      } catch (error) {
+        return res.status(400).json({ error: "Invalid request origin" });
+      }
+    }
+  }
+  next();
+});
 
 // Serve static files AFTER session setup
-app.use(express.static("static"));
+app.use(express.static(path.join(__dirname, "static")));
 
 /* -------------------- configuration -------------------- */
 
@@ -152,11 +299,6 @@ function requireAuth(req, res, next) {
   next();
 }
 
-function optionalAuth(req, res, next) {
-  // Just pass through - used for endpoints that work better with auth but don't require it
-  next();
-}
-
 /* -------------------- file-backed stores -------------------- */
 
 function loadJson(filePath, fallback) {
@@ -166,41 +308,143 @@ function loadJson(filePath, fallback) {
     return JSON.parse(raw);
   } catch (err) {
     if (err && err.code === "ENOENT") return fallback;
-    console.error(`Error loading ${filePath}:`, err);
-    return fallback;
+    const wrapped = new Error(`Could not load ${filePath}: ${err.message}`);
+    wrapped.cause = err;
+    throw wrapped;
   }
 }
 
-function saveJson(filePath, obj) {
-  try {
-    const tmp = filePath + ".tmp";
-    fs.writeFileSync(tmp, JSON.stringify(obj, null, 2), "utf8");
-    fs.renameSync(tmp, filePath);
-  } catch (err) {
-    console.error(`Error saving ${filePath}:`, err);
+function pruneBackups(baseName, retention = 50) {
+  const prefix = `${baseName}.`;
+  const backups = fs
+    .readdirSync(BACKUP_DIR)
+    .filter((name) => name.startsWith(prefix) && name.endsWith(".bak"))
+    .sort()
+    .reverse();
+  for (const stale of backups.slice(retention)) {
+    fs.unlinkSync(path.join(BACKUP_DIR, stale));
   }
+}
+
+function snapshotJsonFile(filePath) {
+  if (!fs.existsSync(filePath)) return;
+  fs.mkdirSync(BACKUP_DIR, { recursive: true, mode: 0o700 });
+  fs.chmodSync(BACKUP_DIR, 0o700);
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const baseName = path.basename(filePath);
+  const backupPath = path.join(
+    BACKUP_DIR,
+    `${baseName}.${stamp}-${crypto.randomBytes(3).toString("hex")}.bak`,
+  );
+  fs.copyFileSync(filePath, backupPath, fs.constants.COPYFILE_EXCL);
+  fs.chmodSync(backupPath, 0o600);
+  pruneBackups(baseName);
+}
+
+function saveJson(filePath, obj, { backup = true } = {}) {
+  if (backup) snapshotJsonFile(filePath);
+  writeFileAtomic(filePath, `${JSON.stringify(obj, null, 2)}\n`, 0o600);
 }
 
 function loadTasks() {
-  return loadJson(TASKS_FILE, []);
+  const tasks = loadJson(TASKS_FILE, []);
+  if (!Array.isArray(tasks)) throw new Error("tasks.json must contain an array");
+  return tasks;
 }
 function saveTasks(tasks) {
   saveJson(TASKS_FILE, tasks);
+  scheduleNextStateRefresh(tasks);
   broadcastTasksUpdate();
 }
 
 function loadUsers() {
-  return loadJson(USERS_FILE, {});
+  const users = loadJson(USERS_FILE, {});
+  if (!users || Array.isArray(users) || typeof users !== "object") {
+    throw new Error("users.json must contain an object");
+  }
+  return users;
 }
 function saveUsers(users) {
   saveJson(USERS_FILE, users);
 }
 
 function loadWipLimits() {
-  return loadJson(WIP_LIMITS_FILE, DEFAULT_WIP_LIMITS);
+  const limits = loadJson(WIP_LIMITS_FILE, DEFAULT_WIP_LIMITS);
+  if (!limits || Array.isArray(limits) || typeof limits !== "object") {
+    throw new Error("wip_limits.json must contain an object");
+  }
+  return { ...DEFAULT_WIP_LIMITS, ...limits };
 }
 function saveWipLimits(limits) {
   saveJson(WIP_LIMITS_FILE, limits);
+}
+
+function transactionTarget(fileName) {
+  const targets = {
+    "tasks.json": TASKS_FILE,
+    "users.json": USERS_FILE,
+    "wip_limits.json": WIP_LIMITS_FILE,
+  };
+  return targets[fileName] || null;
+}
+
+function recoverPendingTransaction() {
+  if (!fs.existsSync(TRANSACTION_FILE)) return false;
+  const transaction = loadJson(TRANSACTION_FILE, null);
+  if (
+    !transaction ||
+    transaction.version !== 1 ||
+    !Array.isArray(transaction.entries)
+  ) {
+    throw new Error("Pending transaction is invalid; refusing to continue");
+  }
+  for (const entry of transaction.entries) {
+    const filePath = transactionTarget(entry.fileName);
+    if (!filePath) throw new Error(`Unknown transaction target: ${entry.fileName}`);
+    saveJson(filePath, entry.data);
+  }
+  fs.unlinkSync(TRANSACTION_FILE);
+  fsyncDirectory(DATA_DIR);
+  return true;
+}
+
+function commitJsonTransaction(entries) {
+  recoverPendingTransaction();
+  const transaction = {
+    version: 1,
+    createdAt: new Date().toISOString(),
+    entries: entries.map(({ filePath, data }) => ({
+      fileName: path.basename(filePath),
+      data,
+    })),
+  };
+  for (const entry of transaction.entries) {
+    if (!transactionTarget(entry.fileName)) {
+      throw new Error(`Unsupported transaction target: ${entry.fileName}`);
+    }
+  }
+  saveJson(TRANSACTION_FILE, transaction, { backup: false });
+  for (const entry of transaction.entries) {
+    saveJson(transactionTarget(entry.fileName), entry.data);
+  }
+  fs.unlinkSync(TRANSACTION_FILE);
+  fsyncDirectory(DATA_DIR);
+}
+
+function saveTasksAndUsers(tasks, users) {
+  commitJsonTransaction([
+    { filePath: TASKS_FILE, data: tasks },
+    { filePath: USERS_FILE, data: users },
+  ]);
+  scheduleNextStateRefresh(tasks);
+  broadcastTasksUpdate();
+}
+
+recoverPendingTransaction();
+if (!fs.existsSync(TASKS_FILE)) saveJson(TASKS_FILE, [], { backup: false });
+if (!fs.existsSync(USERS_FILE)) saveJson(USERS_FILE, {}, { backup: false });
+if (!fs.existsSync(WIP_LIMITS_FILE)) {
+  saveJson(WIP_LIMITS_FILE, DEFAULT_WIP_LIMITS, { backup: false });
 }
 
 /* -------------------- user management helpers -------------------- */
@@ -219,6 +463,78 @@ function createUser(username, hashedPassword) {
     password: hashedPassword,
     created_at: new Date().toISOString(),
   };
+}
+
+function countLoginUsers(users) {
+  return Object.values(users).filter(
+    (user) => user && typeof user.password === "string" && user.password,
+  ).length;
+}
+
+function validateCredentials(usernameValue, passwordValue, { login = false } = {}) {
+  if (typeof usernameValue !== "string" || typeof passwordValue !== "string") {
+    return { error: "Username and password required" };
+  }
+  const username = usernameValue.trim();
+  const password = passwordValue;
+  if (!username || !password) return { error: "Username and password required" };
+  if (login && (username.length > 64 || password.length > 200)) {
+    return { error: "Invalid username or password" };
+  }
+  if (!login) {
+    if (!/^[A-Za-z0-9_.-]{3,32}$/.test(username)) {
+      return {
+        error:
+          "Username must be 3-32 characters using letters, numbers, dots, dashes, or underscores",
+      };
+    }
+    if (password.length < 10 || password.length > 200) {
+      return { error: "Password must be between 10 and 200 characters" };
+    }
+  }
+  return { username, password };
+}
+
+const DUMMY_PASSWORD_HASH = bcrypt.hashSync(
+  `kanban-dummy-${crypto.randomBytes(16).toString("hex")}`,
+  10,
+);
+
+function establishSession(req, username) {
+  return new Promise((resolve, reject) => {
+    req.session.regenerate((regenerateError) => {
+      if (regenerateError) return reject(regenerateError);
+      req.session.userId = username;
+      req.session.save((saveError) => {
+        if (saveError) return reject(saveError);
+        resolve();
+      });
+    });
+  });
+}
+
+const authAttempts = new Map();
+const AUTH_WINDOW_MS = 15 * 60 * 1000;
+const AUTH_MAX_ATTEMPTS = 20;
+
+function checkAuthRateLimit(req, res) {
+  const key = req.ip || req.socket.remoteAddress || "unknown";
+  const now = Date.now();
+  const recent = (authAttempts.get(key) || []).filter(
+    (timestamp) => now - timestamp < AUTH_WINDOW_MS,
+  );
+  if (recent.length >= AUTH_MAX_ATTEMPTS) {
+    res.set("Retry-After", String(Math.ceil(AUTH_WINDOW_MS / 1000)));
+    res.status(429).json({ error: "Too many authentication attempts" });
+    return null;
+  }
+  recent.push(now);
+  authAttempts.set(key, recent);
+  return key;
+}
+
+function clearAuthAttempts(key) {
+  if (key) authAttempts.delete(key);
 }
 
 /* -------------------- mutation queue -------------------- */
@@ -241,7 +557,7 @@ async function processMutationQueue() {
       const result = await mutFn();
       resolve(result);
     } catch (err) {
-      console.error("Mutation error:", err);
+      if (!err?.status) console.error("Mutation error:", err);
       reject(err);
     }
   }
@@ -251,45 +567,10 @@ async function processMutationQueue() {
 /* -------------------- utilities -------------------- */
 
 function genId() {
-  return `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+  return crypto.randomUUID();
 }
 
-/* -------------------- recurrence helpers (effective state calculation) ---------- */
-
-function parseDateSafe(v) {
-  if (!v) return null;
-  const d = new Date(v);
-  return isNaN(d.getTime()) ? null : d;
-}
-
-function calcReadyAt(task) {
-  const sd = parseDateSafe(task.scheduledDueAt);
-  if (!sd) return null;
-  const lead =
-    Number(
-      (task.recurrence && task.recurrence.leadTimeDays) ||
-        task.leadTimeDays ||
-        0,
-    ) || 0;
-  const readyMs = sd.getTime() - Math.round(lead * 24 * 60 * 60 * 1000);
-  return new Date(readyMs).toISOString();
-}
-
-function anyDependencyUnresolved(tasks, task) {
-  if (!Array.isArray(task.dependencies) || task.dependencies.length === 0)
-    return false;
-  const byId = new Map(tasks.map((t) => [t.id, t]));
-  return task.dependencies.some((did) => {
-    const dt = byId.get(did);
-    return !dt || dt.state !== "Done";
-  });
-}
-
-function hasActiveClaim(task) {
-  const picker =
-    typeof task?.picker === "string" ? task.picker.trim() : task?.picker;
-  return !!picker;
-}
+/* -------------------- effective state helpers -------------------- */
 
 function syncSuspendedStateFromDependencies(task, allTasks = []) {
   if (!task || task.state === "Done") return;
@@ -308,130 +589,10 @@ function syncSuspendedStateFromDependencies(task, allTasks = []) {
   }
 }
 
-/**
- * computeEffectiveState(task, allTasks, now)
- * Returns object: { effectiveState, readyAt, scheduledDueAt, overdue }
- */
-function computeEffectiveState(task, allTasks = [], now = new Date()) {
-  const scheduledAt = parseDateSafe(task.scheduledDueAt);
-  const readyAtIso = calcReadyAt(task);
-  const readyAt = parseDateSafe(readyAtIso);
-
-  // Determine overdue:
-  // - For recurring tasks with a numeric intervalDays, consider overdue only
-  //   when now is past scheduledAt + (intervalDays / 2).
-  // - For non-recurring tasks, keep original behavior (now >= scheduledAt).
-  let overdue = false;
-  if (scheduledAt) {
-    overdue = false;
-    if (task.recurrence && typeof task.recurrence === "object") {
-      const intervalDays =
-        Number(task.recurrence.intervalDays ?? task.recurrence.interval ?? 0) ||
-        0;
-      if (intervalDays > 0) {
-        const halfMs = (intervalDays / 2) * 24 * 60 * 60 * 1000;
-        overdue = now.getTime() >= scheduledAt.getTime() + halfMs;
-      } else {
-        // no interval -> fall back to strict due-time overdue
-        overdue = now.getTime() >= scheduledAt.getTime();
-      }
-    } else {
-      overdue = now.getTime() >= scheduledAt.getTime();
-    }
-  }
-
-  if (task.state === "Done") {
-    return {
-      effectiveState: "Done",
-      readyAt: readyAtIso,
-      scheduledDueAt: scheduledAt ? scheduledAt.toISOString() : null,
-      overdue: false,
-    };
-  }
-
-  if (task.state === "Blocked") {
-    return {
-      effectiveState: "Blocked",
-      readyAt: readyAtIso,
-      scheduledDueAt: scheduledAt ? scheduledAt.toISOString() : null,
-      overdue,
-    };
-  }
-  // Note: Don't return early for Suspended state - let timing logic override it
-
-  if (task.recurrence && task.recurrence.paused) {
-    return {
-      effectiveState: "Suspended",
-      readyAt: readyAtIso,
-      scheduledDueAt: scheduledAt ? scheduledAt.toISOString() : null,
-      overdue,
-    };
-  }
-
-  // Check if task is not due yet - this should override dependency checks
-  if (readyAt && now.getTime() < readyAt.getTime()) {
-    return {
-      effectiveState: "Waiting",
-      readyAt: readyAtIso,
-      scheduledDueAt: scheduledAt ? scheduledAt.toISOString() : null,
-      overdue: false,
-    };
-  }
-
-  // Only check dependencies if task is due/ready
-  if (anyDependencyUnresolved(allTasks, task)) {
-    return {
-      effectiveState: "Suspended",
-      readyAt: readyAtIso,
-      scheduledDueAt: scheduledAt ? scheduledAt.toISOString() : null,
-      overdue,
-    };
-  }
-
-  if (!scheduledAt) {
-    const fallback =
-      task.state === "InProgress" && !hasActiveClaim(task)
-        ? "Ready"
-        : task.state || "Ready";
-    return {
-      effectiveState: fallback,
-      readyAt: readyAtIso,
-      scheduledDueAt: null,
-      overdue: false,
-    };
-  }
-
-  // If stored state was Suspended, respect it after all other checks
-  if (task.state === "Suspended") {
-    return {
-      effectiveState: "Suspended",
-      readyAt: readyAtIso,
-      scheduledDueAt: scheduledAt ? scheduledAt.toISOString() : null,
-      overdue,
-    };
-  }
-  if (task.state === "InProgress" && hasActiveClaim(task)) {
-    return {
-      effectiveState: "InProgress",
-      readyAt: readyAtIso,
-      scheduledDueAt: scheduledAt ? scheduledAt.toISOString() : null,
-      overdue,
-    };
-  }
-
-  return {
-    effectiveState: "Ready",
-    readyAt: readyAtIso,
-    scheduledDueAt: scheduledAt ? scheduledAt.toISOString() : null,
-    overdue,
-  };
-}
-
 /* -------------------- user points -------------------- */
 
-function awardPoints(userKey, points, reason = "") {
+function awardPoints(users, userKey, points, reason = "", entryMeta = {}) {
   if (!userKey) return null;
-  const users = loadUsers();
   const key = String(userKey).trim();
   if (!key) return null;
   if (!users[key]) users[key] = { id: key, name: key, points: 0, history: [] };
@@ -439,9 +600,87 @@ function awardPoints(userKey, points, reason = "") {
   const pts = Math.max(0, Math.round(points || 0));
   u.points = (u.points || 0) + pts;
   u.history = u.history || [];
-  u.history.push({ ts: new Date().toISOString(), points: pts, reason });
-  saveUsers(users);
+  const entry = {
+    ts: entryMeta.ts || new Date().toISOString(),
+    points: pts,
+    reason,
+  };
+  if (entryMeta.completionId) {
+    entry.completionId = entryMeta.completionId;
+  }
+  u.history.push(entry);
   return u;
+}
+
+function cloneJson(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function setBlockNote(task, note) {
+  const text = typeof note === "string" ? note.trim() : "";
+  if (text) {
+    task.meta = task.meta || {};
+    task.meta.block_note = text;
+    return;
+  }
+  if (task.meta && "block_note" in task.meta) {
+    delete task.meta.block_note;
+  }
+}
+
+function reverseCompletionAward(users, award) {
+  if (!award || !award.user || !award.completionId) {
+    return { reversed: false, points: 0 };
+  }
+  const user = users[award.user];
+  if (!user || !Array.isArray(user.history)) {
+    return { reversed: false, points: 0 };
+  }
+  const index = user.history.findIndex(
+    (entry) => entry.completionId === award.completionId,
+  );
+  if (index < 0) return { reversed: false, points: 0 };
+  const [entry] = user.history.splice(index, 1);
+  const points = Math.max(0, Math.round(Number(entry.points) || 0));
+  user.points = Math.max(0, (Number(user.points) || 0) - points);
+  return { reversed: true, points };
+}
+
+function restoreTaskCompletion(task, tasks, undoneAtIso) {
+  const undo = task && task.completionUndo;
+  if (!undo || !undo.previousTask || !undo.completedAt) {
+    throw new Error("No completion is available to undo");
+  }
+  if (task.updated_at !== undo.completedAt) {
+    throw new Error("Task changed after completion and can no longer be undone");
+  }
+
+  const award = undo.award || null;
+  const previousTask = cloneJson(undo.previousTask);
+  const releasedDependents = Array.isArray(undo.releasedDependents)
+    ? undo.releasedDependents
+    : [];
+
+  for (const key of Object.keys(task)) delete task[key];
+  Object.assign(task, previousTask, { updated_at: undoneAtIso });
+
+  for (const released of releasedDependents) {
+    const dependent = tasks.find((candidate) => candidate.id === released.id);
+    if (
+      dependent &&
+      dependent.state === "Ready" &&
+      dependent.updated_at === released.releasedAt
+    ) {
+      dependent.state = released.previousState;
+      if (released.previousUpdatedAt === undefined) {
+        delete dependent.updated_at;
+      } else {
+        dependent.updated_at = released.previousUpdatedAt;
+      }
+    }
+  }
+
+  return { award };
 }
 
 /* -------------------- WIP helpers -------------------- */
@@ -487,6 +726,105 @@ function clearClaimUnlessClaimRetained(task, tasks, now = new Date()) {
   return cleared;
 }
 
+function requestError(message, status = 400) {
+  return { status, body: { error: message } };
+}
+
+function normalizeText(value, field, maxLength, { allowEmpty = true } = {}) {
+  if (typeof value !== "string") throw requestError(`${field} must be text`);
+  const text = value.trim();
+  if (!allowEmpty && !text) throw requestError(`${field} is required`);
+  if (text.length > maxLength) {
+    throw requestError(`${field} must be ${maxLength} characters or fewer`);
+  }
+  return text;
+}
+
+function normalizeOptionalDate(value, field) {
+  if (value === null || value === undefined || value === "") return null;
+  if (typeof value !== "string") throw requestError(`${field} must be a date`);
+  const parsed = parseDateSafe(value);
+  if (!parsed) throw requestError(`${field} is not a valid date`);
+  return parsed.toISOString();
+}
+
+function normalizeNonNegativeNumber(value, field, { integer = false } = {}) {
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < 0 || (integer && !Number.isInteger(number))) {
+    throw requestError(
+      `${field} must be a non-negative${integer ? " integer" : " number"}`,
+    );
+  }
+  return number;
+}
+
+function normalizeBoolean(value, field) {
+  if (typeof value !== "boolean") throw requestError(`${field} must be true or false`);
+  return value;
+}
+
+function normalizeRecurrence(value, current = null) {
+  if (!value || Array.isArray(value) || typeof value !== "object") {
+    throw requestError("recurrence must be an object");
+  }
+  if (value.type === "none") return null;
+  const recurrence = { ...(current || {}), ...value };
+  if (!["rolling", "anchored"].includes(recurrence.type)) {
+    throw requestError("recurrence type must be rolling, anchored, or none");
+  }
+  if ("leadTimeDays" in recurrence) {
+    recurrence.leadTimeDays = normalizeNonNegativeNumber(
+      recurrence.leadTimeDays,
+      "recurrence lead time",
+    );
+  }
+  if ("paused" in recurrence) {
+    recurrence.paused = normalizeBoolean(recurrence.paused, "recurrence paused");
+  }
+  if ("intervalDays" in recurrence) {
+    const intervalDays = Number(recurrence.intervalDays);
+    if (!Number.isInteger(intervalDays) || intervalDays <= 0) {
+      throw requestError("recurrence interval must be a positive integer");
+    }
+    recurrence.intervalDays = intervalDays;
+  }
+  if (recurrence.type === "anchored" && "weekdays" in recurrence) {
+    if (!Array.isArray(recurrence.weekdays)) {
+      throw requestError("recurrence weekdays must be an array");
+    }
+    recurrence.weekdays = [...new Set(recurrence.weekdays.map(Number))];
+    if (
+      recurrence.weekdays.some(
+        (weekday) => !Number.isInteger(weekday) || weekday < 0 || weekday > 6,
+      )
+    ) {
+      throw requestError("recurrence weekdays must be integers from 0 through 6");
+    }
+  } else {
+    delete recurrence.weekdays;
+  }
+  if (!recurrence.intervalDays && !recurrence.weekdays?.length) {
+    throw requestError("recurrence requires an interval or at least one weekday");
+  }
+  return recurrence;
+}
+
+function normalizeDependencyIds(value, tasks, taskId = null) {
+  if (!Array.isArray(value)) throw requestError("dependencies must be an array");
+  if (value.length > 100) throw requestError("A task cannot have more than 100 dependencies");
+  const dependencies = [...new Set(value)];
+  for (const dependencyId of dependencies) {
+    if (typeof dependencyId !== "string" || !dependencyId.trim()) {
+      throw requestError("Every dependency must be a task ID");
+    }
+    if (dependencyId === taskId) throw requestError("Task cannot depend on itself");
+    if (!tasks.some((task) => task.id === dependencyId)) {
+      throw requestError(`Dependency task ${dependencyId} not found`);
+    }
+  }
+  return dependencies;
+}
+
 /* -------------------- dependency / cycle helpers -------------------- */
 
 function wouldCreateCycle(tasks, taskId, depId) {
@@ -515,6 +853,7 @@ function buildPriorityContext(tasks) {
   const dependents = new Map();
   for (const t of tasks) dependents.set(t.id, []);
   for (const t of tasks) {
+    if (t.state === "Done") continue;
     for (const dep of t.dependencies || []) {
       if (dependents.has(dep)) dependents.get(dep).push(t.id);
     }
@@ -523,6 +862,7 @@ function buildPriorityContext(tasks) {
   const inDegree = new Map();
   for (const t of tasks) inDegree.set(t.id, 0);
   for (const t of tasks) {
+    if (t.state === "Done") continue;
     for (const dep of t.dependencies || []) {
       if (!byId.has(dep)) {
         console.warn(`Task ${t.id} depends on missing task ${dep}`);
@@ -657,6 +997,7 @@ function computePriorities(tasks, nowIso = new Date(), config = {}) {
 /* -------------------- recompute wrapper -------------------- */
 
 function recomputeAllPriorities(tasks = null) {
+  const shouldPersist = tasks === null;
   const ts = tasks ?? loadTasks();
   const updated = computePriorities(ts, new Date(), PRIORITY_CONFIG);
   const changed = [];
@@ -695,73 +1036,89 @@ function recomputeAllPriorities(tasks = null) {
       });
     }
   }
-  if (changed.length) console.log("Priorities/metrics changed:", changed);
-  saveTasks(ts);
+  if (changed.length && process.env.KANBAN_DEBUG === "true") {
+    console.log("Priorities/metrics changed:", changed);
+  }
+  if (shouldPersist) saveTasks(ts);
   return ts;
 }
 
 /* -------------------- Authentication API -------------------- */
 
 app.post("/auth/register", async (req, res) => {
+  const rateLimitKey = checkAuthRateLimit(req, res);
+  if (!rateLimitKey) return;
   try {
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-      return res.status(400).json({ error: "Username and password required" });
+    const credentials = validateCredentials(req.body.username, req.body.password);
+    if (credentials.error) {
+      return res.status(400).json({ error: credentials.error });
     }
-
-    if (username.length < 3) {
-      return res
-        .status(400)
-        .json({ error: "Username must be at least 3 characters" });
-    }
-
-    if (password.length < 6) {
-      return res
-        .status(400)
-        .json({ error: "Password must be at least 6 characters" });
-    }
-
-    const users = loadUsers();
-
-    if (users[username]) {
-      return res.status(400).json({ error: "Username already exists" });
-    }
-
+    const { username, password } = credentials;
     const hashedPassword = await hashPassword(password);
-    users[username] = createUser(username, hashedPassword);
-    saveUsers(users);
+    await enqueueMutation(async () => {
+      const users = loadUsers();
+      if (
+        countLoginUsers(users) > 0 &&
+        process.env.ALLOW_REGISTRATION !== "true" &&
+        !req.session.userId
+      ) {
+        throw {
+          status: 403,
+          body: { error: "Registration is disabled" },
+        };
+      }
+      if (users[username] && users[username].password) {
+        throw {
+          status: 409,
+          body: { error: "Username already exists" },
+        };
+      }
+      users[username] = {
+        ...(users[username] || {}),
+        ...createUser(username, hashedPassword),
+      };
+      saveUsers(users);
+    });
 
-    req.session.userId = username;
+    await establishSession(req, username);
+    clearAuthAttempts(rateLimitKey);
     res.json({ success: true, username });
   } catch (err) {
+    if (err && err.status && err.body) {
+      return res.status(err.status).json(err.body);
+    }
     console.error("Register error:", err);
     res.status(500).json({ error: "Registration failed" });
   }
 });
 
 app.post("/auth/login", async (req, res) => {
+  const rateLimitKey = checkAuthRateLimit(req, res);
+  if (!rateLimitKey) return;
   try {
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-      return res.status(400).json({ error: "Username and password required" });
+    const credentials = validateCredentials(req.body.username, req.body.password, {
+      login: true,
+    });
+    if (credentials.error) {
+      return res.status(400).json({ error: credentials.error });
     }
+    const { username, password } = credentials;
 
     const users = loadUsers();
     const user = users[username];
+    const valid = await verifyPassword(
+      password,
+      user && typeof user.password === "string"
+        ? user.password
+        : DUMMY_PASSWORD_HASH,
+    );
 
-    if (!user) {
+    if (!user || !valid) {
       return res.status(401).json({ error: "Invalid username or password" });
     }
 
-    const valid = await verifyPassword(password, user.password);
-
-    if (!valid) {
-      return res.status(401).json({ error: "Invalid username or password" });
-    }
-
-    req.session.userId = username;
+    await establishSession(req, username);
+    clearAuthAttempts(rateLimitKey);
     res.json({ success: true, username });
   } catch (err) {
     console.error("Login error:", err);
@@ -770,11 +1127,13 @@ app.post("/auth/login", async (req, res) => {
 });
 
 app.post("/auth/logout", (req, res) => {
+  const sessionId = req.sessionID;
   req.session.destroy((err) => {
     if (err) {
       console.error("Logout error:", err);
       return res.status(500).json({ error: "Logout failed" });
     }
+    closeSessionSockets(sessionId);
     res.json({ success: true });
   });
 });
@@ -789,6 +1148,9 @@ app.get("/auth/whoami", (req, res) => {
         username: user.username,
         created_at: user.created_at,
         points: user.points || 0,
+        completionHistory: (user.history || []).filter((entry) =>
+          String(entry.reason || "").startsWith("Completed task "),
+        ),
       });
     } else {
       req.session.destroy();
@@ -799,24 +1161,62 @@ app.get("/auth/whoami", (req, res) => {
   }
 });
 
+app.get("/auth/registration-status", (req, res) => {
+  try {
+    const users = loadUsers();
+    res.json({
+      enabled:
+        countLoginUsers(users) === 0 ||
+        process.env.ALLOW_REGISTRATION === "true" ||
+        Boolean(req.session.userId),
+    });
+  } catch (error) {
+    console.error("Registration status error:", error);
+    res.status(500).json({ error: "Could not check registration status" });
+  }
+});
+
 /* -------------------- API handlers -------------------- */
+
+app.get("/healthz", (req, res) => {
+  try {
+    loadTasks();
+    loadUsers();
+    loadWipLimits();
+    res.json({ status: "ok" });
+  } catch (error) {
+    console.error("Health check failed:", error);
+    res.status(503).json({ status: "error" });
+  }
+});
 
 app.get("/", (req, res) => res.send("Server running."));
 
-app.get("/tasks", (req, res) => {
+function enrichTasksForClient(tasks, now = new Date()) {
+  return computePriorities(tasks, now, PRIORITY_CONFIG).map((task) => {
+    const effective = computeEffectiveState(task, tasks, now);
+    const publicTask = {
+      ...task,
+      effectiveState: effective.effectiveState,
+      readyAt: effective.readyAt || null,
+      scheduledDueAt: effective.scheduledDueAt || null,
+      overdue: Boolean(effective.overdue),
+    };
+    delete publicTask.points_history;
+    if (task.completionUndo) {
+      publicTask.completionUndo = {
+        available: true,
+        completedAt: task.completionUndo.completedAt,
+      };
+    }
+    return publicTask;
+  });
+}
+
+app.get("/tasks", requireAuth, (req, res) => {
   try {
     const tasks = loadTasks();
-    const now = new Date();
-    const enriched = tasks.map((t) => {
-      const eff = computeEffectiveState(t, tasks, now);
-      return Object.assign({}, t, {
-        effectiveState: eff.effectiveState,
-        readyAt: eff.readyAt || null,
-        scheduledDueAt: eff.scheduledDueAt || null,
-        overdue: !!eff.overdue,
-      });
-    });
-    res.json(enriched);
+    res.json(enrichTasksForClient(tasks));
   } catch (err) {
     console.error("GET /tasks error while enriching:", err);
     res.status(500).json({ error: "Internal error fetching tasks" });
@@ -828,25 +1228,35 @@ app.post("/tasks", requireAuth, async (req, res) => {
     const created = await enqueueMutation(async () => {
       const tasks = loadTasks();
 
-      const deps = Array.isArray(req.body.dependencies)
-        ? req.body.dependencies
-        : [];
-      const validDeps = deps.filter((d) => tasks.some((t) => t.id === d));
-      if (deps.length && validDeps.length !== deps.length) {
-        console.warn("POST /tasks: some dependencies were invalid and dropped");
-      }
-
-      const titleRaw = req.body.title || "Untitled Task";
-      const title = String(titleRaw).trim().slice(0, 200);
-      const description = (req.body.description || "").toString().trim();
+      const dependencies = normalizeDependencyIds(
+        req.body.dependencies || [],
+        tasks,
+      );
+      const title = normalizeText(
+        req.body.title || "Untitled Task",
+        "title",
+        200,
+        { allowEmpty: false },
+      );
+      const description = normalizeText(
+        req.body.description || "",
+        "description",
+        20000,
+      );
+      const scheduledDueAt = normalizeOptionalDate(
+        req.body.scheduledDueAt,
+        "scheduled due date",
+      );
+      const deadline = normalizeOptionalDate(req.body.deadline, "deadline");
 
       const newTask = {
         id: genId(),
-        title: title || "Untitled Task",
-        description: description || "",
+        title,
+        description,
         state: "Ready",
-        deadline: req.body.deadline || undefined,
-        dependencies: validDeps,
+        deadline: deadline || undefined,
+        scheduledDueAt: scheduledDueAt || undefined,
+        dependencies,
         picker: null,
         points_snapshot: undefined,
         picked_at: undefined,
@@ -855,36 +1265,22 @@ app.post("/tasks", requireAuth, async (req, res) => {
         updated_at: new Date().toISOString(),
         created_by: req.session.userId,
         meta: {},
-        timeCritical: !!req.body.timeCritical,
+        timeCritical:
+          "timeCritical" in req.body
+            ? normalizeBoolean(req.body.timeCritical, "timeCritical")
+            : false,
       };
 
-      // Only create recurrence when explicitly provided and not 'none'
-      if (req.body.recurrence && typeof req.body.recurrence === "object") {
-        if (req.body.recurrence.type && req.body.recurrence.type !== "none") {
-          newTask.recurrence = {};
-          const r = req.body.recurrence;
-          if (["rolling", "anchored"].includes(r.type))
-            newTask.recurrence.type = r.type;
-          if (Number.isFinite(Number(r.intervalDays)))
-            newTask.recurrence.intervalDays = Number(r.intervalDays);
-          if (Array.isArray(r.weekdays))
-            newTask.recurrence.weekdays = r.weekdays
-              .map((n) => Number(n))
-              .filter((x) => Number.isFinite(x));
-          if (Number.isFinite(Number(r.leadTimeDays)))
-            newTask.recurrence.leadTimeDays = Number(r.leadTimeDays);
-          if ("paused" in r) newTask.recurrence.paused = !!r.paused;
-        }
+      if (req.body.recurrence) {
+        const recurrence = normalizeRecurrence(req.body.recurrence);
+        if (recurrence) newTask.recurrence = recurrence;
       }
-
-      if (req.body.scheduledDueAt)
-        newTask.scheduledDueAt = req.body.scheduledDueAt;
       if ("leadTimeDays" in req.body) {
-        const v = Number(req.body.leadTimeDays);
-        if (Number.isFinite(v)) newTask.leadTimeDays = v;
+        newTask.leadTimeDays = normalizeNonNegativeNumber(
+          req.body.leadTimeDays,
+          "lead time",
+        );
       }
-      if (req.body.lastCompletedAt)
-        newTask.lastCompletedAt = req.body.lastCompletedAt;
 
       tasks.push(newTask);
       syncSuspendedStateFromDependencies(newTask, tasks);
@@ -892,9 +1288,8 @@ app.post("/tasks", requireAuth, async (req, res) => {
       recomputeAllPriorities(tasks);
       saveTasks(tasks);
 
-      // Return the updated task with computed priorities
       const updatedTask = tasks.find((t) => t.id === newTask.id);
-      return updatedTask || newTask;
+      return enrichTasksForClient(tasks).find((task) => task.id === newTask.id);
     });
     res.status(201).json(created);
   } catch (err) {
@@ -914,34 +1309,21 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
       if (!task) throw { status: 404, body: { error: "Task not found" } };
 
       const newState = req.body.state;
-      if (typeof newState !== "string" || !newState) {
-        throw {
-          status: 400,
-          body: { error: "Missing or invalid 'state' in body" },
-        };
+      if (!TASK_STATES.includes(newState)) {
+        throw requestError(`state must be one of: ${TASK_STATES.join(", ")}`);
       }
-
-      let newPickerRaw = "picker" in req.body ? req.body.picker : undefined;
-
-      // Auto-set picker to logged-in user when claiming task (moving to InProgress)
-      if (newState === "InProgress" && newPickerRaw === undefined) {
-        newPickerRaw = req.session.userId;
+      if ("picker" in req.body) {
+        throw requestError("picker is controlled by the server");
       }
+      const note =
+        newState === "Blocked"
+          ? normalizeText(req.body.note || "", "block note", 5000)
+          : "";
 
-      const newPicker =
-        typeof newPickerRaw === "string" ? newPickerRaw.trim() : newPickerRaw;
-      const note = req.body.note || "";
-
-      // actionability check with overdue exception
       const eff = computeEffectiveState(task, tasks, new Date());
-      const scheduledAt = parseDateSafe(task.scheduledDueAt);
-      const now = new Date();
-      const isOverdue = scheduledAt
-        ? now.getTime() >= scheduledAt.getTime()
-        : false;
 
       if (newState === "InProgress") {
-        if (eff.effectiveState !== "Ready" && !isOverdue) {
+        if (eff.effectiveState !== "Ready") {
           throw {
             status: 400,
             body: {
@@ -953,8 +1335,7 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
       if (newState === "Done") {
         if (
           task.state !== "InProgress" &&
-          eff.effectiveState !== "Ready" &&
-          !isOverdue
+          eff.effectiveState !== "Ready"
         ) {
           throw {
             status: 400,
@@ -977,16 +1358,16 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
       function persistAndReturn() {
         recomputeAllPriorities(tasks);
         saveTasks(tasks);
-        return task;
+        return enrichTasksForClient(tasks).find((candidate) => candidate.id === task.id);
       }
 
       if (newState === "InProgress") {
         const claimTs = new Date();
         const claimTsIso = claimTs.toISOString();
+        delete task.completionUndo;
         task.state = "InProgress";
-        if (newPicker !== undefined && newPicker !== "") {
-          task.picker = newPicker;
-        }
+        setBlockNote(task, "");
+        task.picker = req.session.userId;
         const snapshotOwnerRaw = task.points_snapshot_created_by;
         const snapshotOwner =
           typeof snapshotOwnerRaw === "string"
@@ -998,9 +1379,7 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
           claimTs.getTime() - unclaimedAt.getTime() >=
             SNAPSHOT_REFRESH_COOLDOWN_MS;
         const claimedByDifferentUser =
-          typeof newPicker === "string" &&
-          newPicker !== "" &&
-          newPicker !== snapshotOwner;
+          task.picker !== "" && task.picker !== snapshotOwner;
         const shouldRefreshSnapshot =
           typeof task.points_snapshot !== "number" ||
           claimedByDifferentUser ||
@@ -1015,7 +1394,7 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
               : task.priority || 0;
           task.points_snapshot = snap;
           task.points_snapshot_created_at = claimTsIso;
-          task.points_snapshot_created_by = task.picker || newPicker || null;
+          task.points_snapshot_created_by = task.picker;
           task.picked_at = claimTsIso;
           task.points_history = task.points_history || [];
           task.points_history.push({
@@ -1032,20 +1411,9 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
       }
 
       if (newState === "Blocked") {
-        if (wouldExceedWip(tasks, "Blocked", task.id)) {
-          throw {
-            status: 400,
-            body: {
-              error: `WIP limit exceeded for Blocked. Limit: ${WIP_LIMITS["Blocked"]}`,
-            },
-          };
-        }
+        delete task.completionUndo;
         task.state = "Blocked";
-        if (newPicker !== undefined && newPicker !== "") {
-          task.picker = newPicker;
-        }
-        task.meta = task.meta || {};
-        task.meta.block_note = note;
+        setBlockNote(task, note);
         const updatedAtIso = new Date().toISOString();
         clearClaimUnlessClaimRetained(task, tasks, new Date(updatedAtIso));
         task.updated_at = updatedAtIso;
@@ -1053,11 +1421,7 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
       }
 
       if (newState === "Done") {
-        const depsNotDone = (task.dependencies || []).some((depId) => {
-          const depTask = tasks.find((t) => t.id === depId);
-          return !depTask || depTask.state !== "Done";
-        });
-        if (depsNotDone) {
+        if (anyDependencyUnresolved(tasks, task)) {
           throw {
             status: 400,
             body: { error: "Cannot complete task: dependencies not done" },
@@ -1072,43 +1436,65 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
         const pickerKeyRaw = task.picker;
         const pickerKey =
           typeof pickerKeyRaw === "string" ? pickerKeyRaw.trim() : pickerKeyRaw;
+        const users = pickerKey ? loadUsers() : null;
 
         const completedAtIso = new Date().toISOString();
+        const completionId = `${task.id}:${completedAtIso}`;
+        const previousTask = cloneJson(task);
+        delete previousTask.completionUndo;
+        const completionUndo = {
+          version: 1,
+          completionId,
+          completedAt: completedAtIso,
+          previousTask,
+          releasedDependents: [],
+          award: null,
+        };
         task.lastCompletedAt = completedAtIso;
         task.state = "Done";
         task.updated_at = completedAtIso;
-        if (task.meta && "block_note" in task.meta) {
-          delete task.meta.block_note;
-        }
+        setBlockNote(task, "");
 
         tasks.forEach((t) => {
           if (
             t.state === "Suspended" &&
             (t.dependencies || []).includes(task.id)
           ) {
-            const allDepsDone = (t.dependencies || []).every((depId) => {
-              const depTask = tasks.find((x) => x.id === depId);
-              return depTask && depTask.state === "Done";
-            });
+            const allDepsDone = !anyDependencyUnresolved(tasks, t);
             if (allDepsDone) {
+              completionUndo.releasedDependents.push({
+                id: t.id,
+                previousState: t.state,
+                previousUpdatedAt: t.updated_at,
+                releasedAt: completedAtIso,
+              });
               t.state = "Ready";
-              t.updated_at = new Date().toISOString();
+              t.updated_at = completedAtIso;
             }
           }
         });
 
-        if (!wasBlocked && pickerKey && pointsToAward > 0) {
-          const user = awardPoints(
+        if (pickerKey) {
+          const awardedPoints = wasBlocked ? 0 : pointsToAward;
+          awardPoints(
+            users,
             pickerKey,
-            pointsToAward,
+            awardedPoints,
             `Completed task ${task.id} (${task.title})`,
+            { ts: completedAtIso, completionId },
           );
+          completionUndo.award = {
+            user: pickerKey,
+            points: awardedPoints,
+            completionId,
+          };
           task.awarded = {
             to: pickerKey,
-            points: pointsToAward,
-            ts: new Date().toISOString(),
+            points: awardedPoints,
+            reason: wasBlocked ? "blocked" : undefined,
+            ts: completedAtIso,
           };
-          task.points_snapshot_awarded = true;
+          task.points_snapshot_awarded = awardedPoints > 0;
         } else {
           task.awarded = {
             to: null,
@@ -1182,20 +1568,17 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
         }
 
         clearClaimUnlessClaimRetained(task, tasks, new Date(completedAtIso));
+        task.completionUndo = completionUndo;
         recomputeAllPriorities(tasks);
-        saveTasks(tasks);
-        return task;
+        if (users) saveTasksAndUsers(tasks, users);
+        else saveTasks(tasks);
+        return enrichTasksForClient(tasks).find((candidate) => candidate.id === task.id);
       }
 
+      delete task.completionUndo;
       task.state = newState;
-      if (newPicker !== undefined) {
-        if (newPicker === null || newPicker === "") {
-          // Unclaim the task
-          task.picker = null;
-          task.unclaimed_at = new Date().toISOString();
-        } else {
-          task.picker = newPicker;
-        }
+      if (newState !== "Blocked") {
+        setBlockNote(task, "");
       }
       const updatedAtIso = new Date().toISOString();
       clearClaimUnlessClaimRetained(task, tasks, new Date(updatedAtIso));
@@ -1203,7 +1586,7 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
 
       recomputeAllPriorities(tasks);
       saveTasks(tasks);
-      return task;
+      return enrichTasksForClient(tasks).find((candidate) => candidate.id === task.id);
     });
 
     if (result && result.status && result.body) {
@@ -1216,6 +1599,76 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
     }
     console.error("PATCH /tasks/:id/state error:", err);
     res.status(500).json({ error: "Internal error changing state" });
+  }
+});
+
+app.post("/tasks/:id/undo-complete", requireAuth, async (req, res) => {
+  try {
+    const restored = await enqueueMutation(async () => {
+      const tasks = loadTasks();
+      const task = tasks.find((candidate) => candidate.id === req.params.id);
+      if (!task) throw { status: 404, body: { error: "Task not found" } };
+
+      const undo = task.completionUndo;
+      if (!undo || !undo.previousTask || !undo.completedAt) {
+        throw {
+          status: 409,
+          body: { error: "This completion is no longer available to undo" },
+        };
+      }
+      if (task.updated_at !== undo.completedAt) {
+        throw {
+          status: 409,
+          body: { error: "Task changed after completion and cannot be undone" },
+        };
+      }
+      const changedDependent = (undo.releasedDependents || []).some(
+        (released) => {
+          const dependent = tasks.find(
+            (candidate) => candidate.id === released.id,
+          );
+          return (
+            dependent &&
+            (dependent.state !== "Ready" ||
+              dependent.updated_at !== released.releasedAt)
+          );
+        },
+      );
+      if (changedDependent) {
+        throw {
+          status: 409,
+          body: {
+            error: "A dependent task changed after completion and prevents undo",
+          },
+        };
+      }
+
+      let users = null;
+      if (undo.award) {
+        users = loadUsers();
+        const reversal = reverseCompletionAward(users, undo.award);
+        if (!reversal.reversed) {
+          throw {
+            status: 409,
+            body: { error: "Completion points changed and cannot be reversed" },
+          };
+        }
+      }
+
+      restoreTaskCompletion(task, tasks, new Date().toISOString());
+      recomputeAllPriorities(tasks);
+      if (users) saveTasksAndUsers(tasks, users);
+      else saveTasks(tasks);
+      return enrichTasksForClient(tasks).find(
+        (candidate) => candidate.id === task.id,
+      );
+    });
+    res.json(restored);
+  } catch (err) {
+    if (err && err.status && err.body)
+      return res.status(err.status).json(err.body);
+    console.error("POST /tasks/:id/undo-complete error:", err);
+    res.status(500).json({ error: "Internal error undoing completion" });
   }
 });
 
@@ -1236,15 +1689,18 @@ app.patch("/tasks/:id/block", requireAuth, async (req, res) => {
           },
         };
       }
+      delete task.completionUndo;
       task.state = "Blocked";
-      task.meta = task.meta || {};
-      task.meta.block_note = req.body.note || "";
+      setBlockNote(
+        task,
+        normalizeText(req.body.note || "", "block note", 5000),
+      );
       const updatedAtIso = new Date().toISOString();
       clearClaimUnlessClaimRetained(task, tasks, new Date(updatedAtIso));
       task.updated_at = updatedAtIso;
       recomputeAllPriorities(tasks);
       saveTasks(tasks);
-      return task;
+      return enrichTasksForClient(tasks).find((candidate) => candidate.id === task.id);
     });
     res.json(updated);
   } catch (err) {
@@ -1270,13 +1726,15 @@ app.patch("/tasks/:id/suspend", requireAuth, async (req, res) => {
           },
         };
       }
+      delete task.completionUndo;
       task.state = "Suspended";
+      setBlockNote(task, "");
       const updatedAtIso = new Date().toISOString();
       clearClaimUnlessClaimRetained(task, tasks, new Date(updatedAtIso));
       task.updated_at = updatedAtIso;
       recomputeAllPriorities(tasks);
       saveTasks(tasks);
-      return task;
+      return enrichTasksForClient(tasks).find((candidate) => candidate.id === task.id);
     });
     res.json(updated);
   } catch (err) {
@@ -1310,16 +1768,18 @@ app.post("/tasks/:id/dependencies", requireAuth, async (req, res) => {
 
       if (!task.dependencies) task.dependencies = [];
       if (!task.dependencies.includes(depId)) {
+        delete task.completionUndo;
         task.dependencies.push(depId);
-        task.updated_at = new Date().toISOString();
         syncSuspendedStateFromDependencies(task, tasks);
-        task.updated_at = new Date().toISOString();
+        const updatedAtIso = new Date().toISOString();
+        clearClaimUnlessClaimRetained(task, tasks, new Date(updatedAtIso));
+        task.updated_at = updatedAtIso;
 
         recomputeAllPriorities(tasks);
         saveTasks(tasks);
       }
 
-      return task;
+      return enrichTasksForClient(tasks).find((candidate) => candidate.id === task.id);
     });
     res.json(updated);
   } catch (err) {
@@ -1330,34 +1790,46 @@ app.post("/tasks/:id/dependencies", requireAuth, async (req, res) => {
   }
 });
 
-app.post("/tasks/:id/remedy", async (req, res) => {
+app.post("/tasks/:id/remedy", requireAuth, async (req, res) => {
   try {
     const result = await enqueueMutation(async () => {
       const tasks = loadTasks();
       const blockedTask = tasks.find((t) => t.id === req.params.id);
       if (!blockedTask)
         throw { status: 404, body: { error: "Blocked task not found" } };
+      if (computeEffectiveState(blockedTask, tasks).effectiveState !== "Blocked") {
+        throw {
+          status: 409,
+          body: { error: "A remedy can only be created for a blocked task" },
+        };
+      }
 
-      const deadline =
-        req.body.deadline !== undefined && req.body.deadline !== null
-          ? req.body.deadline
-          : blockedTask.deadline;
-      const scheduledDueAt =
-        req.body.scheduledDueAt !== undefined && req.body.scheduledDueAt !== null
+      const deadline = normalizeOptionalDate(
+        "deadline" in req.body ? req.body.deadline : blockedTask.deadline,
+        "deadline",
+      );
+      const scheduledDueAt = normalizeOptionalDate(
+        "scheduledDueAt" in req.body
           ? req.body.scheduledDueAt
-          : blockedTask.scheduledDueAt;
-      const description =
-        req.body.description && String(req.body.description).trim() !== ""
-          ? req.body.description
-          : `Remedy for: ${blockedTask.title}`;
-
-      const titleRaw = req.body.title || `Remedy for ${blockedTask.title}`;
-      const title = String(titleRaw).trim().slice(0, 200);
+          : blockedTask.scheduledDueAt,
+        "scheduled due date",
+      );
+      const description = normalizeText(
+        req.body.description || `Remedy for: ${blockedTask.title}`,
+        "description",
+        20000,
+      );
+      const title = normalizeText(
+        req.body.title || `Remedy for ${blockedTask.title}`,
+        "title",
+        200,
+        { allowEmpty: false },
+      );
 
       const newTask = {
         id: genId(),
-        title: title || `Remedy for ${blockedTask.title}`,
-        description: description || `Created to unblock: ${blockedTask.title}`,
+        title,
+        description,
         state: "Ready",
         deadline: deadline || undefined,
         scheduledDueAt: scheduledDueAt || undefined,
@@ -1379,12 +1851,19 @@ app.post("/tasks/:id/remedy", async (req, res) => {
       if (!blockedTask.dependencies.includes(newTask.id))
         blockedTask.dependencies.push(newTask.id);
       blockedTask.state = "Suspended";
-      blockedTask.updated_at = new Date().toISOString();
+      setBlockNote(blockedTask, "");
+      const updatedAtIso = new Date().toISOString();
+      clearTaskClaim(blockedTask, updatedAtIso);
+      blockedTask.updated_at = updatedAtIso;
 
       recomputeAllPriorities(tasks);
       saveTasks(tasks);
 
-      return { blockedTask, remedyTask: newTask };
+      const enriched = enrichTasksForClient(tasks);
+      return {
+        blockedTask: enriched.find((task) => task.id === blockedTask.id),
+        remedyTask: enriched.find((task) => task.id === newTask.id),
+      };
     });
 
     res.json(result);
@@ -1396,11 +1875,10 @@ app.post("/tasks/:id/remedy", async (req, res) => {
   }
 });
 
-app.get("/tasks/active", (req, res) => {
+app.get("/tasks/active", requireAuth, (req, res) => {
   const tasks = loadTasks();
-  const updated = computePriorities(tasks, new Date(), PRIORITY_CONFIG);
-  const activeTasks = updated
-    .filter((t) => ["Ready", "InProgress"].includes(t.state))
+  const activeTasks = enrichTasksForClient(tasks)
+    .filter((task) => ["Ready", "InProgress"].includes(task.effectiveState))
     .sort((a, b) => b.priority - a.priority);
   res.json(activeTasks);
 });
@@ -1419,28 +1897,8 @@ app.delete("/tasks/:id", requireAuth, async (req, res) => {
       const exists = tasks.some((t) => t.id === targetId);
       if (!exists) throw { status: 404, body: { error: "Task not found" } };
 
-      // Build lookup
-      const byId = new Map(tasks.map((t) => [t.id, t]));
-
-      // 1) Build the dependency closure (outgoing edges) from targetId.
-      // This is: target and every task that target depends on (recursively).
-      const closure = new Set();
-      const stack = [targetId];
-      while (stack.length) {
-        const id = stack.pop();
-        if (closure.has(id)) continue;
-        closure.add(id);
-        const t = byId.get(id);
-        if (!t || !Array.isArray(t.dependencies)) continue;
-        for (const depId of t.dependencies) {
-          if (!closure.has(depId)) stack.push(depId);
-        }
-      }
-
-      // 2) Find tasks outside closure that depend on the target (incoming edges).
-      const tasksOutsideClosure = tasks.filter((t) => !closure.has(t.id));
-      // If any outside task depends on targetId, we should warn and require confirm.
-      const incomingDependents = tasksOutsideClosure
+      const incomingDependents = tasks
+        .filter((task) => task.id !== targetId)
         .filter(
           (t) =>
             Array.isArray(t.dependencies) && t.dependencies.includes(targetId),
@@ -1448,7 +1906,6 @@ app.delete("/tasks/:id", requireAuth, async (req, res) => {
         .map((t) => ({ id: t.id, title: t.title, state: t.state }));
 
       if (incomingDependents.length && !confirm) {
-        // 409 Conflict + list of dependents so the frontend can prompt the user.
         throw {
           status: 409,
           body: {
@@ -1459,44 +1916,18 @@ app.delete("/tasks/:id", requireAuth, async (req, res) => {
         };
       }
 
-      // 3) Determine the actual set to delete.
-      // Rules:
-      //  - always delete the explicit target
-      //  - for other nodes in closure: delete them only if NO task outside the closure depends on them
-      const tasksOutside = tasks.filter((t) => !closure.has(t.id));
-      const hasExternalDep = (nodeId) =>
-        tasksOutside.some(
-          (t) =>
-            Array.isArray(t.dependencies) && t.dependencies.includes(nodeId),
-        );
-
-      const toDelete = new Set();
-      toDelete.add(targetId);
-      for (const id of closure) {
-        if (id === targetId) continue;
-        if (!hasExternalDep(id)) {
-          toDelete.add(id);
-        }
-      }
-
-      // 4) Remove toDelete from the tasks list
-      const beforeCount = tasks.length;
-      tasks = tasks.filter((t) => !toDelete.has(t.id));
-      const deleted = Array.from(toDelete);
-
-      // 5) Clean remaining tasks: strip deleted ids from dependencies and remedy_for.
-      //    If a task was suspended only because of a deleted dependency,
-      //    resume it so effective state can fall back to Ready/Waiting.
+      tasks = tasks.filter((task) => task.id !== targetId);
+      const adjusted = [];
       tasks.forEach((t) => {
         let changed = false;
         if (Array.isArray(t.dependencies)) {
-          const filtered = t.dependencies.filter((d) => !toDelete.has(d));
+          const filtered = t.dependencies.filter((dependencyId) => dependencyId !== targetId);
           if (filtered.length !== t.dependencies.length) {
             t.dependencies = filtered;
             changed = true;
           }
         }
-        if (t.remedy_for && toDelete.has(t.remedy_for)) {
+        if (t.remedy_for === targetId) {
           delete t.remedy_for;
           changed = true;
         }
@@ -1504,20 +1935,18 @@ app.delete("/tasks/:id", requireAuth, async (req, res) => {
         if (changed) {
           syncSuspendedStateFromDependencies(t, tasks);
           t.updated_at = new Date().toISOString();
+          adjusted.push({ id: t.id, title: t.title, state: t.state });
         }
       });
 
-      // 6) Recompute derived values and persist.
       recomputeAllPriorities(tasks);
       saveTasks(tasks);
 
       return {
         message: "Deleted",
-        deleted,
-        removed_count: beforeCount - tasks.length,
-        adjusted: tasks
-          .filter((t) => t.state === "blocked")
-          .map((t) => ({ id: t.id, title: t.title, state: t.state })),
+        deleted: [targetId],
+        removed_count: 1,
+        adjusted,
       };
     });
 
@@ -1537,59 +1966,72 @@ app.patch("/tasks/:id", requireAuth, async (req, res) => {
       const tasks = loadTasks();
       const task = tasks.find((t) => t.id === req.params.id);
       if (!task) throw { status: 404, body: { error: "Task not found" } };
+      if (typeof req.body.expectedUpdatedAt !== "string") {
+        throw requestError("expectedUpdatedAt is required", 428);
+      }
+      if (task.updated_at !== req.body.expectedUpdatedAt) {
+        throw requestError(
+          "Task changed since it was opened. Reload it before saving.",
+          409,
+        );
+      }
 
-      if (typeof req.body.title === "string") {
-        task.title = req.body.title.trim().slice(0, 200) || task.title;
+      delete task.completionUndo;
+
+      if ("title" in req.body) {
+        task.title = normalizeText(req.body.title, "title", 200, {
+          allowEmpty: false,
+        });
       }
       if ("description" in req.body) {
-        task.description = (req.body.description || "").toString().trim();
+        task.description = normalizeText(
+          req.body.description,
+          "description",
+          20000,
+        );
       }
       if ("scheduledDueAt" in req.body) {
-        task.scheduledDueAt = req.body.scheduledDueAt || null;
+        task.scheduledDueAt = normalizeOptionalDate(
+          req.body.scheduledDueAt,
+          "scheduled due date",
+        );
       }
       if ("leadTimeDays" in req.body) {
-        const v = Number(req.body.leadTimeDays);
-        task.leadTimeDays = Number.isFinite(v) ? v : task.leadTimeDays;
+        task.leadTimeDays = normalizeNonNegativeNumber(
+          req.body.leadTimeDays,
+          "lead time",
+        );
       }
       if ("timeCritical" in req.body) {
-        task.timeCritical = !!req.body.timeCritical;
+        task.timeCritical = normalizeBoolean(req.body.timeCritical, "timeCritical");
+      }
+      if ("blockNote" in req.body) {
+        const blockNote = normalizeText(
+          req.body.blockNote,
+          "block note",
+          5000,
+        );
+        if (blockNote && computeEffectiveState(task, tasks).effectiveState !== "Blocked") {
+          throw requestError("Only blocked tasks can have a block note");
+        }
+        setBlockNote(task, blockNote);
       }
 
       let recurrenceEdited = false;
-      if (req.body.recurrence && typeof req.body.recurrence === "object") {
-        recurrenceEdited = true;
-        // special-case: user explicitly selected 'none' to remove recurrence
-        if (req.body.recurrence.type === "none") {
+      if ("recurrence" in req.body) {
+        const previousRecurrence = JSON.stringify(task.recurrence || null);
+        const recurrence = normalizeRecurrence(
+          req.body.recurrence,
+          task.recurrence,
+        );
+        if (!recurrence) {
           delete task.recurrence;
         } else {
-          task.recurrence = task.recurrence || {};
+          task.recurrence = recurrence;
           delete task.leadTimeDays;
-          if ("leadTimeDays" in req.body.recurrence) {
-            const v = Number(req.body.recurrence.leadTimeDays);
-            task.recurrence.leadTimeDays = Number.isFinite(v)
-              ? v
-              : task.recurrence.leadTimeDays;
-          }
-          if ("paused" in req.body.recurrence) {
-            task.recurrence.paused = !!req.body.recurrence.paused;
-          }
-          if (typeof req.body.recurrence.type === "string") {
-            const tval = req.body.recurrence.type;
-            if (["rolling", "anchored"].includes(tval))
-              task.recurrence.type = tval;
-          }
-          if ("intervalDays" in req.body.recurrence) {
-            const iv = parseInt(req.body.recurrence.intervalDays, 10);
-            if (Number.isFinite(iv) && iv > 0)
-              task.recurrence.intervalDays = iv;
-          }
-          if (Array.isArray(req.body.recurrence.weekdays)) {
-            task.recurrence.weekdays = req.body.recurrence.weekdays
-              .slice(0, 7)
-              .map((n) => Number(n))
-              .filter((x) => Number.isFinite(x));
-          }
         }
+        recurrenceEdited =
+          previousRecurrence !== JSON.stringify(task.recurrence || null);
       }
 
       // anchored normalization only if recurrence edited and anchored selected
@@ -1625,29 +2067,15 @@ app.patch("/tasks/:id", requireAuth, async (req, res) => {
       }
 
       // Handle dependencies with cycle detection
-      if (Array.isArray(req.body.dependencies)) {
-        const newDeps = req.body.dependencies.filter((id) => {
-          return typeof id === "string" && id.trim() !== "";
-        });
+      if ("dependencies" in req.body) {
+        const newDeps = normalizeDependencyIds(
+          req.body.dependencies,
+          tasks,
+          task.id,
+        );
 
-        // Validate each dependency exists and check for cycles
         for (const depId of newDeps) {
-          if (depId === task.id) {
-            throw {
-              status: 400,
-              body: { error: "Task cannot depend on itself" },
-            };
-          }
-
           const depTask = tasks.find((t) => t.id === depId);
-          if (!depTask) {
-            throw {
-              status: 400,
-              body: { error: `Dependency task ${depId} not found` },
-            };
-          }
-
-          // Check if adding this dependency would create a cycle
           if (wouldCreateCycle(tasks, task.id, depId)) {
             throw {
               status: 400,
@@ -1668,7 +2096,7 @@ app.patch("/tasks/:id", requireAuth, async (req, res) => {
 
       recomputeAllPriorities(tasks);
       saveTasks(tasks);
-      return task;
+      return enrichTasksForClient(tasks).find((candidate) => candidate.id === task.id);
     });
 
     res.json(updated);
@@ -1682,7 +2110,7 @@ app.patch("/tasks/:id", requireAuth, async (req, res) => {
 
 /* -------------------- WIP limits endpoints -------------------- */
 
-app.get("/wip-limits", (req, res) => {
+app.get("/wip-limits", requireAuth, (req, res) => {
   try {
     const limits = loadWipLimits();
     res.json(limits);
@@ -1697,30 +2125,13 @@ app.patch("/wip-limits", requireAuth, async (req, res) => {
     const updated = await enqueueMutation(async () => {
       const limits = loadWipLimits();
 
-      // Update only provided limits
-      if (typeof req.body.Ready === "number" || req.body.Ready === null) {
-        limits.Ready = req.body.Ready;
-      }
-      if (
-        typeof req.body.InProgress === "number" ||
-        req.body.InProgress === null
-      ) {
-        limits.InProgress = req.body.InProgress;
-      }
-      if (typeof req.body.Blocked === "number" || req.body.Blocked === null) {
-        limits.Blocked = req.body.Blocked;
-      }
-      if (
-        typeof req.body.Suspended === "number" ||
-        req.body.Suspended === null
-      ) {
-        limits.Suspended = req.body.Suspended;
-      }
-      if (typeof req.body.Waiting === "number" || req.body.Waiting === null) {
-        limits.Waiting = req.body.Waiting;
-      }
-      if (typeof req.body.Done === "number" || req.body.Done === null) {
-        limits.Done = req.body.Done;
+      for (const state of TASK_STATES) {
+        if (!(state in req.body)) continue;
+        const value = req.body[state];
+        if (value !== null && (!Number.isInteger(value) || value < 0)) {
+          throw requestError(`${state} WIP limit must be a non-negative integer or null`);
+        }
+        limits[state] = value;
       }
 
       saveWipLimits(limits);
@@ -1730,44 +2141,85 @@ app.patch("/wip-limits", requireAuth, async (req, res) => {
 
     res.json(updated);
   } catch (err) {
+    if (err && err.status && err.body)
+      return res.status(err.status).json(err.body);
     console.error("PATCH /wip-limits error:", err);
     res.status(500).json({ error: "Internal error" });
   }
 });
 
-/* -------------------- server & periodic recompute -------------------- */
+app.use((error, req, res, next) => {
+  if (res.headersSent) return next(error);
+  if (error?.type === "entity.parse.failed") {
+    return res.status(400).json({ error: "Request body is not valid JSON" });
+  }
+  if (error?.type === "entity.too.large") {
+    return res.status(413).json({ error: "Request body is too large" });
+  }
+  console.error("Unhandled request error:", error);
+  res.status(500).json({ error: "Internal server error" });
+});
+
+/* -------------------- server & live updates -------------------- */
 
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.KANBAN_HOST || "127.0.0.1";
 const server = require("http").createServer(app);
 
-// WebSocket setup
-const wss = new WebSocketServer({ server });
-const clients = new Set();
+const wss = new WebSocketServer({ noServer: true, maxPayload: 64 * 1024 });
+const clients = new Map();
 
-wss.on("connection", (ws) => {
-  console.log("New WebSocket client connected");
-  clients.add(ws);
+function rejectWebSocket(socket, status, message) {
+  socket.write(
+    `HTTP/1.1 ${status} ${message}\r\nConnection: close\r\nContent-Length: 0\r\n\r\n`,
+  );
+  socket.destroy();
+}
 
-  // Send initial tasks on connection
+server.on("upgrade", (request, socket, head) => {
+  try {
+    const origin = request.headers.origin;
+    if (origin && new URL(origin).host !== request.headers.host) {
+      return rejectWebSocket(socket, 403, "Forbidden");
+    }
+  } catch (error) {
+    return rejectWebSocket(socket, 400, "Bad Request");
+  }
+
+  sessionMiddleware(request, {}, () => {
+    try {
+      const userId = request.session?.userId;
+      const users = loadUsers();
+      if (!userId || !users[userId]?.password) {
+        return rejectWebSocket(socket, 401, "Unauthorized");
+      }
+      wss.handleUpgrade(request, socket, head, (webSocket) => {
+        wss.emit("connection", webSocket, request);
+      });
+    } catch (error) {
+      console.error("WebSocket authentication failed:", error);
+      rejectWebSocket(socket, 500, "Internal Server Error");
+    }
+  });
+});
+
+wss.on("connection", (ws, request) => {
+  const client = {
+    sessionId: request.sessionID,
+    userId: request.session.userId,
+  };
+  clients.set(ws, client);
+
   try {
     const tasks = loadTasks();
-    const now = new Date();
-    const enriched = tasks.map((t) => {
-      const eff = computeEffectiveState(t, tasks, now);
-      return Object.assign({}, t, {
-        effectiveState: eff.effectiveState,
-        readyAt: eff.readyAt || null,
-        scheduledDueAt: eff.scheduledDueAt || null,
-        overdue: !!eff.overdue,
-      });
-    });
-    ws.send(JSON.stringify({ type: "tasks", data: enriched }));
+    ws.send(JSON.stringify({ type: "tasks", data: enrichTasksForClient(tasks) }));
   } catch (err) {
     console.error("Error sending initial tasks:", err);
   }
 
+  ws.on("message", () => ws.close(1008, "Read-only WebSocket"));
+
   ws.on("close", () => {
-    console.log("WebSocket client disconnected");
     clients.delete(ws);
   });
 
@@ -1777,58 +2229,80 @@ wss.on("connection", (ws) => {
   });
 });
 
-// Broadcast tasks update to all connected clients
 function broadcastTasksUpdate() {
   if (clients.size === 0) return;
 
   try {
     const tasks = loadTasks();
-    const now = new Date();
-    const enriched = tasks.map((t) => {
-      const eff = computeEffectiveState(t, tasks, now);
-      return Object.assign({}, t, {
-        effectiveState: eff.effectiveState,
-        readyAt: eff.readyAt || null,
-        scheduledDueAt: eff.scheduledDueAt || null,
-        overdue: !!eff.overdue,
-      });
+    const message = JSON.stringify({
+      type: "tasks",
+      data: enrichTasksForClient(tasks),
     });
-
-    const message = JSON.stringify({ type: "tasks", data: enriched });
-    clients.forEach((client) => {
-      if (client.readyState === 1) {
-        // 1 = OPEN
-        client.send(message);
-      }
+    clients.forEach((client, webSocket) => {
+      sessionStore.get(client.sessionId, (error, storedSession) => {
+        if (
+          error ||
+          !storedSession ||
+          storedSession.userId !== client.userId ||
+          webSocket.readyState !== 1
+        ) {
+          webSocket.close(1008, "Session expired");
+          return;
+        }
+        webSocket.send(message);
+      });
     });
   } catch (err) {
     console.error("Error broadcasting tasks:", err);
   }
 }
 
-function startServer() {
-  server.listen(PORT, "0.0.0.0", () => {
-    WIP_LIMITS = loadWipLimits();
-    console.log(`Server listening on port ${PORT}`);
-    console.log("WIP limits loaded:", WIP_LIMITS);
+function closeSessionSockets(sessionId) {
+  clients.forEach((client, webSocket) => {
+    if (client.sessionId === sessionId) webSocket.close(1008, "Logged out");
+  });
+}
+
+let stateRefreshTimer = null;
+function scheduleNextStateRefresh(tasks = null) {
+  if (stateRefreshTimer) clearTimeout(stateRefreshTimer);
+  stateRefreshTimer = null;
+  const currentTasks = tasks || loadTasks();
+  const nowMs = Date.now();
+  const nextTransitionMs = currentTasks
+    .map((task) => parseDateSafe(calcReadyAt(task))?.getTime())
+    .filter((timestamp) => Number.isFinite(timestamp) && timestamp > nowMs)
+    .sort((a, b) => a - b)[0];
+  if (!nextTransitionMs) return;
+  const delay = Math.min(nextTransitionMs - nowMs + 50, 2_147_000_000);
+  stateRefreshTimer = setTimeout(() => {
+    broadcastTasksUpdate();
+    try {
+      scheduleNextStateRefresh();
+    } catch (error) {
+      console.error("Failed to schedule task state refresh:", error);
+    }
+  }, delay);
+  stateRefreshTimer.unref();
+}
+
+let refreshTimer = null;
+function startServer(port = PORT, host = HOST) {
+  if (server.listening) return server;
+  WIP_LIMITS = loadWipLimits();
+  scheduleNextStateRefresh();
+  server.listen(Number(port), host, () => {
+    const address = server.address();
+    console.log(`Server listening on ${address.address}:${address.port}`);
   });
 
-  const recomputeTimer = setInterval(
+  refreshTimer = setInterval(
     () => {
-      enqueueMutation(async () => {
-        try {
-          recomputeAllPriorities();
-          console.log("Periodic recompute done:", new Date().toISOString());
-        } catch (err) {
-          console.error("Periodic recompute error:", err);
-        }
-      }).catch((err) =>
-        console.error("Periodic recompute enqueue failed:", err),
-      );
+      broadcastTasksUpdate();
     },
     10 * 60 * 1000,
   );
-  recomputeTimer.unref();
+  refreshTimer.unref();
 
   return server;
 }
@@ -1850,5 +2324,7 @@ module.exports = {
   recomputeAllPriorities,
   wouldExceedWip,
   clearClaimUnlessClaimRetained,
+  reverseCompletionAward,
+  restoreTaskCompletion,
   startServer,
 };

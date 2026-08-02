@@ -1,19 +1,27 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
+  "private": true,
+  "description": "File-backed collaborative kanban server",
   "main": "index.js",
   "scripts": {
-    "test": "node --test priority.test.js"
+    "start": "node index.js",
+    "test": "node --test *.test.js",
+    "backup": "node scripts/backup-data.js",
+    "backup:verify": "node scripts/verify-backup.js",
+    "data:audit": "node scripts/audit-data.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "express": "^5.2.1",
-    "express-session": "^1.18.2",
-    "ws": "^8.18.3"
+    "express-session": "^1.19.0",
+    "ws": "^8.21.1"
   }
 }
