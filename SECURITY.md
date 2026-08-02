@@ -2,27 +2,14 @@
 
 ## Historical task and account data
 
-Older commits contain runtime task data and bcrypt password hashes. The current
-tree no longer tracks those files, but removing a file from the current commit
-does not remove it from Git history.
+Before August 2, 2026, commits contained runtime task data and bcrypt password
+hashes. The `main` branch was rewritten and force-pushed on that date to remove
+the runtime data, old data backups, and committed dependency tree from every
+reachable commit.
 
-Treat the existing password hashes as exposed and rotate every account password
-after the history is cleaned. History rewriting must be coordinated because it
-changes commit IDs and requires a force-push plus fresh clones or careful resets
-for every user of the repository.
+Treat the historical password hashes as exposed until every account password
+has been changed. Any clone made before the rewrite can still contain the old
+objects and should be replaced with a fresh clone rather than pushed again.
 
-A maintainer can use `git filter-repo` to remove these paths after making a
-separate backup and notifying all repository users:
-
-```bash
-git filter-repo \
-  --path server/data/tasks.json \
-  --path server/data/users.json \
-  --path server/data/wip_limits.json \
-  --path server/backups/ \
-  --invert-paths
-```
-
-Review the rewritten repository before force-pushing all affected branches and
-tags. Do not consider the cleanup complete until old remote references are gone
-and all passwords have been changed.
+Each user can rotate their own password under `Settings` > `Account`. A
+successful change invalidates that account's other sessions.

@@ -117,6 +117,61 @@ test("authenticated WebSockets receive tasks and reject client messages", async 
   assert.equal(code, 1008);
 });
 
+test("password changes require the current password and revoke other sessions", async () => {
+  const secondLogin = await fetch(`${baseUrl}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: "reviewer", password: "correct-horse-42" }),
+  });
+  assert.equal(secondLogin.status, 200);
+  const secondCookie = secondLogin.headers.get("set-cookie").split(";", 1)[0];
+  const secondSocket = new WebSocket(baseUrl.replace("http:", "ws:"), {
+    headers: { Cookie: secondCookie },
+  });
+  await once(secondSocket, "message");
+  const secondSocketClosed = once(secondSocket, "close");
+
+  const incorrect = await jsonRequest("/auth/change-password", {
+    method: "POST",
+    body: JSON.stringify({
+      currentPassword: "wrong-password",
+      newPassword: "updated-horse-84",
+    }),
+  });
+  assert.equal(incorrect.response.status, 401);
+
+  const changedResponse = await request("/auth/change-password", {
+    method: "POST",
+    body: JSON.stringify({
+      currentPassword: "correct-horse-42",
+      newPassword: "updated-horse-84",
+    }),
+  });
+  assert.equal(changedResponse.status, 200);
+  sessionCookie = changedResponse.headers.get("set-cookie").split(";", 1)[0];
+
+  const [closeCode] = await secondSocketClosed;
+  assert.equal(closeCode, 1008);
+
+  const revoked = await fetch(`${baseUrl}/auth/whoami`, {
+    headers: { Cookie: secondCookie },
+  });
+  assert.equal((await revoked.json()).authenticated, false);
+
+  const oldLogin = await fetch(`${baseUrl}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: "reviewer", password: "correct-horse-42" }),
+  });
+  const newLogin = await fetch(`${baseUrl}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: "reviewer", password: "updated-horse-84" }),
+  });
+  assert.equal(oldLogin.status, 401);
+  assert.equal(newLogin.status, 200);
+});
+
 test("state and ownership are server controlled", async () => {
   const task = await createTask("Controlled state");
   const invalid = await jsonRequest(`/tasks/${task.id}/state`, {

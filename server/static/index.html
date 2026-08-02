@@ -1039,6 +1039,34 @@
                 <button id="saveSettings">Save</button>
                 <button id="cancelSettings" class="ghost">Cancel</button>
             </div>
+
+            <label style="margin-top: 24px">Account</label>
+            <input
+                id="currentPassword"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Current password"
+                style="width: 100%; margin-top: 8px"
+            />
+            <input
+                id="newPassword"
+                type="password"
+                autocomplete="new-password"
+                placeholder="New password"
+                minlength="10"
+                style="width: 100%; margin-top: 8px"
+            />
+            <input
+                id="confirmNewPassword"
+                type="password"
+                autocomplete="new-password"
+                placeholder="Confirm new password"
+                minlength="10"
+                style="width: 100%; margin-top: 8px"
+            />
+            <button id="changePassword" style="width: 100%; margin-top: 8px">
+                Change Password
+            </button>
         </div>
 
         <!-- Heatmap Modal -->
@@ -2741,8 +2769,55 @@
 
             function closeSettings() {
                 const modal = document.getElementById("settingsModal");
+                document.getElementById("currentPassword").value = "";
+                document.getElementById("newPassword").value = "";
+                document.getElementById("confirmNewPassword").value = "";
                 modal.style.display = "none";
                 modal.setAttribute("aria-hidden", "true");
+            }
+
+            async function changePassword() {
+                const currentPassword = document.getElementById(
+                    "currentPassword",
+                ).value;
+                const newPassword =
+                    document.getElementById("newPassword").value;
+                const confirmation = document.getElementById(
+                    "confirmNewPassword",
+                ).value;
+
+                if (!currentPassword) return toast("Enter your current password");
+                if (newPassword.length < 10) {
+                    return toast("New password must be at least 10 characters");
+                }
+                if (newPassword !== confirmation) {
+                    return toast("New passwords do not match");
+                }
+
+                try {
+                    const response = await fetch(
+                        `${API_ROOT}/auth/change-password`,
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                currentPassword,
+                                newPassword,
+                            }),
+                        },
+                    );
+                    const result = await response.json().catch(() => ({}));
+                    if (!response.ok) {
+                        return toast(result.error || "Password change failed");
+                    }
+                    document.getElementById("currentPassword").value = "";
+                    document.getElementById("newPassword").value = "";
+                    document.getElementById("confirmNewPassword").value = "";
+                    toast("Password changed; other sessions were signed out");
+                } catch (error) {
+                    console.error(error);
+                    toast("Password change hit a network error");
+                }
             }
 
             /* ---------------- Heatmap Functions ---------------- */
@@ -3066,6 +3141,9 @@
             document
                 .getElementById("saveSettings")
                 .addEventListener("click", saveSettings);
+            document
+                .getElementById("changePassword")
+                .addEventListener("click", changePassword);
 
             /* ---------------- Heatmap Event Listeners ---------------- */
             document

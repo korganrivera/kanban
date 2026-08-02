@@ -216,6 +216,22 @@ class JsonSessionStore extends session.Store {
       cb && cb(error);
     }
   }
+
+  destroyByUserId(userId, cb) {
+    try {
+      let changed = false;
+      for (const [sid, sess] of Object.entries(this.sessions)) {
+        if (sess?.userId === userId) {
+          delete this.sessions[sid];
+          changed = true;
+        }
+      }
+      if (changed) this.save();
+      cb && cb(null);
+    } catch (error) {
+      cb && cb(error);
+    }
+  }
 }
 
 const sessionStore = new JsonSessionStore(SESSIONS_FILE);
@@ -1123,6 +1139,69 @@ app.post("/auth/login", async (req, res) => {
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ error: "Login failed" });
+  }
+});
+
+app.post("/auth/change-password", requireAuth, async (req, res) => {
+  const rateLimitKey = checkAuthRateLimit(req, res);
+  if (!rateLimitKey) return;
+
+  const currentPassword = req.body.currentPassword;
+  const newPassword = req.body.newPassword;
+  if (
+    typeof currentPassword !== "string" ||
+    !currentPassword ||
+    currentPassword.length > 200
+  ) {
+    return res.status(400).json({ error: "Current password is required" });
+  }
+  if (
+    typeof newPassword !== "string" ||
+    newPassword.length < 10 ||
+    newPassword.length > 200
+  ) {
+    return res
+      .status(400)
+      .json({ error: "New password must be between 10 and 200 characters" });
+  }
+  if (currentPassword === newPassword) {
+    return res.status(400).json({ error: "New password must be different" });
+  }
+
+  const username = req.session.userId;
+  try {
+    await enqueueMutation(async () => {
+      const users = loadUsers();
+      const user = users[username];
+      const valid = await verifyPassword(
+        currentPassword,
+        user && typeof user.password === "string"
+          ? user.password
+          : DUMMY_PASSWORD_HASH,
+      );
+      if (!user || !valid) {
+        throw requestError("Current password is incorrect", 401);
+      }
+      user.password = await hashPassword(newPassword);
+      user.password_changed_at = new Date().toISOString();
+      saveUsers(users);
+    });
+
+    await new Promise((resolve, reject) => {
+      sessionStore.destroyByUserId(username, (error) =>
+        error ? reject(error) : resolve(),
+      );
+    });
+    closeUserSockets(username);
+    await establishSession(req, username);
+    clearAuthAttempts(rateLimitKey);
+    res.json({ success: true, username });
+  } catch (error) {
+    if (error?.status && error?.body) {
+      return res.status(error.status).json(error.body);
+    }
+    console.error("Change password error:", error);
+    res.status(500).json({ error: "Password change failed" });
   }
 });
 
@@ -2260,6 +2339,12 @@ function broadcastTasksUpdate() {
 function closeSessionSockets(sessionId) {
   clients.forEach((client, webSocket) => {
     if (client.sessionId === sessionId) webSocket.close(1008, "Logged out");
+  });
+}
+
+function closeUserSockets(userId) {
+  clients.forEach((client, webSocket) => {
+    if (client.userId === userId) webSocket.close(1008, "Password changed");
   });
 }
 
