@@ -1367,7 +1367,6 @@ app.post("/tasks", requireAuth, async (req, res) => {
       recomputeAllPriorities(tasks);
       saveTasks(tasks);
 
-      const updatedTask = tasks.find((t) => t.id === newTask.id);
       return enrichTasksForClient(tasks).find((task) => task.id === newTask.id);
     });
     res.status(201).json(created);
@@ -1751,124 +1750,6 @@ app.post("/tasks/:id/undo-complete", requireAuth, async (req, res) => {
   }
 });
 
-/* block/suspend/dependencies/remedy/delete handlers unchanged (keep existing semantics) */
-
-app.patch("/tasks/:id/block", requireAuth, async (req, res) => {
-  try {
-    const updated = await enqueueMutation(async () => {
-      const tasks = loadTasks();
-      const task = tasks.find((t) => t.id === req.params.id);
-      if (!task) throw { status: 404, body: { error: "Task not found" } };
-
-      if (wouldExceedWip(tasks, "Blocked", task.id)) {
-        throw {
-          status: 400,
-          body: {
-            error: `WIP limit exceeded for Blocked. Limit: ${WIP_LIMITS["Blocked"]}`,
-          },
-        };
-      }
-      delete task.completionUndo;
-      task.state = "Blocked";
-      setBlockNote(
-        task,
-        normalizeText(req.body.note || "", "block note", 5000),
-      );
-      const updatedAtIso = new Date().toISOString();
-      clearClaimUnlessClaimRetained(task, tasks, new Date(updatedAtIso));
-      task.updated_at = updatedAtIso;
-      recomputeAllPriorities(tasks);
-      saveTasks(tasks);
-      return enrichTasksForClient(tasks).find((candidate) => candidate.id === task.id);
-    });
-    res.json(updated);
-  } catch (err) {
-    if (err && err.status && err.body)
-      return res.status(err.status).json(err.body);
-    console.error("PATCH /tasks/:id/block error:", err);
-    res.status(500).json({ error: "Internal error" });
-  }
-});
-
-app.patch("/tasks/:id/suspend", requireAuth, async (req, res) => {
-  try {
-    const updated = await enqueueMutation(async () => {
-      const tasks = loadTasks();
-      const task = tasks.find((t) => t.id === req.params.id);
-      if (!task) throw { status: 404, body: { error: "Task not found" } };
-
-      if (wouldExceedWip(tasks, "Suspended", task.id)) {
-        throw {
-          status: 400,
-          body: {
-            error: `WIP limit exceeded for Suspended. Limit: ${WIP_LIMITS["Suspended"]}`,
-          },
-        };
-      }
-      delete task.completionUndo;
-      task.state = "Suspended";
-      setBlockNote(task, "");
-      const updatedAtIso = new Date().toISOString();
-      clearClaimUnlessClaimRetained(task, tasks, new Date(updatedAtIso));
-      task.updated_at = updatedAtIso;
-      recomputeAllPriorities(tasks);
-      saveTasks(tasks);
-      return enrichTasksForClient(tasks).find((candidate) => candidate.id === task.id);
-    });
-    res.json(updated);
-  } catch (err) {
-    if (err && err.status && err.body)
-      return res.status(err.status).json(err.body);
-    console.error("PATCH /tasks/:id/suspend error:", err);
-    res.status(500).json({ error: "Internal error" });
-  }
-});
-
-app.post("/tasks/:id/dependencies", requireAuth, async (req, res) => {
-  try {
-    const updated = await enqueueMutation(async () => {
-      const tasks = loadTasks();
-      const task = tasks.find((t) => t.id === req.params.id);
-      if (!task) throw { status: 404, body: { error: "Task not found" } };
-
-      const depId = req.body.dependencyId;
-      if (!depId || !tasks.find((t) => t.id === depId)) {
-        throw { status: 400, body: { error: "Dependency task not found" } };
-      }
-      if (depId === task.id)
-        throw { status: 400, body: { error: "Task cannot depend on itself" } };
-
-      if (wouldCreateCycle(tasks, task.id, depId)) {
-        throw {
-          status: 400,
-          body: { error: "Adding this dependency would create a cycle" },
-        };
-      }
-
-      if (!task.dependencies) task.dependencies = [];
-      if (!task.dependencies.includes(depId)) {
-        delete task.completionUndo;
-        task.dependencies.push(depId);
-        syncSuspendedStateFromDependencies(task, tasks);
-        const updatedAtIso = new Date().toISOString();
-        clearClaimUnlessClaimRetained(task, tasks, new Date(updatedAtIso));
-        task.updated_at = updatedAtIso;
-
-        recomputeAllPriorities(tasks);
-        saveTasks(tasks);
-      }
-
-      return enrichTasksForClient(tasks).find((candidate) => candidate.id === task.id);
-    });
-    res.json(updated);
-  } catch (err) {
-    if (err && err.status && err.body)
-      return res.status(err.status).json(err.body);
-    console.error("POST /tasks/:id/dependencies error:", err);
-    res.status(500).json({ error: "Internal error" });
-  }
-});
-
 app.post("/tasks/:id/remedy", requireAuth, async (req, res) => {
   try {
     const result = await enqueueMutation(async () => {
@@ -1952,14 +1833,6 @@ app.post("/tasks/:id/remedy", requireAuth, async (req, res) => {
     console.error("POST /tasks/:id/remedy error:", err);
     res.status(500).json({ error: "Internal error" });
   }
-});
-
-app.get("/tasks/active", requireAuth, (req, res) => {
-  const tasks = loadTasks();
-  const activeTasks = enrichTasksForClient(tasks)
-    .filter((task) => ["Ready", "InProgress"].includes(task.effectiveState))
-    .sort((a, b) => b.priority - a.priority);
-  res.json(activeTasks);
 });
 
 app.delete("/tasks/:id", requireAuth, async (req, res) => {
@@ -2371,7 +2244,6 @@ function scheduleNextStateRefresh(tasks = null) {
   stateRefreshTimer.unref();
 }
 
-let refreshTimer = null;
 function startServer(port = PORT, host = HOST) {
   if (server.listening) return server;
   WIP_LIMITS = loadWipLimits();
@@ -2380,15 +2252,6 @@ function startServer(port = PORT, host = HOST) {
     const address = server.address();
     console.log(`Server listening on ${address.address}:${address.port}`);
   });
-
-  refreshTimer = setInterval(
-    () => {
-      broadcastTasksUpdate();
-    },
-    10 * 60 * 1000,
-  );
-  refreshTimer.unref();
-
   return server;
 }
 
