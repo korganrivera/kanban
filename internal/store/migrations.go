@@ -66,6 +66,25 @@ var migrations = []string{
 	 ALTER TABLE task_occurrences ADD COLUMN previous_points_snapshot_at TEXT;
 	 ALTER TABLE task_occurrences ADD COLUMN previous_unclaimed_at TEXT;`,
 	`ALTER TABLE tasks ADD COLUMN deadline TEXT;`,
+	`DROP INDEX idx_point_entries_user_time;
+	 DROP INDEX idx_point_entries_task;
+	 ALTER TABLE point_entries RENAME TO completion_entries;
+	 ALTER TABLE completion_entries DROP COLUMN points;
+	 ALTER TABLE completion_entries DROP COLUMN reason;
+	 ALTER TABLE completion_entries RENAME COLUMN occurred_at TO completed_at;
+	 CREATE INDEX idx_completion_entries_user_time ON completion_entries(username, completed_at DESC);
+	 CREATE INDEX idx_completion_entries_task ON completion_entries(task_id);
+	 ALTER TABLE task_occurrences RENAME COLUMN award_entry_id TO completion_entry_id;
+	 ALTER TABLE task_occurrences DROP COLUMN previous_points_snapshot;
+	 ALTER TABLE task_occurrences DROP COLUMN previous_points_snapshot_by;
+	 ALTER TABLE task_occurrences DROP COLUMN previous_points_snapshot_at;
+	 ALTER TABLE task_occurrences DROP COLUMN previous_unclaimed_at;
+	 DROP TABLE task_point_snapshots;
+	 ALTER TABLE tasks DROP COLUMN points_snapshot;
+	 ALTER TABLE tasks DROP COLUMN points_snapshot_by;
+	 ALTER TABLE tasks DROP COLUMN points_snapshot_at;
+	 ALTER TABLE tasks DROP COLUMN unclaimed_at;
+	 ALTER TABLE users DROP COLUMN points;`,
 }
 
 func migrate(db *sql.DB) error {

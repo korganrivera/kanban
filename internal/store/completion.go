@@ -9,17 +9,15 @@ type CompletionEntry struct {
 	ID         string    `json:"id"`
 	TaskID     string    `json:"taskId"`
 	TaskTitle  string    `json:"taskTitle"`
-	Points     int       `json:"points"`
-	Reason     string    `json:"reason"`
 	OccurredAt time.Time `json:"occurredAt"`
 }
 
 func (store *Store) CompletionHistory(ctx context.Context, username string) ([]CompletionEntry, error) {
 	rows, err := store.db.QueryContext(ctx, `
-		SELECT id, task_id, task_title, points, reason, occurred_at
-		FROM point_entries
+		SELECT id, task_id, task_title, completed_at
+		FROM completion_entries
 		WHERE username = ? AND reversed_at IS NULL
-		ORDER BY occurred_at DESC, id DESC`, username,
+		ORDER BY completed_at DESC, id DESC`, username,
 	)
 	if err != nil {
 		return nil, err
@@ -30,7 +28,7 @@ func (store *Store) CompletionHistory(ctx context.Context, username string) ([]C
 		var entry CompletionEntry
 		var occurredAt string
 		if err := rows.Scan(
-			&entry.ID, &entry.TaskID, &entry.TaskTitle, &entry.Points, &entry.Reason, &occurredAt,
+			&entry.ID, &entry.TaskID, &entry.TaskTitle, &occurredAt,
 		); err != nil {
 			return nil, err
 		}

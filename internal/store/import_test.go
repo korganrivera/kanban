@@ -27,7 +27,7 @@ func TestImportLegacyPreservesDataAndExactUndo(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if report.Tasks != 8 || report.Users != 2 || report.PointEntries != 1 || report.PointSnapshots != 1 {
+	if report.Tasks != 8 || report.Users != 2 || report.CompletionEntries != 1 {
 		t.Fatalf("import report = %#v", report)
 	}
 	if report.UndoImported != 1 || report.UndoSkipped != 0 {
@@ -38,7 +38,7 @@ func TestImportLegacyPreservesDataAndExactUndo(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if user.Points != 7 || user.PasswordHash != bundle.Users[0].PasswordHash {
+	if user.PasswordHash != bundle.Users[0].PasswordHash {
 		t.Fatalf("imported user = %#v", user)
 	}
 	blocked, err := store.Get(ctx, "task-blocked")
@@ -59,8 +59,8 @@ func TestImportLegacyPreservesDataAndExactUndo(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !done.CanUndo || done.Awarded == nil || done.Awarded.To != "alice" || done.Awarded.Points != 7 {
-		t.Fatalf("imported completion metadata = undo %v, award %#v", done.CanUndo, done.Awarded)
+	if !done.CanUndo || done.ClaimedBy == nil || *done.ClaimedBy != "alice" {
+		t.Fatalf("imported completion metadata = undo %v, owner %v", done.CanUndo, done.ClaimedBy)
 	}
 	done, err = store.Action(ctx, done.ID, "undo", "alice", board.ActionInput{Version: done.Version})
 	if err != nil {
@@ -68,13 +68,6 @@ func TestImportLegacyPreservesDataAndExactUndo(t *testing.T) {
 	}
 	if done.EffectiveState != board.StateInProgress || done.ClaimedBy == nil || *done.ClaimedBy != "alice" {
 		t.Fatalf("restored task = state %s, owner %v", done.EffectiveState, done.ClaimedBy)
-	}
-	user, err = store.User(ctx, "alice")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if user.Points != 0 {
-		t.Fatalf("points after imported undo = %d", user.Points)
 	}
 	history, err := store.CompletionHistory(ctx, "alice")
 	if err != nil {

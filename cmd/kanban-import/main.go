@@ -85,9 +85,9 @@ func main() {
 func printText(result output) {
 	fmt.Printf("Legacy import %s\n", result.Mode)
 	fmt.Printf("Source: %s\n", result.Source)
-	fmt.Printf("Tasks: %d\nUsers: %d\nPoint entries: %d\nPoint snapshots: %d\nUndo candidates: %d\n",
-		result.SourceData.Tasks, result.SourceData.Users, result.SourceData.PointEntries,
-		result.SourceData.PointSnapshots, result.SourceData.UndoCandidates,
+	fmt.Printf("Tasks: %d\nUsers: %d\nCompletion entries: %d\nUndo candidates: %d\n",
+		result.SourceData.Tasks, result.SourceData.Users, result.SourceData.CompletionEntries,
+		result.SourceData.UndoCandidates,
 	)
 	if result.Imported != nil {
 		fmt.Printf("Database: %s\nBackup: %s\nUndo imported: %d\nUndo skipped: %d\n",

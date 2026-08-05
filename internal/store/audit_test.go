@@ -28,14 +28,14 @@ func TestAuditChecksDatabaseAndDomainInvariants(t *testing.T) {
 		t.Fatalf("clean audit = %#v", report)
 	}
 
-	if _, err := store.db.ExecContext(ctx, `UPDATE users SET points = points + 1 WHERE username = 'alice'`); err != nil {
+	if _, err := store.db.ExecContext(ctx, `UPDATE completion_entries SET reversed_at = '2026-08-05T13:00:00Z'`); err != nil {
 		t.Fatal(err)
 	}
 	report, err = store.Audit(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if report.OK || len(report.Findings) == 0 || !strings.Contains(report.Findings[0], "point total mismatch") {
+	if report.OK || len(report.Findings) == 0 || !strings.Contains(report.Findings[0], "reversed history") {
 		t.Fatalf("corrupt domain audit = %#v", report)
 	}
 }

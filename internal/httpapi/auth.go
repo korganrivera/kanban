@@ -221,7 +221,6 @@ func (server *Server) me(response http.ResponseWriter, request *http.Request) {
 		writeJSON(response, http.StatusOK, map[string]any{
 			"authenticated": true,
 			"username":      server.config.Actor,
-			"points":        0,
 		})
 		return
 	}
@@ -337,7 +336,7 @@ func hashToken(token string) string {
 }
 
 func publicUser(user *store.User) map[string]any {
-	return map[string]any{"username": user.Username, "points": user.Points}
+	return map[string]any{"username": user.Username}
 }
 
 func validatePassword(password string) error {

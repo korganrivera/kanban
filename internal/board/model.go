@@ -53,12 +53,6 @@ type Task struct {
 	CreatedBy       *string        `json:"createdBy"`
 	ClaimedBy       *string        `json:"claimedBy"`
 	ClaimedAt       *time.Time     `json:"claimedAt"`
-	UnclaimedAt     *time.Time     `json:"-"`
-	PointsSnapshot  *int           `json:"pointsSnapshot"`
-	SnapshotBy      *string        `json:"pointsSnapshotCreatedBy"`
-	SnapshotAt      *time.Time     `json:"pointsSnapshotCreatedAt"`
-	SnapshotAwarded bool           `json:"pointsSnapshotAwarded"`
-	Awarded         *PointAward    `json:"awarded"`
 	BlockNote       string         `json:"blockNote"`
 	LastCompletedAt *time.Time     `json:"lastCompletedAt"`
 	CreatedAt       time.Time      `json:"createdAt"`
@@ -69,12 +63,6 @@ type Task struct {
 	Importance      float64        `json:"importance"`
 	Urgency         float64        `json:"urgency"`
 	Deadlock        bool           `json:"deadlock"`
-}
-
-type PointAward struct {
-	To     string    `json:"to"`
-	Points int       `json:"points"`
-	At     time.Time `json:"at"`
 }
 
 type TaskInput struct {

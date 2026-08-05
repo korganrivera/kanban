@@ -10,11 +10,10 @@ database:
 
 - 222 tasks imported
 - 8 users imported, including one attribution-only synthetic user
-- 315 completion point entries imported
-- 276 claim-time point snapshots imported
-- 12 current completion undo records converted
+- 317 completion history entries imported without legacy scores
+- 14 current completion undo records converted
 - 1 undo record skipped because its task was edited after completion
-- All foreign keys, ownership rules, point totals, WIP rows, and dependency
+- All foreign keys, ownership rules, WIP rows, and dependency
   cycles passed the post-import audit
 
 The importer also preserves the existing bcrypt password hashes. Attribution-
@@ -30,11 +29,11 @@ only users have no password and cannot log in.
 5. Run the importer with `--apply --replace`. Keep the generated pre-import
    SQLite backup.
 6. Run `bin/kanban-admin audit --data-dir data`.
-7. Confirm task, user, point-entry, point-snapshot, and undo counts against the
+7. Confirm task, user, completion-entry, and undo counts against the
    dry-run report.
 8. Start the Go service and verify login, all six columns, claim/release,
    claim-before-complete, undo, scheduling, recurrence, dependencies,
-   block notes, remedies, deletion, WIP limits, points, history, and live
+   block notes, remedies, deletion, WIP limits, history, and live
    updates in desktop and mobile layouts.
 9. Create and verify the first post-migration backup before ending the write
    freeze.

@@ -261,13 +261,6 @@ button.danger {
     white-space: nowrap;
 }
 
-.current-points {
-    color: var(--text);
-    font-size: 12px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-
 input,
 textarea,
 select {

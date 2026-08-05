@@ -19,13 +19,12 @@ type Bundle struct {
 }
 
 type Report struct {
-	Tasks          int      `json:"tasks"`
-	Users          int      `json:"users"`
-	PointEntries   int      `json:"pointEntries"`
-	PointSnapshots int      `json:"pointSnapshots"`
-	UndoCandidates int      `json:"undoCandidates"`
-	SyntheticUsers int      `json:"syntheticUsers"`
-	Warnings       []string `json:"warnings"`
+	Tasks             int      `json:"tasks"`
+	Users             int      `json:"users"`
+	CompletionEntries int      `json:"completionEntries"`
+	UndoCandidates    int      `json:"undoCandidates"`
+	SyntheticUsers    int      `json:"syntheticUsers"`
+	Warnings          []string `json:"warnings"`
 }
 
 type Task struct {
@@ -40,7 +39,6 @@ type Task struct {
 	Recurrence     Recurrence
 	Picker         *string
 	PickedAt       *time.Time
-	UnclaimedAt    *time.Time
 	BlockNote      string
 	LastCompleted  *time.Time
 	CreatedAt      time.Time
@@ -48,10 +46,6 @@ type Task struct {
 	CreatedBy      *string
 	TimeCritical   bool
 	RemedyFor      *string
-	PointsSnapshot *int
-	SnapshotBy     *string
-	SnapshotAt     *time.Time
-	Snapshots      []PointSnapshot
 	CompletionUndo *CompletionUndo
 }
 
@@ -62,44 +56,31 @@ type Recurrence struct {
 	Paused   bool
 }
 
-type PointSnapshot struct {
-	Points    int
-	Username  string
-	CreatedAt time.Time
-}
-
 type CompletionUndo struct {
-	CompletionID string
-	CompletedAt  time.Time
-	Previous     UndoTask
-	AwardUser    string
+	CompletionID   string
+	CompletedAt    time.Time
+	Previous       UndoTask
+	CompletionUser string
 }
 
 type UndoTask struct {
-	State          string
-	ScheduledAt    *time.Time
-	Picker         *string
-	PickedAt       *time.Time
-	LastCompleted  *time.Time
-	PointsSnapshot *int
-	SnapshotBy     *string
-	SnapshotAt     *time.Time
-	UnclaimedAt    *time.Time
+	State         string
+	ScheduledAt   *time.Time
+	Picker        *string
+	PickedAt      *time.Time
+	LastCompleted *time.Time
 }
 
 type User struct {
 	Username          string
 	PasswordHash      string
-	Points            int
 	CreatedAt         time.Time
 	PasswordChangedAt *time.Time
-	History           []PointEntry
+	History           []CompletionEntry
 }
 
-type PointEntry struct {
+type CompletionEntry struct {
 	OccurredAt   time.Time
-	Points       int
-	Reason       string
 	CompletionID string
 	TaskID       string
 	TaskTitle    string
@@ -117,7 +98,6 @@ type rawTask struct {
 	Recurrence     *rawRecurrence     `json:"recurrence"`
 	Picker         *string            `json:"picker"`
 	PickedAt       *string            `json:"picked_at"`
-	UnclaimedAt    *string            `json:"unclaimed_at"`
 	Meta           rawMeta            `json:"meta"`
 	LastCompleted  *string            `json:"lastCompletedAt"`
 	CreatedAt      string             `json:"created_at"`
@@ -125,10 +105,6 @@ type rawTask struct {
 	CreatedBy      *string            `json:"created_by"`
 	TimeCritical   bool               `json:"timeCritical"`
 	RemedyFor      *string            `json:"remedy_for"`
-	PointsSnapshot *float64           `json:"points_snapshot"`
-	SnapshotBy     *string            `json:"points_snapshot_created_by"`
-	SnapshotAt     *string            `json:"points_snapshot_created_at"`
-	PointsHistory  []rawSnapshot      `json:"points_history"`
 	CompletionUndo *rawCompletionUndo `json:"completionUndo"`
 }
 
@@ -144,12 +120,6 @@ type rawMeta struct {
 	BlockNote string `json:"block_note"`
 }
 
-type rawSnapshot struct {
-	Timestamp string  `json:"ts"`
-	Points    float64 `json:"snapshot"`
-	Username  string  `json:"by"`
-}
-
 type rawCompletionUndo struct {
 	CompletionID string          `json:"completionId"`
 	CompletedAt  string          `json:"completedAt"`
@@ -163,17 +133,15 @@ type rawAward struct {
 }
 
 type rawUser struct {
-	Username          string          `json:"username"`
-	PasswordHash      string          `json:"password"`
-	Points            int             `json:"points"`
-	CreatedAt         string          `json:"created_at"`
-	PasswordChangedAt *string         `json:"password_changed_at"`
-	History           []rawPointEntry `json:"history"`
+	Username          string               `json:"username"`
+	PasswordHash      string               `json:"password"`
+	CreatedAt         string               `json:"created_at"`
+	PasswordChangedAt *string              `json:"password_changed_at"`
+	History           []rawCompletionEntry `json:"history"`
 }
 
-type rawPointEntry struct {
+type rawCompletionEntry struct {
 	Timestamp    string `json:"ts"`
-	Points       int    `json:"points"`
 	Reason       string `json:"reason"`
 	CompletionID string `json:"completionId"`
 }
@@ -199,7 +167,6 @@ func Load(sourceDir string) (*Bundle, error) {
 			return nil, fmt.Errorf("task %d (%q): %w", index, raw.ID, err)
 		}
 		bundle.Tasks = append(bundle.Tasks, task)
-		bundle.Report.PointSnapshots += len(task.Snapshots)
 		if task.CompletionUndo != nil {
 			bundle.Report.UndoCandidates++
 		}
@@ -216,7 +183,7 @@ func Load(sourceDir string) (*Bundle, error) {
 			return nil, err
 		}
 		bundle.Users = append(bundle.Users, user)
-		bundle.Report.PointEntries += len(user.History)
+		bundle.Report.CompletionEntries += len(user.History)
 		bundle.Report.Warnings = append(bundle.Report.Warnings, warnings...)
 	}
 	ensureReferencedUsers(bundle)
@@ -242,7 +209,7 @@ func normalizeTask(raw rawTask) (Task, error) {
 		State: raw.State, Dependencies: cleanStrings(raw.Dependencies), LeadDays: raw.LeadDays,
 		Picker: cleanString(raw.Picker), BlockNote: strings.TrimSpace(raw.Meta.BlockNote),
 		CreatedAt: createdAt, UpdatedAt: updatedAt, CreatedBy: cleanString(raw.CreatedBy),
-		TimeCritical: raw.TimeCritical, RemedyFor: cleanString(raw.RemedyFor), SnapshotBy: cleanString(raw.SnapshotBy),
+		TimeCritical: raw.TimeCritical, RemedyFor: cleanString(raw.RemedyFor),
 	}
 	if task.ID == "" || task.Title == "" {
 		return Task{}, errors.New("id and title are required")
@@ -256,18 +223,8 @@ func normalizeTask(raw rawTask) (Task, error) {
 	if task.PickedAt, err = optionalTime(raw.PickedAt); err != nil {
 		return Task{}, fmt.Errorf("picked_at: %w", err)
 	}
-	if task.UnclaimedAt, err = optionalTime(raw.UnclaimedAt); err != nil {
-		return Task{}, fmt.Errorf("unclaimed_at: %w", err)
-	}
 	if task.LastCompleted, err = optionalTime(raw.LastCompleted); err != nil {
 		return Task{}, fmt.Errorf("lastCompletedAt: %w", err)
-	}
-	if task.SnapshotAt, err = optionalTime(raw.SnapshotAt); err != nil {
-		return Task{}, fmt.Errorf("points snapshot time: %w", err)
-	}
-	if raw.PointsSnapshot != nil {
-		value := roundedNonnegative(*raw.PointsSnapshot)
-		task.PointsSnapshot = &value
 	}
 	if raw.Recurrence != nil {
 		task.Recurrence = Recurrence{Kind: raw.Recurrence.Kind, Days: raw.Recurrence.Days, Weekdays: raw.Recurrence.Weekdays, Paused: raw.Recurrence.Paused}
@@ -275,16 +232,6 @@ func normalizeTask(raw rawTask) (Task, error) {
 	}
 	if task.Recurrence.Kind == "" {
 		task.Recurrence.Kind = "none"
-	}
-	for _, rawSnapshot := range raw.PointsHistory {
-		createdAt, err := requiredTime(rawSnapshot.Timestamp, "snapshot timestamp")
-		if err != nil {
-			return Task{}, err
-		}
-		username := strings.TrimSpace(rawSnapshot.Username)
-		if username != "" {
-			task.Snapshots = append(task.Snapshots, PointSnapshot{Points: roundedNonnegative(rawSnapshot.Points), Username: username, CreatedAt: createdAt})
-		}
 	}
 	if raw.CompletionUndo != nil {
 		undo, err := normalizeUndo(*raw.CompletionUndo)
@@ -317,12 +264,10 @@ func normalizeUndo(raw rawCompletionUndo) (*CompletionUndo, error) {
 		Previous: UndoTask{
 			State: previousTask.State, ScheduledAt: previousTask.ScheduledAt, Picker: previousTask.Picker,
 			PickedAt: previousTask.PickedAt, LastCompleted: previousTask.LastCompleted,
-			PointsSnapshot: previousTask.PointsSnapshot, SnapshotBy: previousTask.SnapshotBy,
-			SnapshotAt: previousTask.SnapshotAt, UnclaimedAt: previousTask.UnclaimedAt,
 		},
 	}
 	if raw.Award != nil {
-		undo.AwardUser = strings.TrimSpace(raw.Award.User)
+		undo.CompletionUser = strings.TrimSpace(raw.Award.User)
 		if undo.CompletionID == "" {
 			undo.CompletionID = strings.TrimSpace(raw.Award.CompletionID)
 		}
@@ -338,7 +283,7 @@ func normalizeUser(key string, raw rawUser) (User, []string, error) {
 	if username == "" {
 		return User{}, nil, errors.New("legacy user has no username")
 	}
-	user := User{Username: username, PasswordHash: raw.PasswordHash, Points: raw.Points}
+	user := User{Username: username, PasswordHash: raw.PasswordHash}
 	warnings := []string{}
 	for index, rawEntry := range raw.History {
 		occurredAt, err := requiredTime(rawEntry.Timestamp, "history timestamp")
@@ -346,8 +291,8 @@ func normalizeUser(key string, raw rawUser) (User, []string, error) {
 			return User{}, nil, fmt.Errorf("user %q history %d: %w", username, index, err)
 		}
 		taskID, taskTitle := parseCompletionReason(rawEntry.Reason)
-		user.History = append(user.History, PointEntry{
-			OccurredAt: occurredAt, Points: max(rawEntry.Points, 0), Reason: rawEntry.Reason,
+		user.History = append(user.History, CompletionEntry{
+			OccurredAt:   occurredAt,
 			CompletionID: rawEntry.CompletionID, TaskID: taskID, TaskTitle: taskTitle,
 		})
 	}
@@ -364,7 +309,7 @@ func normalizeUser(key string, raw rawUser) (User, []string, error) {
 				user.CreatedAt = entry.OccurredAt
 			}
 		}
-		warnings = append(warnings, fmt.Sprintf("user %q had no created_at; used earliest point entry", username))
+		warnings = append(warnings, fmt.Sprintf("user %q had no created_at; used earliest completion entry", username))
 	} else {
 		user.CreatedAt = time.Unix(0, 0).UTC()
 		warnings = append(warnings, fmt.Sprintf("user %q had no created_at; used Unix epoch", username))
@@ -395,7 +340,7 @@ func ensureReferencedUsers(bundle *Bundle) {
 		known[username] = struct{}{}
 		bundle.Users = append(bundle.Users, User{Username: username, CreatedAt: createdAt})
 		bundle.Report.SyntheticUsers++
-		bundle.Report.Warnings = append(bundle.Report.Warnings, fmt.Sprintf("created point-only user %q for task attribution", username))
+		bundle.Report.Warnings = append(bundle.Report.Warnings, fmt.Sprintf("created attribution-only user %q", username))
 	}
 	for _, task := range bundle.Tasks {
 		if task.CreatedBy != nil {
@@ -404,14 +349,8 @@ func ensureReferencedUsers(bundle *Bundle) {
 		if task.Picker != nil {
 			add(*task.Picker, task.CreatedAt)
 		}
-		if task.SnapshotBy != nil {
-			add(*task.SnapshotBy, task.CreatedAt)
-		}
-		for _, snapshot := range task.Snapshots {
-			add(snapshot.Username, snapshot.CreatedAt)
-		}
 		if task.CompletionUndo != nil {
-			add(task.CompletionUndo.AwardUser, task.CompletionUndo.CompletedAt)
+			add(task.CompletionUndo.CompletionUser, task.CompletionUndo.CompletedAt)
 		}
 	}
 	sort.Slice(bundle.Users, func(i, j int) bool { return bundle.Users[i].Username < bundle.Users[j].Username })
@@ -442,9 +381,6 @@ func validate(bundle *Bundle) error {
 				return fmt.Errorf("task %q has invalid recurrence weekday %d", task.ID, weekday)
 			}
 		}
-		if task.PointsSnapshot != nil && (task.SnapshotBy == nil || task.SnapshotAt == nil) {
-			return fmt.Errorf("task %q has incomplete current point snapshot metadata", task.ID)
-		}
 		if task.LeadDays < 0 {
 			return fmt.Errorf("task %q has a negative lead time", task.ID)
 		}
@@ -455,13 +391,6 @@ func validate(bundle *Bundle) error {
 			return fmt.Errorf("duplicate user %q", user.Username)
 		}
 		usernames[user.Username] = struct{}{}
-		total := 0
-		for _, entry := range user.History {
-			total += entry.Points
-		}
-		if total != user.Points {
-			return fmt.Errorf("user %q point total is %d but history sums to %d", user.Username, user.Points, total)
-		}
 	}
 	for _, task := range bundle.Tasks {
 		if task.RemedyFor != nil {
@@ -572,13 +501,6 @@ func cleanStrings(values []string) []string {
 		result = append(result, value)
 	}
 	return result
-}
-
-func roundedNonnegative(value float64) int {
-	if value <= 0 {
-		return 0
-	}
-	return int(value + 0.5)
 }
 
 func parseCompletionReason(reason string) (string, string) {

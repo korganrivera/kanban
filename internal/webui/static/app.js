@@ -199,7 +199,6 @@ async function loadBoard() {
 function updateAccount(account) {
     currentUser = account;
     document.getElementById("current-user").textContent = account.username || "";
-    document.getElementById("current-points").textContent = `${Number(account.points || 0)} pts`;
 }
 
 function renderBoard() {
@@ -452,11 +451,6 @@ function renderTaskContext(task) {
     if (task.overdue) values.push("Overdue");
     if (task.claimedBy) values.push(`Claimed by ${task.claimedBy}`);
     if (task.createdBy) values.push(`Created by ${task.createdBy}`);
-    if (typeof task.pointsSnapshot === "number") {
-        const state = task.pointsSnapshotAwarded ? "awarded" : "frozen";
-        values.push(`${task.pointsSnapshot} point snapshot (${state})`);
-    }
-    if (task.awarded) values.push(`Awarded ${task.awarded.points} points to ${task.awarded.to}`);
     if (task.lastCompletedAt) values.push(`Completed ${formatDate(task.lastCompletedAt)}`);
     if (task.remedyFor) {
         const parent = tasks.find((candidate) => candidate.id === task.remedyFor);

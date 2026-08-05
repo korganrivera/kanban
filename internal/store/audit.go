@@ -94,12 +94,11 @@ func auditDatabase(ctx context.Context, db *sql.DB) (*AuditReport, error) {
 	}
 
 	counts := map[string]string{
-		"tasks":          `SELECT COUNT(*) FROM tasks`,
-		"users":          `SELECT COUNT(*) FROM users`,
-		"pointEntries":   `SELECT COUNT(*) FROM point_entries`,
-		"pointSnapshots": `SELECT COUNT(*) FROM task_point_snapshots`,
-		"occurrences":    `SELECT COUNT(*) FROM task_occurrences`,
-		"sessions":       `SELECT COUNT(*) FROM sessions`,
+		"tasks":             `SELECT COUNT(*) FROM tasks`,
+		"users":             `SELECT COUNT(*) FROM users`,
+		"completionEntries": `SELECT COUNT(*) FROM completion_entries`,
+		"occurrences":       `SELECT COUNT(*) FROM task_occurrences`,
+		"sessions":          `SELECT COUNT(*) FROM sessions`,
 	}
 	for name, query := range counts {
 		var count int
@@ -110,27 +109,11 @@ func auditDatabase(ctx context.Context, db *sql.DB) (*AuditReport, error) {
 	}
 
 	if err := appendQueryFindings(ctx, db, report, `
-		SELECT u.username || ' stores ' || u.points || ' points but active history sums to ' ||
-		       COALESCE(SUM(CASE WHEN p.reversed_at IS NULL THEN p.points ELSE 0 END), 0)
-		FROM users u LEFT JOIN point_entries p ON p.username = u.username
-		GROUP BY u.username, u.points
-		HAVING u.points <> COALESCE(SUM(CASE WHEN p.reversed_at IS NULL THEN p.points ELSE 0 END), 0)`,
-		"point total mismatch: "); err != nil {
-		return nil, err
-	}
-	if err := appendQueryFindings(ctx, db, report, `
 		SELECT id || ' has lifecycle ' || lifecycle || ' with owner ' || COALESCE(claimed_by, '<none>')
 		FROM tasks
 		WHERE (lifecycle NOT IN ('InProgress', 'Done') AND claimed_by IS NOT NULL)
 		   OR (lifecycle = 'InProgress' AND (claimed_by IS NULL OR claimed_by = ''))`,
 		"claim invariant: "); err != nil {
-		return nil, err
-	}
-	if err := appendQueryFindings(ctx, db, report, `
-		SELECT id FROM tasks
-		WHERE (points_snapshot IS NULL) <> (points_snapshot_by IS NULL)
-		   OR (points_snapshot IS NULL) <> (points_snapshot_at IS NULL)`,
-		"incomplete point snapshot metadata on task "); err != nil {
 		return nil, err
 	}
 	if err := appendQueryFindings(ctx, db, report, `
@@ -144,10 +127,10 @@ func auditDatabase(ctx context.Context, db *sql.DB) (*AuditReport, error) {
 	if err := appendQueryFindings(ctx, db, report, `
 		SELECT o.task_id FROM task_occurrences o
 		JOIN tasks t ON t.id = o.task_id
-		JOIN point_entries p ON p.id = o.award_entry_id
+		JOIN completion_entries c ON c.id = o.completion_entry_id
 		WHERE o.outcome = 'completed' AND o.undone_at IS NULL
-		  AND o.result_version = t.version AND p.reversed_at IS NOT NULL`,
-		"current completion undo references a reversed award for task "); err != nil {
+		  AND o.result_version = t.version AND c.reversed_at IS NOT NULL`,
+		"current completion undo references reversed history for task "); err != nil {
 		return nil, err
 	}
 	var wipRows int

@@ -171,7 +171,6 @@ func TestRecurringCompletionAdvancesAndCanUndo(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	claimedSnapshot := task.PointsSnapshot
 	task, err = store.Action(ctx, task.ID, "complete", "korgan", board.ActionInput{Version: task.Version})
 	if err != nil {
 		t.Fatal(err)
@@ -183,8 +182,8 @@ func TestRecurringCompletionAdvancesAndCanUndo(t *testing.T) {
 	if task.EffectiveState != board.StateWaiting || !task.CanUndo {
 		t.Fatalf("recurring state/undo = %s/%v", task.EffectiveState, task.CanUndo)
 	}
-	if claimedSnapshot == nil || task.PointsSnapshot != nil || task.Awarded == nil || task.Awarded.Points != *claimedSnapshot {
-		t.Fatalf("recurring completion snapshot/award = %v/%v/%#v", claimedSnapshot, task.PointsSnapshot, task.Awarded)
+	if task.ClaimedBy != nil {
+		t.Fatalf("recurring completion owner = %v", task.ClaimedBy)
 	}
 	task, err = store.Action(ctx, task.ID, "undo", "korgan", board.ActionInput{Version: task.Version})
 	if err != nil {
@@ -193,8 +192,8 @@ func TestRecurringCompletionAdvancesAndCanUndo(t *testing.T) {
 	if task.ScheduledAt == nil || !task.ScheduledAt.Equal(due) {
 		t.Fatalf("restored schedule = %v, want %v", task.ScheduledAt, due)
 	}
-	if task.PointsSnapshot == nil || *task.PointsSnapshot != *claimedSnapshot {
-		t.Fatalf("restored recurring snapshot = %v, want %v", task.PointsSnapshot, claimedSnapshot)
+	if task.EffectiveState != board.StateInProgress || task.ClaimedBy == nil || *task.ClaimedBy != "korgan" {
+		t.Fatalf("restored recurring task = state %s, owner %v", task.EffectiveState, task.ClaimedBy)
 	}
 }
 

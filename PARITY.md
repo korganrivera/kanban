@@ -31,7 +31,6 @@ design is simpler or safer.
 - [x] Truncated card descriptions with full descriptions in the editor
 - [x] Separate legacy `deadline` field for API and import fidelity
 - [x] Created-by attribution on tasks and remedies
-- [x] Priority snapshot metadata on claimed tasks
 - [x] Remedy-aware dependency removal with optional remedy cleanup
 
 ## Accounts And Security
@@ -48,15 +47,12 @@ design is simpler or safer.
 - [x] Same-origin checks for mutating requests
 - [x] Account controls in the browser UI
 
-## Points And Completion History
+## Completion History
 
-- [x] Snapshot automatic priority when a task is claimed
-- [x] Refresh snapshots for a different claimant or after the cooldown
-- [x] Award the exact snapshot on completion
-- [x] Reverse only the matching award when completion is undone
+- [x] Record completions for the task's claimant without scores
+- [x] Reverse only the matching history entry when completion is undone
 - [x] Preserve user completion history after task deletion
-- [x] Show current user and point total in the top bar
-- [x] Show claim snapshot and award state in task details
+- [x] Show the current user in the top bar
 - [x] Completion heatmap, totals, and streak summaries
 
 ## Browser Experience
@@ -74,7 +70,7 @@ design is simpler or safer.
 
 - [x] Dry-run importer for legacy tasks, users, and WIP limits
 - [x] Preserve IDs, timestamps, ownership, recurrence, dependencies, and notes
-- [x] Preserve bcrypt password hashes and user point history
+- [x] Preserve bcrypt password hashes and completion history
 - [x] Convert legacy completion undo data safely where possible
 - [x] Validate source references and cycles before writing
 - [x] Transactional import with a pre-import SQLite backup
@@ -104,7 +100,7 @@ design is simpler or safer.
 ## Implementation Order
 
 1. Accounts, sessions, authenticated identity, and security controls
-2. Created-by metadata, priority snapshots, points, and completion history
+2. Created-by metadata, authenticated attribution, and completion history
 3. Remaining card metadata, overdue behavior, palettes, and connection status
 4. Legacy importer and migration validation
 5. Backup, audit, systemd service, and recovery documentation

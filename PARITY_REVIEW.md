@@ -42,7 +42,7 @@ revocation, and closure of the revoked session's event stream.
   weekdays, paused recurrence, recurring dependency occurrences, deadlines,
   time-critical ordering, and automatic priority match the Node behavior.
 - Completion undo restores exact task state and reverses only its matching
-  point award. Durable history survives deletion.
+  history entry. Durable history survives deletion.
 - Dependency cycles, stale writes, invalid WIP limits, unsafe prerequisite
   deletion, malformed requests, cross-origin mutations, and unauthenticated
   data access fail closed.
@@ -69,10 +69,11 @@ completion, block notes, and remedies.
 
 ## Data And Recovery Review
 
-The full legacy rehearsal imported 222 tasks, 8 users, 315 point entries, 276
-point snapshots, and 12 safe undo records. One stale undo was excluded because
-the task had changed afterward. Post-import counts, foreign keys, point totals,
-claims, WIP rows, and dependency invariants passed.
+The full legacy rehearsal imported 222 tasks, 8 users, 317 completion history
+entries, and 14 safe undo records. Legacy point values and claim snapshots are
+intentionally discarded. One stale undo was excluded because its task had
+changed afterward. Post-import counts, foreign keys, claims, WIP rows, and
+dependency invariants passed.
 
 Backup tests cover consistent SQLite snapshots, SHA-256 corruption detection,
 atomic publication, retention, and a standalone restore drill. The final

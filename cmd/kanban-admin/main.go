@@ -112,8 +112,8 @@ func runAudit(args []string) error {
 			return err
 		}
 	} else {
-		fmt.Printf("OK: %t\nSchema: %d\nTasks: %d\nUsers: %d\nPoint entries: %d\n",
-			report.OK, report.SchemaVersion, report.Counts["tasks"], report.Counts["users"], report.Counts["pointEntries"],
+		fmt.Printf("OK: %t\nSchema: %d\nTasks: %d\nUsers: %d\nCompletion entries: %d\n",
+			report.OK, report.SchemaVersion, report.Counts["tasks"], report.Counts["users"], report.Counts["completionEntries"],
 		)
 		for _, finding := range report.Findings {
 			fmt.Printf("Finding: %s\n", finding)

@@ -17,7 +17,6 @@ var (
 type User struct {
 	Username          string     `json:"username"`
 	PasswordHash      string     `json:"-"`
-	Points            int        `json:"points"`
 	CreatedAt         time.Time  `json:"createdAt"`
 	PasswordChangedAt *time.Time `json:"passwordChangedAt"`
 }
@@ -63,8 +62,8 @@ func (store *Store) RegisterUser(ctx context.Context, username, passwordHash str
 		}
 	case errors.Is(err, sql.ErrNoRows):
 		if _, err := tx.ExecContext(ctx, `
-			INSERT INTO users(username, password_hash, points, created_at)
-			VALUES (?, ?, 0, ?)`, username, passwordHash, formatTime(now)); err != nil {
+			INSERT INTO users(username, password_hash, created_at)
+			VALUES (?, ?, ?)`, username, passwordHash, formatTime(now)); err != nil {
 			return nil, err
 		}
 	default:
@@ -82,9 +81,9 @@ func (store *Store) User(ctx context.Context, username string) (*User, error) {
 	var createdAt string
 	var changedAt sql.NullString
 	err := store.db.QueryRowContext(ctx, `
-		SELECT username, password_hash, points, created_at, password_changed_at
+		SELECT username, password_hash, created_at, password_changed_at
 		FROM users WHERE username = ?`, username,
-	).Scan(&user.Username, &passwordHash, &user.Points, &createdAt, &changedAt)
+	).Scan(&user.Username, &passwordHash, &createdAt, &changedAt)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrUserNotFound
 	}
@@ -158,10 +157,10 @@ func (store *Store) SessionUser(ctx context.Context, tokenHash string, now, newE
 	var createdAt string
 	var changedAt sql.NullString
 	err = tx.QueryRowContext(ctx, `
-		SELECT u.username, u.password_hash, u.points, u.created_at, u.password_changed_at
+		SELECT u.username, u.password_hash, u.created_at, u.password_changed_at
 		FROM sessions s JOIN users u ON u.username = s.username
 		WHERE s.token_hash = ? AND s.expires_at > ?`, tokenHash, formatTime(now),
-	).Scan(&user.Username, &passwordHash, &user.Points, &createdAt, &changedAt)
+	).Scan(&user.Username, &passwordHash, &createdAt, &changedAt)
 	if errors.Is(err, sql.ErrNoRows) {
 		tx.ExecContext(ctx, `DELETE FROM sessions WHERE token_hash = ?`, tokenHash)
 		tx.Commit()

@@ -40,7 +40,7 @@ Set `COOKIE_SECURE=1` when the browser reaches the board through HTTPS.
 - Rolling and anchored recurring tasks, including selected weekdays
 - Dependency-driven suspension with cycle protection
 - Configurable WIP limits enforced against effective column state
-- Automatic priority scoring from due dates and downstream dependencies
+- Automatic priority values from due dates and downstream dependencies
 - Time-critical task ordering and blocked-task remedy creation
 - Automatic claim release when a task leaves In Progress, while Done retains
   completion ownership
@@ -48,8 +48,8 @@ Set `COOKIE_SECURE=1` when the browser reaches the board through HTTPS.
 - Embedded browser assets and live board refresh through server-sent events
 - Account registration, login, logout, rolling sessions, and password rotation
 - Authenticated creator, claimant, and completion attribution
-- Claim-time priority snapshots with transactional point awards and exact undo
-- Durable completion history with a one-year activity heatmap
+- Scoreless completion history with transactional exact undo
+- One-year completion activity heatmap
 - Ready-time, overdue, deadline, creator, age, and completion metadata
 - Per-account browser palettes and visible live-connection state
 
@@ -63,8 +63,8 @@ go run ./cmd/kanban-import \
 ```
 
 Stop the Go server before applying an import. Applying to an empty destination
-requires `--apply`; replacing any existing Go users, tasks, or point history
-also requires the explicit `--replace` flag:
+requires `--apply`; replacing any existing Go users, tasks, or completion
+history also requires the explicit `--replace` flag:
 
 ```sh
 go run ./cmd/kanban-import \

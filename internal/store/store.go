@@ -194,9 +194,9 @@ func (store *Store) Update(ctx context.Context, id string, input board.TaskInput
 	}
 	if updated.Lifecycle == board.LifecycleInProgress && updated.EffectiveState != board.StateInProgress {
 		if _, err := tx.ExecContext(ctx, `
-            UPDATE tasks SET lifecycle = ?, claimed_by = NULL, claimed_at = NULL,
-				unclaimed_at = ?, updated_at = ?, version = version + 1 WHERE id = ?`,
-			board.LifecycleReady, formatTime(now), formatTime(now), id,
+			UPDATE tasks SET lifecycle = ?, claimed_by = NULL, claimed_at = NULL,
+				updated_at = ?, version = version + 1 WHERE id = ?`,
+			board.LifecycleReady, formatTime(now), id,
 		); err != nil {
 			return nil, err
 		}
@@ -481,19 +481,12 @@ func (store *Store) Delete(ctx context.Context, id string, input board.DeleteInp
 }
 
 func updateLifecycle(ctx context.Context, tx *sql.Tx, task *board.Task, lifecycle board.Lifecycle, claimedBy *string, claimedAt *time.Time, blockNote string, now time.Time) error {
-	unclaimedAt := task.UnclaimedAt
-	if task.Lifecycle == board.LifecycleInProgress && lifecycle != board.LifecycleInProgress {
-		unclaimedAt = &now
-	}
-	if lifecycle == board.LifecycleInProgress {
-		unclaimedAt = nil
-	}
 	result, err := tx.ExecContext(ctx, `
-        UPDATE tasks SET lifecycle = ?, claimed_by = ?, claimed_at = ?, block_note = ?,
-			unclaimed_at = ?, updated_at = ?, version = version + 1
-        WHERE id = ? AND version = ?`,
+	        UPDATE tasks SET lifecycle = ?, claimed_by = ?, claimed_at = ?, block_note = ?,
+				updated_at = ?, version = version + 1
+	        WHERE id = ? AND version = ?`,
 		lifecycle, stringValue(claimedBy), timeValue(claimedAt), blockNote,
-		timeValue(unclaimedAt), formatTime(now), task.ID, task.Version,
+		formatTime(now), task.ID, task.Version,
 	)
 	if err != nil {
 		return err
@@ -502,51 +495,16 @@ func updateLifecycle(ctx context.Context, tx *sql.Tx, task *board.Task, lifecycl
 }
 
 func claimTask(ctx context.Context, tx *sql.Tx, task *board.Task, actor string, now time.Time) error {
-	if err := ensurePointUser(ctx, tx, actor, now); err != nil {
+	if err := ensureUser(ctx, tx, actor, now); err != nil {
 		return err
 	}
-	refreshSnapshot := task.PointsSnapshot == nil || task.SnapshotBy == nil || *task.SnapshotBy != actor
-	if task.UnclaimedAt != nil && now.Sub(*task.UnclaimedAt) >= 24*time.Hour {
-		refreshSnapshot = true
-	}
-	points := task.PointsSnapshot
-	snapshotBy := task.SnapshotBy
-	snapshotAt := task.SnapshotAt
-	if refreshSnapshot {
-		value := task.Priority
-		points = &value
-		snapshotBy = &actor
-		snapshotAt = &now
-		snapshotID, err := newID()
-		if err != nil {
-			return err
-		}
-		if _, err := tx.ExecContext(ctx, `
-			INSERT INTO task_point_snapshots(id, task_id, username, points, created_at)
-			VALUES (?, ?, ?, ?, ?)`,
-			snapshotID, task.ID, actor, value, formatTime(now),
-		); err != nil {
-			return err
-		}
-	}
-	result, err := tx.ExecContext(ctx, `
-		UPDATE tasks SET lifecycle = ?, claimed_by = ?, claimed_at = ?, block_note = '',
-			points_snapshot = ?, points_snapshot_by = ?, points_snapshot_at = ?,
-			unclaimed_at = NULL, updated_at = ?, version = version + 1
-		WHERE id = ? AND version = ?`,
-		board.LifecycleInProgress, actor, formatTime(now), intValue(points), stringValue(snapshotBy),
-		timeValue(snapshotAt), formatTime(now), task.ID, task.Version,
-	)
-	if err != nil {
-		return err
-	}
-	return requireChanged(result)
+	return updateLifecycle(ctx, tx, task, board.LifecycleInProgress, &actor, &now, "", now)
 }
 
-func ensurePointUser(ctx context.Context, tx *sql.Tx, username string, now time.Time) error {
+func ensureUser(ctx context.Context, tx *sql.Tx, username string, now time.Time) error {
 	_, err := tx.ExecContext(ctx, `
-		INSERT INTO users(username, password_hash, points, created_at)
-		VALUES (?, NULL, 0, ?) ON CONFLICT(username) DO NOTHING`,
+			INSERT INTO users(username, password_hash, created_at)
+			VALUES (?, NULL, ?) ON CONFLICT(username) DO NOTHING`,
 		username, formatTime(now),
 	)
 	return err
@@ -557,7 +515,7 @@ func completeTask(ctx context.Context, tx *sql.Tx, task *board.Task, actor strin
 	if err != nil {
 		return err
 	}
-	awardID, err := newID()
+	historyID, err := newID()
 	if err != nil {
 		return err
 	}
@@ -569,68 +527,42 @@ func completeTask(ctx context.Context, tx *sql.Tx, task *board.Task, actor strin
 	newClaimedBy := task.ClaimedBy
 	newClaimedAt := task.ClaimedAt
 	if newClaimedBy == nil {
-		newClaimedBy = &actor
-		newClaimedAt = &now
-	}
-	awardOwner := *newClaimedBy
-	if err := ensurePointUser(ctx, tx, awardOwner, now); err != nil {
-		return err
-	}
-	awardPoints := 0
-	if task.PointsSnapshot != nil {
-		awardPoints = *task.PointsSnapshot
+		return board.ErrInvalidAction
 	}
 	if _, err := tx.ExecContext(ctx, `
-		INSERT INTO point_entries(
-			id, username, task_id, task_title, points, reason, occurred_at
-		) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		awardID, awardOwner, task.ID, task.Title, awardPoints,
-		"Completed task "+task.ID+" ("+task.Title+")", formatTime(now),
+			INSERT INTO completion_entries(id, username, task_id, task_title, completed_at)
+			VALUES (?, ?, ?, ?, ?)`,
+		historyID, *newClaimedBy, task.ID, task.Title, formatTime(now),
 	); err != nil {
 		return err
 	}
-	if _, err := tx.ExecContext(ctx, `UPDATE users SET points = points + ? WHERE username = ?`, awardPoints, awardOwner); err != nil {
-		return err
-	}
 
-	newSnapshot := task.PointsSnapshot
-	newSnapshotBy := task.SnapshotBy
-	newSnapshotAt := task.SnapshotAt
-	newUnclaimedAt := task.UnclaimedAt
 	if task.Recurrence.Kind != "none" {
 		newLifecycle = board.LifecycleReady
 		newClaimedBy = nil
 		newClaimedAt = nil
-		newSnapshot = nil
-		newSnapshotBy = nil
-		newSnapshotAt = nil
-		newUnclaimedAt = nil
 	}
 	resultVersion := task.Version + 1
 	_, err = tx.ExecContext(ctx, `
-        INSERT INTO task_occurrences (
-            id, task_id, outcome, actor, occurred_at, scheduled_for,
-            previous_lifecycle, previous_scheduled_at, previous_claimed_by,
-			previous_claimed_at, previous_last_completed_at, result_version,
-			award_entry_id, previous_points_snapshot, previous_points_snapshot_by,
-			previous_points_snapshot_at, previous_unclaimed_at
-		) VALUES (?, ?, 'completed', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+	        INSERT INTO task_occurrences (
+	            id, task_id, outcome, actor, occurred_at, scheduled_for,
+	            previous_lifecycle, previous_scheduled_at, previous_claimed_by,
+				previous_claimed_at, previous_last_completed_at, result_version,
+				completion_entry_id
+			) VALUES (?, ?, 'completed', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		occurrenceID, task.ID, actor, formatTime(now), timeValue(task.ScheduledAt),
 		task.Lifecycle, timeValue(task.ScheduledAt), stringValue(task.ClaimedBy),
 		timeValue(task.ClaimedAt), timeValue(task.LastCompletedAt), resultVersion,
-		awardID, intValue(task.PointsSnapshot), stringValue(task.SnapshotBy),
-		timeValue(task.SnapshotAt), timeValue(task.UnclaimedAt),
+		historyID,
 	)
 	if err != nil {
 		return err
 	}
 	result, err := tx.ExecContext(ctx, `
-        UPDATE tasks SET lifecycle = ?, scheduled_at = ?, claimed_by = ?, claimed_at = ?,
-			points_snapshot = ?, points_snapshot_by = ?, points_snapshot_at = ?,
-			unclaimed_at = ?, block_note = '', last_completed_at = ?, updated_at = ?, version = ?
-        WHERE id = ? AND version = ?`,
+	        UPDATE tasks SET lifecycle = ?, scheduled_at = ?, claimed_by = ?, claimed_at = ?,
+				block_note = '', last_completed_at = ?, updated_at = ?, version = ?
+	        WHERE id = ? AND version = ?`,
 		newLifecycle, timeValue(nextSchedule), stringValue(newClaimedBy), timeValue(newClaimedAt),
-		intValue(newSnapshot), stringValue(newSnapshotBy), timeValue(newSnapshotAt), timeValue(newUnclaimedAt),
 		formatTime(now), formatTime(now), resultVersion, task.ID, task.Version,
 	)
 	if err != nil {
@@ -642,21 +574,17 @@ func completeTask(ctx context.Context, tx *sql.Tx, task *board.Task, actor strin
 func undoCompletion(ctx context.Context, tx *sql.Tx, task *board.Task, now time.Time) error {
 	var occurrenceID string
 	var previousLifecycle string
-	var awardEntryID, previousScheduled, previousClaimedBy, previousClaimedAt sql.NullString
-	var previousLastCompleted, previousSnapshotBy, previousSnapshotAt, previousUnclaimedAt sql.NullString
-	var previousSnapshot sql.NullInt64
+	var completionEntryID, previousScheduled, previousClaimedBy, previousClaimedAt sql.NullString
+	var previousLastCompleted sql.NullString
 	err := tx.QueryRowContext(ctx, `
-        SELECT id, previous_lifecycle, previous_scheduled_at, previous_claimed_by,
-			previous_claimed_at, previous_last_completed_at, award_entry_id,
-			previous_points_snapshot, previous_points_snapshot_by,
-			previous_points_snapshot_at, previous_unclaimed_at
-        FROM task_occurrences
+	        SELECT id, previous_lifecycle, previous_scheduled_at, previous_claimed_by,
+				previous_claimed_at, previous_last_completed_at, completion_entry_id
+	        FROM task_occurrences
         WHERE task_id = ? AND outcome = 'completed' AND undone_at IS NULL AND result_version = ?
         ORDER BY occurred_at DESC LIMIT 1`, task.ID, task.Version,
 	).Scan(
 		&occurrenceID, &previousLifecycle, &previousScheduled, &previousClaimedBy,
-		&previousClaimedAt, &previousLastCompleted, &awardEntryID, &previousSnapshot,
-		&previousSnapshotBy, &previousSnapshotAt, &previousUnclaimedAt,
+		&previousClaimedAt, &previousLastCompleted, &completionEntryID,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
 		return board.ErrInvalidAction
@@ -664,13 +592,11 @@ func undoCompletion(ctx context.Context, tx *sql.Tx, task *board.Task, now time.
 	if err != nil {
 		return err
 	}
-	if awardEntryID.Valid {
-		var username string
-		var points int
+	if completionEntryID.Valid {
 		var reversedAt sql.NullString
 		err := tx.QueryRowContext(ctx, `
-			SELECT username, points, reversed_at FROM point_entries WHERE id = ?`, awardEntryID.String,
-		).Scan(&username, &points, &reversedAt)
+				SELECT reversed_at FROM completion_entries WHERE id = ?`, completionEntryID.String,
+		).Scan(&reversedAt)
 		if errors.Is(err, sql.ErrNoRows) || reversedAt.Valid {
 			return board.ErrConflict
 		}
@@ -678,8 +604,8 @@ func undoCompletion(ctx context.Context, tx *sql.Tx, task *board.Task, now time.
 			return err
 		}
 		result, err := tx.ExecContext(ctx, `
-			UPDATE point_entries SET reversed_at = ? WHERE id = ? AND reversed_at IS NULL`,
-			formatTime(now), awardEntryID.String,
+				UPDATE completion_entries SET reversed_at = ? WHERE id = ? AND reversed_at IS NULL`,
+			formatTime(now), completionEntryID.String,
 		)
 		if err != nil {
 			return err
@@ -687,22 +613,13 @@ func undoCompletion(ctx context.Context, tx *sql.Tx, task *board.Task, now time.
 		if err := requireChanged(result); err != nil {
 			return board.ErrConflict
 		}
-		if _, err := tx.ExecContext(ctx, `
-			UPDATE users SET points = CASE WHEN points >= ? THEN points - ? ELSE 0 END
-			WHERE username = ?`, points, points, username,
-		); err != nil {
-			return err
-		}
 	}
 	result, err := tx.ExecContext(ctx, `
-        UPDATE tasks SET lifecycle = ?, scheduled_at = ?, claimed_by = ?, claimed_at = ?,
-			points_snapshot = ?, points_snapshot_by = ?, points_snapshot_at = ?,
-			unclaimed_at = ?, last_completed_at = ?, updated_at = ?, version = version + 1
-        WHERE id = ? AND version = ?`,
+	        UPDATE tasks SET lifecycle = ?, scheduled_at = ?, claimed_by = ?, claimed_at = ?,
+				last_completed_at = ?, updated_at = ?, version = version + 1
+	        WHERE id = ? AND version = ?`,
 		previousLifecycle, nullStringValue(previousScheduled), nullStringValue(previousClaimedBy),
-		nullStringValue(previousClaimedAt), nullInt64Value(previousSnapshot),
-		nullStringValue(previousSnapshotBy), nullStringValue(previousSnapshotAt),
-		nullStringValue(previousUnclaimedAt), nullStringValue(previousLastCompleted),
+		nullStringValue(previousClaimedAt), nullStringValue(previousLastCompleted),
 		formatTime(now), task.ID, task.Version,
 	)
 	if err != nil {
@@ -718,24 +635,14 @@ func undoCompletion(ctx context.Context, tx *sql.Tx, task *board.Task, now time.
 func listTasks(ctx context.Context, query queryer) ([]*board.Task, error) {
 	rows, err := query.QueryContext(ctx, `
 		SELECT t.id, t.title, t.description, t.lifecycle, t.scheduled_at, t.deadline, t.lead_days,
-            t.recurrence_kind, t.recurrence_days, t.recurrence_paused,
+	            t.recurrence_kind, t.recurrence_days, t.recurrence_paused,
 			t.time_critical, t.remedy_for, t.created_by, t.claimed_by, t.claimed_at, t.block_note, t.last_completed_at,
-			t.points_snapshot, t.points_snapshot_by, t.points_snapshot_at, t.unclaimed_at,
 			t.created_at, t.updated_at, t.version,
-            EXISTS (
-                SELECT 1 FROM task_occurrences o
-                WHERE o.task_id = t.id AND o.outcome = 'completed'
-                  AND o.undone_at IS NULL AND o.result_version = t.version
-			),
-			(SELECT p.username FROM point_entries p
-			 WHERE p.task_id = t.id AND p.occurred_at = t.last_completed_at
-			   AND p.reversed_at IS NULL ORDER BY p.id DESC LIMIT 1),
-			(SELECT p.points FROM point_entries p
-			 WHERE p.task_id = t.id AND p.occurred_at = t.last_completed_at
-			   AND p.reversed_at IS NULL ORDER BY p.id DESC LIMIT 1),
-			(SELECT p.occurred_at FROM point_entries p
-			 WHERE p.task_id = t.id AND p.occurred_at = t.last_completed_at
-			   AND p.reversed_at IS NULL ORDER BY p.id DESC LIMIT 1)
+	            EXISTS (
+	                SELECT 1 FROM task_occurrences o
+	                WHERE o.task_id = t.id AND o.outcome = 'completed'
+	                  AND o.undone_at IS NULL AND o.result_version = t.version
+			)
         FROM tasks t
         ORDER BY t.created_at, t.id`)
 	if err != nil {
@@ -748,8 +655,6 @@ func listTasks(ctx context.Context, query queryer) ([]*board.Task, error) {
 		task := &board.Task{}
 		var lifecycle string
 		var scheduled, deadline, remedyFor, createdBy, claimedBy, claimedAt, lastCompleted sql.NullString
-		var snapshotBy, snapshotAt, unclaimedAt, awardedTo, awardedAt sql.NullString
-		var snapshotPoints, awardedPoints sql.NullInt64
 		var recurrencePaused, timeCritical int
 		var createdAt, updatedAt string
 		var canUndo int
@@ -758,9 +663,7 @@ func listTasks(ctx context.Context, query queryer) ([]*board.Task, error) {
 			&task.Recurrence.Kind, &task.Recurrence.Days, &recurrencePaused,
 			&timeCritical, &remedyFor, &createdBy,
 			&claimedBy, &claimedAt, &task.BlockNote, &lastCompleted,
-			&snapshotPoints, &snapshotBy, &snapshotAt, &unclaimedAt,
 			&createdAt, &updatedAt, &task.Version, &canUndo,
-			&awardedTo, &awardedPoints, &awardedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -781,27 +684,6 @@ func listTasks(ctx context.Context, query queryer) ([]*board.Task, error) {
 		task.ClaimedAt, err = parseNullableTime(claimedAt)
 		if err != nil {
 			return nil, err
-		}
-		if snapshotPoints.Valid {
-			value := int(snapshotPoints.Int64)
-			task.PointsSnapshot = &value
-		}
-		task.SnapshotBy = parseNullableString(snapshotBy)
-		task.SnapshotAt, err = parseNullableTime(snapshotAt)
-		if err != nil {
-			return nil, err
-		}
-		task.UnclaimedAt, err = parseNullableTime(unclaimedAt)
-		if err != nil {
-			return nil, err
-		}
-		if awardedTo.Valid && awardedPoints.Valid && awardedAt.Valid {
-			at, err := parseTime(awardedAt.String)
-			if err != nil {
-				return nil, err
-			}
-			task.Awarded = &board.PointAward{To: awardedTo.String, Points: int(awardedPoints.Int64), At: at}
-			task.SnapshotAwarded = awardedPoints.Int64 > 0
 		}
 		task.LastCompletedAt, err = parseNullableTime(lastCompleted)
 		if err != nil {

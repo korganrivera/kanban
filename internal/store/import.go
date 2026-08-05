@@ -17,14 +17,13 @@ import (
 var ErrDestinationNotEmpty = errors.New("destination contains kanban data; use replace mode explicitly")
 
 type LegacyImportReport struct {
-	Tasks          int      `json:"tasks"`
-	Users          int      `json:"users"`
-	PointEntries   int      `json:"pointEntries"`
-	PointSnapshots int      `json:"pointSnapshots"`
-	UndoImported   int      `json:"undoImported"`
-	UndoSkipped    int      `json:"undoSkipped"`
-	WIPLimits      int      `json:"wipLimits"`
-	Warnings       []string `json:"warnings"`
+	Tasks             int      `json:"tasks"`
+	Users             int      `json:"users"`
+	CompletionEntries int      `json:"completionEntries"`
+	UndoImported      int      `json:"undoImported"`
+	UndoSkipped       int      `json:"undoSkipped"`
+	WIPLimits         int      `json:"wipLimits"`
+	Warnings          []string `json:"warnings"`
 }
 
 // ImportLegacy replaces the destination in one transaction. A nonempty
@@ -55,9 +54,9 @@ func (store *Store) ImportLegacy(ctx context.Context, bundle *legacy.Bundle, rep
 	report := &LegacyImportReport{Warnings: append([]string(nil), bundle.Report.Warnings...)}
 	for _, user := range bundle.Users {
 		if _, err := tx.ExecContext(ctx, `
-			INSERT INTO users(username, password_hash, points, created_at, password_changed_at)
-			VALUES (?, ?, ?, ?, ?)`,
-			user.Username, nullableString(user.PasswordHash), user.Points,
+				INSERT INTO users(username, password_hash, created_at, password_changed_at)
+				VALUES (?, ?, ?, ?)`,
+			user.Username, nullableString(user.PasswordHash),
 			formatTime(user.CreatedAt), timeValue(user.PasswordChangedAt),
 		); err != nil {
 			return nil, fmt.Errorf("import user %q: %w", user.Username, err)
@@ -65,23 +64,21 @@ func (store *Store) ImportLegacy(ctx context.Context, bundle *legacy.Bundle, rep
 		report.Users++
 	}
 
-	awardByCompletion := make(map[string]string)
+	entryByCompletion := make(map[string]string)
 	for _, user := range bundle.Users {
 		for index, entry := range user.History {
-			entryID := legacyID("point", user.Username, fmt.Sprint(index), formatTime(entry.OccurredAt), entry.Reason, entry.CompletionID)
+			entryID := legacyID("completion", user.Username, fmt.Sprint(index), formatTime(entry.OccurredAt), entry.TaskID, entry.CompletionID)
 			if _, err := tx.ExecContext(ctx, `
-				INSERT INTO point_entries(
-					id, username, task_id, task_title, points, reason, occurred_at
-				) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-				entryID, user.Username, entry.TaskID, entry.TaskTitle, entry.Points,
-				entry.Reason, formatTime(entry.OccurredAt),
+					INSERT INTO completion_entries(id, username, task_id, task_title, completed_at)
+					VALUES (?, ?, ?, ?, ?)`,
+				entryID, user.Username, entry.TaskID, entry.TaskTitle, formatTime(entry.OccurredAt),
 			); err != nil {
-				return nil, fmt.Errorf("import point entry for %q: %w", user.Username, err)
+				return nil, fmt.Errorf("import completion entry for %q: %w", user.Username, err)
 			}
 			if entry.CompletionID != "" {
-				awardByCompletion[user.Username+"\x00"+entry.CompletionID] = entryID
+				entryByCompletion[user.Username+"\x00"+entry.CompletionID] = entryID
 			}
-			report.PointEntries++
+			report.CompletionEntries++
 		}
 	}
 
@@ -93,17 +90,15 @@ func (store *Store) ImportLegacy(ctx context.Context, bundle *legacy.Bundle, rep
 		if _, err := tx.ExecContext(ctx, `
 			INSERT INTO tasks(
 				id, title, description, lifecycle, scheduled_at, deadline, lead_days,
-				recurrence_kind, recurrence_days, recurrence_paused, time_critical,
-				remedy_for, created_by, claimed_by, claimed_at, block_note,
-				last_completed_at, points_snapshot, points_snapshot_by,
-				points_snapshot_at, unclaimed_at, created_at, updated_at, version
-			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+					recurrence_kind, recurrence_days, recurrence_paused, time_critical,
+					remedy_for, created_by, claimed_by, claimed_at, block_note,
+					last_completed_at, created_at, updated_at, version
+				) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, 1)`,
 			task.ID, task.Title, task.Description, lifecycle, timeValue(task.ScheduledAt),
 			timeValue(task.Deadline), task.LeadDays, task.Recurrence.Kind,
 			task.Recurrence.Days, boolInt(task.Recurrence.Paused), boolInt(task.TimeCritical),
 			stringValue(task.CreatedBy), stringValue(claimedBy), timeValue(claimedAt),
-			task.BlockNote, timeValue(task.LastCompleted), intValue(task.PointsSnapshot),
-			stringValue(task.SnapshotBy), timeValue(task.SnapshotAt), timeValue(task.UnclaimedAt),
+			task.BlockNote, timeValue(task.LastCompleted),
 			formatTime(task.CreatedAt), formatTime(task.UpdatedAt),
 		); err != nil {
 			return nil, fmt.Errorf("import task %q: %w", task.ID, err)
@@ -129,17 +124,6 @@ func (store *Store) ImportLegacy(ctx context.Context, bundle *legacy.Bundle, rep
 				return nil, fmt.Errorf("import recurrence weekday for task %q: %w", task.ID, err)
 			}
 		}
-		for index, snapshot := range task.Snapshots {
-			snapshotID := legacyID("snapshot", task.ID, fmt.Sprint(index), snapshot.Username, formatTime(snapshot.CreatedAt))
-			if _, err := tx.ExecContext(ctx, `
-				INSERT INTO task_point_snapshots(id, task_id, username, points, created_at)
-				VALUES (?, ?, ?, ?, ?)`,
-				snapshotID, task.ID, snapshot.Username, snapshot.Points, formatTime(snapshot.CreatedAt),
-			); err != nil {
-				return nil, fmt.Errorf("import point snapshot for task %q: %w", task.ID, err)
-			}
-			report.PointSnapshots++
-		}
 	}
 
 	for _, task := range bundle.Tasks {
@@ -152,20 +136,20 @@ func (store *Store) ImportLegacy(ctx context.Context, bundle *legacy.Bundle, rep
 			report.Warnings = append(report.Warnings, fmt.Sprintf("task %q changed after its last completion; completion undo was not imported", task.ID))
 			continue
 		}
-		var awardEntryID any
-		if undo.AwardUser != "" {
-			entryID := awardByCompletion[undo.AwardUser+"\x00"+undo.CompletionID]
+		var completionEntryID any
+		if undo.CompletionUser != "" {
+			entryID := entryByCompletion[undo.CompletionUser+"\x00"+undo.CompletionID]
 			if entryID == "" {
 				report.UndoSkipped++
-				report.Warnings = append(report.Warnings, fmt.Sprintf("task %q has no exact point award for its completion undo; undo was not imported", task.ID))
+				report.Warnings = append(report.Warnings, fmt.Sprintf("task %q has no exact completion history entry for its undo; undo was not imported", task.ID))
 				continue
 			}
-			awardEntryID = entryID
+			completionEntryID = entryID
 		}
 		previousLifecycle, previousClaimedBy, previousClaimedAt := importedTaskState(
 			undo.Previous.State, undo.Previous.Picker, undo.Previous.PickedAt,
 		)
-		actor := undo.AwardUser
+		actor := undo.CompletionUser
 		if actor == "" && task.Picker != nil {
 			actor = *task.Picker
 		}
@@ -178,16 +162,13 @@ func (store *Store) ImportLegacy(ctx context.Context, bundle *legacy.Bundle, rep
 				id, task_id, outcome, actor, occurred_at, scheduled_for,
 				previous_lifecycle, previous_scheduled_at, previous_claimed_by,
 				previous_claimed_at, previous_last_completed_at, result_version,
-				award_entry_id, previous_points_snapshot, previous_points_snapshot_by,
-				previous_points_snapshot_at, previous_unclaimed_at
-			) VALUES (?, ?, 'completed', ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?)`,
+				completion_entry_id
+			) VALUES (?, ?, 'completed', ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)`,
 			occurrenceID, task.ID, actor, formatTime(undo.CompletedAt),
 			timeValue(undo.Previous.ScheduledAt), previousLifecycle,
 			timeValue(undo.Previous.ScheduledAt), stringValue(previousClaimedBy),
 			timeValue(previousClaimedAt), timeValue(undo.Previous.LastCompleted),
-			awardEntryID, intValue(undo.Previous.PointsSnapshot),
-			stringValue(undo.Previous.SnapshotBy), timeValue(undo.Previous.SnapshotAt),
-			timeValue(undo.Previous.UnclaimedAt),
+			completionEntryID,
 		); err != nil {
 			return nil, fmt.Errorf("import completion undo for task %q: %w", task.ID, err)
 		}
@@ -222,14 +203,14 @@ func contentCount(ctx context.Context, tx *sql.Tx) (int, error) {
 	err := tx.QueryRowContext(ctx, `
 		SELECT (SELECT COUNT(*) FROM tasks) +
 		       (SELECT COUNT(*) FROM users) +
-		       (SELECT COUNT(*) FROM point_entries)`).Scan(&count)
+		       (SELECT COUNT(*) FROM completion_entries)`).Scan(&count)
 	return count, err
 }
 
 func clearImportedData(ctx context.Context, tx *sql.Tx) error {
 	for _, table := range []string{
-		"sessions", "task_occurrences", "task_point_snapshots", "task_dependencies",
-		"tasks", "point_entries", "users",
+		"sessions", "task_occurrences", "task_dependencies",
+		"tasks", "completion_entries", "users",
 	} {
 		if _, err := tx.ExecContext(ctx, "DELETE FROM "+table); err != nil {
 			return fmt.Errorf("clear %s: %w", table, err)
@@ -265,8 +246,7 @@ func validateImportedData(ctx context.Context, tx *sql.Tx, report *LegacyImportR
 	}{
 		{"tasks", `SELECT COUNT(*) FROM tasks`, report.Tasks},
 		{"users", `SELECT COUNT(*) FROM users`, report.Users},
-		{"point entries", `SELECT COUNT(*) FROM point_entries`, report.PointEntries},
-		{"point snapshots", `SELECT COUNT(*) FROM task_point_snapshots`, report.PointSnapshots},
+		{"completion entries", `SELECT COUNT(*) FROM completion_entries`, report.CompletionEntries},
 	}
 	for _, check := range checks {
 		var got int

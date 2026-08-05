@@ -13,7 +13,7 @@ func TestLoadCompleteFixture(t *testing.T) {
 	if bundle.Report.Tasks != 8 || bundle.Report.Users != 2 {
 		t.Fatalf("task/user counts = %d/%d", bundle.Report.Tasks, bundle.Report.Users)
 	}
-	if bundle.Report.PointEntries != 1 || bundle.Report.PointSnapshots != 1 || bundle.Report.UndoCandidates != 1 {
+	if bundle.Report.CompletionEntries != 1 || bundle.Report.UndoCandidates != 1 {
 		t.Fatalf("history counts = %#v", bundle.Report)
 	}
 	byID := make(map[string]Task, len(bundle.Tasks))
@@ -33,7 +33,7 @@ func TestLoadCompleteFixture(t *testing.T) {
 	if task := byID["task-weekdays"]; task.Recurrence.Kind != "anchored" || len(task.Recurrence.Weekdays) != 2 {
 		t.Fatalf("weekday recurrence = %#v", task.Recurrence)
 	}
-	if task := byID["task-done"]; task.CompletionUndo == nil || task.CompletionUndo.AwardUser != "alice" {
+	if task := byID["task-done"]; task.CompletionUndo == nil || task.CompletionUndo.CompletionUser != "alice" {
 		t.Fatalf("completion undo = %#v", task.CompletionUndo)
 	}
 	if got := bundle.Users[0].PasswordHash; !strings.HasPrefix(got, "$2b$10$") {
@@ -61,12 +61,12 @@ func TestValidateRejectsMissingDependenciesAndCycles(t *testing.T) {
 	}
 }
 
-func TestValidateRejectsInconsistentPointTotals(t *testing.T) {
+func TestValidateRejectsDuplicateUsers(t *testing.T) {
 	bundle := &Bundle{
-		Users:  []User{{Username: "alice", Points: 2, History: []PointEntry{{Points: 1}}}},
+		Users:  []User{{Username: "alice"}, {Username: "alice"}},
 		Limits: map[string]*int{},
 	}
-	if err := validate(bundle); err == nil || !strings.Contains(err.Error(), "history sums") {
-		t.Fatalf("point total error = %v", err)
+	if err := validate(bundle); err == nil || !strings.Contains(err.Error(), "duplicate user") {
+		t.Fatalf("duplicate user error = %v", err)
 	}
 }
