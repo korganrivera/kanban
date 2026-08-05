@@ -33,13 +33,16 @@ go run ./cmd/kanban
 - Scheduled tasks with configurable lead time
 - Rolling and anchored recurring tasks
 - Dependency-driven suspension with cycle protection
+- Configurable WIP limits enforced against effective column state
+- Automatic priority scoring from due dates and downstream dependencies
+- Time-critical task ordering and blocked-task remedy creation
 - Automatic claim release when a task leaves In Progress, while Done retains
   completion ownership
 - Optimistic version checks and transactional updates
 - Embedded browser assets and live board refresh through server-sent events
 
-Authentication, WIP configuration, points, and migration from the existing
-board are deliberately outside this first milestone.
+Authentication, points/history, weekday recurrence, and migration from the
+existing board remain to be implemented.
 
 ## Test
 

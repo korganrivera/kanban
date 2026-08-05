@@ -104,3 +104,47 @@ func TestStaticAssetsAndRequestValidation(t *testing.T) {
 		t.Fatalf("invalid request status = %d", invalid.Code)
 	}
 }
+
+func TestWIPLimitsAndRemediesThroughHTTP(t *testing.T) {
+	handler := testServer(t)
+	limit := 1
+	limits := performJSON(t, handler, http.MethodPatch, "/api/wip-limits", board.WIPLimits{
+		board.StateInProgress: &limit,
+	})
+	if limits.Code != http.StatusOK {
+		t.Fatalf("limit update status = %d, body = %s", limits.Code, limits.Body.String())
+	}
+
+	firstResponse := performJSON(t, handler, http.MethodPost, "/api/tasks", map[string]string{"title": "First"})
+	first := decodeTask(t, firstResponse)
+	secondResponse := performJSON(t, handler, http.MethodPost, "/api/tasks", map[string]string{"title": "Second"})
+	second := decodeTask(t, secondResponse)
+	claimed := performJSON(t, handler, http.MethodPost, "/api/tasks/"+first.ID+"/claim", board.ActionInput{Version: first.Version})
+	if claimed.Code != http.StatusOK {
+		t.Fatalf("first claim status = %d", claimed.Code)
+	}
+	rejected := performJSON(t, handler, http.MethodPost, "/api/tasks/"+second.ID+"/claim", board.ActionInput{Version: second.Version})
+	if rejected.Code != http.StatusConflict || !strings.Contains(rejected.Body.String(), "WIP limit exceeded") {
+		t.Fatalf("second claim response = %d, %s", rejected.Code, rejected.Body.String())
+	}
+
+	blockedResponse := performJSON(t, handler, http.MethodPost, "/api/tasks", map[string]string{"title": "Blocked"})
+	blocked := decodeTask(t, blockedResponse)
+	blockedResponse = performJSON(t, handler, http.MethodPost, "/api/tasks/"+blocked.ID+"/block", board.ActionInput{
+		Version: blocked.Version, Note: "Needs a remedy",
+	})
+	blocked = decodeTask(t, blockedResponse)
+	remedy := performJSON(t, handler, http.MethodPost, "/api/tasks/"+blocked.ID+"/remedy", board.RemedyInput{
+		Title: "Fix it", Version: blocked.Version,
+	})
+	if remedy.Code != http.StatusCreated {
+		t.Fatalf("remedy response = %d, %s", remedy.Code, remedy.Body.String())
+	}
+	var result board.RemedyResult
+	if err := json.NewDecoder(remedy.Body).Decode(&result); err != nil {
+		t.Fatal(err)
+	}
+	if result.BlockedTask.EffectiveState != board.StateSuspended || result.RemedyTask.EffectiveState != board.StateReady {
+		t.Fatalf("remedy states = %s/%s", result.BlockedTask.EffectiveState, result.RemedyTask.EffectiveState)
+	}
+}

@@ -23,6 +23,9 @@ type taskStore interface {
 	Update(context.Context, string, board.TaskInput) (*board.Task, error)
 	Action(context.Context, string, string, string, board.ActionInput) (*board.Task, error)
 	Delete(context.Context, string, board.DeleteInput) ([]board.TaskReference, error)
+	WIPLimits(context.Context) (board.WIPLimits, error)
+	UpdateWIPLimits(context.Context, board.WIPLimits) (board.WIPLimits, error)
+	CreateRemedy(context.Context, string, board.RemedyInput) (*board.RemedyResult, error)
 }
 
 type Server struct {
@@ -60,9 +63,52 @@ func (server *Server) routes() {
 	server.mux.HandleFunc("POST /api/tasks", server.createTask)
 	server.mux.HandleFunc("PATCH /api/tasks/{id}", server.updateTask)
 	server.mux.HandleFunc("DELETE /api/tasks/{id}", server.deleteTask)
+	server.mux.HandleFunc("POST /api/tasks/{id}/remedy", server.createRemedy)
 	server.mux.HandleFunc("POST /api/tasks/{id}/{action}", server.actionTask)
+	server.mux.HandleFunc("GET /api/wip-limits", server.getWIPLimits)
+	server.mux.HandleFunc("PATCH /api/wip-limits", server.updateWIPLimits)
 	server.mux.HandleFunc("GET /api/events", server.streamEvents)
 	server.mux.Handle("GET /", webui.Handler())
+}
+
+func (server *Server) createRemedy(response http.ResponseWriter, request *http.Request) {
+	var input board.RemedyInput
+	if err := decodeJSON(response, request, &input); err != nil {
+		writeError(response, http.StatusBadRequest, err.Error())
+		return
+	}
+	result, err := server.store.CreateRemedy(request.Context(), request.PathValue("id"), input)
+	if err != nil {
+		writeStoreError(response, err)
+		return
+	}
+	server.events.publish()
+	writeJSON(response, http.StatusCreated, result)
+}
+
+func (server *Server) getWIPLimits(response http.ResponseWriter, request *http.Request) {
+	limits, err := server.store.WIPLimits(request.Context())
+	if err != nil {
+		log.Printf("get WIP limits: %v", err)
+		writeError(response, http.StatusInternalServerError, "could not load WIP limits")
+		return
+	}
+	writeJSON(response, http.StatusOK, limits)
+}
+
+func (server *Server) updateWIPLimits(response http.ResponseWriter, request *http.Request) {
+	var input board.WIPLimits
+	if err := decodeJSON(response, request, &input); err != nil {
+		writeError(response, http.StatusBadRequest, err.Error())
+		return
+	}
+	limits, err := server.store.UpdateWIPLimits(request.Context(), input)
+	if err != nil {
+		writeStoreError(response, err)
+		return
+	}
+	server.events.publish()
+	writeJSON(response, http.StatusOK, limits)
 }
 
 func (server *Server) deleteTask(response http.ResponseWriter, request *http.Request) {
@@ -200,12 +246,15 @@ func decodeJSON(response http.ResponseWriter, request *http.Request, target any)
 }
 
 func writeStoreError(response http.ResponseWriter, err error) {
+	var wipError *board.WIPLimitError
 	switch {
 	case errors.Is(err, board.ErrNotFound):
 		writeError(response, http.StatusNotFound, err.Error())
 	case errors.Is(err, board.ErrConflict):
 		writeError(response, http.StatusConflict, err.Error())
 	case errors.Is(err, board.ErrInvalidAction):
+		writeError(response, http.StatusConflict, err.Error())
+	case errors.As(err, &wipError):
 		writeError(response, http.StatusConflict, err.Error())
 	default:
 		writeError(response, http.StatusBadRequest, err.Error())

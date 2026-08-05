@@ -229,3 +229,69 @@ func TestStaleVersionIsRejected(t *testing.T) {
 		t.Fatalf("stale action error = %v", err)
 	}
 }
+
+func TestWIPLimitPreventsAdditionalClaim(t *testing.T) {
+	store, ctx, _ := openTestStore(t)
+	limit := 1
+	limits, err := store.UpdateWIPLimits(ctx, board.WIPLimits{board.StateInProgress: &limit})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if limits[board.StateInProgress] == nil || *limits[board.StateInProgress] != 1 {
+		t.Fatalf("in-progress limit = %v", limits[board.StateInProgress])
+	}
+
+	first, err := store.Create(ctx, board.TaskInput{Title: "First task"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	second, err := store.Create(ctx, board.TaskInput{Title: "Second task"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.Action(ctx, first.ID, "claim", "korgan", board.ActionInput{Version: first.Version}); err != nil {
+		t.Fatal(err)
+	}
+	_, err = store.Action(ctx, second.ID, "claim", "korgan", board.ActionInput{Version: second.Version})
+	var wipError *board.WIPLimitError
+	if !errors.As(err, &wipError) || wipError.State != board.StateInProgress || wipError.Limit != 1 {
+		t.Fatalf("second claim error = %v", err)
+	}
+}
+
+func TestRemedySuspendsBlockedTask(t *testing.T) {
+	store, ctx, _ := openTestStore(t)
+	blocked, err := store.Create(ctx, board.TaskInput{
+		Title: "Blocked parent", TimeCritical: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	blocked, err = store.Action(ctx, blocked.ID, "block", "korgan", board.ActionInput{
+		Version: blocked.Version, Note: "Needs a concrete next action",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := store.CreateRemedy(ctx, blocked.ID, board.RemedyInput{
+		Title: "Resolve the blocker", Version: blocked.Version,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.BlockedTask.EffectiveState != board.StateSuspended || result.BlockedTask.BlockNote != "" {
+		t.Fatalf("parent state/note = %s/%q", result.BlockedTask.EffectiveState, result.BlockedTask.BlockNote)
+	}
+	if len(result.BlockedTask.Dependencies) != 1 || result.BlockedTask.Dependencies[0] != result.RemedyTask.ID {
+		t.Fatalf("parent dependencies = %v", result.BlockedTask.Dependencies)
+	}
+	if result.RemedyTask.RemedyFor == nil || *result.RemedyTask.RemedyFor != blocked.ID {
+		t.Fatalf("remedy parent = %v", result.RemedyTask.RemedyFor)
+	}
+	if result.RemedyTask.EffectiveState != board.StateReady {
+		t.Fatalf("remedy state = %s", result.RemedyTask.EffectiveState)
+	}
+	if !result.BlockedTask.TimeCritical {
+		t.Fatal("time-critical metadata was not persisted on parent")
+	}
+}

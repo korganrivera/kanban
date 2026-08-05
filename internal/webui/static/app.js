@@ -20,11 +20,13 @@ const COLORS = {
 const MANUAL_TARGETS = new Set(["Ready", "InProgress", "Blocked", "Done"]);
 
 let tasks = [];
+let wipLimits = {};
 let editorTaskID = null;
 let toastTimer = null;
 
 const board = document.getElementById("board");
 const editor = document.getElementById("editor");
+const settings = document.getElementById("settings");
 const backdrop = document.getElementById("backdrop");
 
 async function request(path, options = {}) {
@@ -44,7 +46,10 @@ async function request(path, options = {}) {
 
 async function loadBoard() {
     try {
-        tasks = await request("/api/tasks");
+        [tasks, wipLimits] = await Promise.all([
+            request("/api/tasks"),
+            request("/api/wip-limits"),
+        ]);
         renderBoard();
     } catch (error) {
         showToast(error.message);
@@ -57,12 +62,26 @@ function renderBoard() {
         (groups[task.effectiveState] || groups.Ready).push(task);
     }
     for (const state of STATES) {
-        groups[state].sort(compareTasks);
+        groups[state].sort((left, right) => compareTasks(state, left, right));
     }
     board.replaceChildren(...STATES.map((state) => makeColumn(state, groups[state])));
 }
 
-function compareTasks(left, right) {
+function compareTasks(state, left, right) {
+    if (state === "Done") {
+        return dateValue(right.lastCompletedAt, 0) - dateValue(left.lastCompletedAt, 0);
+    }
+    if (state !== "Waiting") {
+        const leftCritical = isTimeCriticalActive(left);
+        const rightCritical = isTimeCriticalActive(right);
+        if (leftCritical !== rightCritical) return leftCritical ? -1 : 1;
+        if (leftCritical && rightCritical) {
+            const dueDifference = dateValue(left.scheduledAt, Infinity) - dateValue(right.scheduledAt, Infinity);
+            if (dueDifference) return dueDifference;
+        }
+        const priorityDifference = Number(right.priority || 0) - Number(left.priority || 0);
+        if (priorityDifference) return priorityDifference;
+    }
     if (left.scheduledAt && right.scheduledAt) {
         return new Date(left.scheduledAt) - new Date(right.scheduledAt);
     }
@@ -75,10 +94,14 @@ function makeColumn(state, columnTasks) {
     const column = element("section", "column");
     column.style.setProperty("--state-color", COLORS[state]);
     const header = element("header", "column-header");
-    header.append(
-        element("span", "", LABELS[state]),
-        element("span", "column-count", String(columnTasks.length)),
+    const limit = wipLimits[state];
+    const count = element(
+        "span",
+        "column-count",
+        limit === null || limit === undefined ? String(columnTasks.length) : `${columnTasks.length} / ${limit}`,
     );
+    if (limit !== null && limit !== undefined && columnTasks.length > limit) count.classList.add("over-limit");
+    header.append(element("span", "", LABELS[state]), count);
     const list = element("div", "column-list");
     list.dataset.state = state;
     for (const task of columnTasks) list.append(makeCard(task));
@@ -90,22 +113,31 @@ function makeColumn(state, columnTasks) {
 function makeCard(task) {
     const draggable = ["Ready", "InProgress", "Blocked"].includes(task.effectiveState);
     const card = element("article", "card");
+    if (isTimeCriticalActive(task)) card.classList.add("time-critical");
     card.style.setProperty("--state-color", COLORS[task.effectiveState]);
     card.draggable = draggable;
     card.dataset.id = task.id;
+    if (!["Waiting", "Done"].includes(task.effectiveState)) {
+        const priority = element("span", "priority", String(task.priority || 1));
+        priority.style.background = priorityColor(task.priority);
+        priority.title = "Automatic priority";
+        card.append(priority);
+    }
     card.append(element("h3", "card-title", task.title));
     if (task.description) {
         card.append(element("p", "card-description", truncate(task.description, 150)));
     }
-    if (task.blockNote) card.append(element("p", "card-note", task.blockNote));
+    if (task.effectiveState === "Blocked" && task.blockNote) card.append(element("p", "card-note", task.blockNote));
 
     const metadata = element("div", "metadata");
-    if (task.scheduledAt) metadata.append(element("span", "", formatDate(task.scheduledAt)));
+    if (task.scheduledAt) metadata.append(element("span", "", `Due ${formatDate(task.scheduledAt)}`));
+    if (task.timeCritical) metadata.append(element("span", "", "Time critical"));
     if (task.claimedBy) metadata.append(element("span", "", `Claimed by ${task.claimedBy}`));
     if (task.dependencies.length) metadata.append(element("span", "", `${task.dependencies.length} dependencies`));
     if (task.recurrence.kind !== "none") {
         metadata.append(element("span", "", `${task.recurrence.kind} every ${task.recurrence.days} days`));
     }
+    if (task.remedyFor) metadata.append(element("span", "", "Remedy task"));
     card.append(metadata);
 
     const actions = element("div", "card-actions");
@@ -114,7 +146,8 @@ function makeCard(task) {
         button.type = "button";
         button.addEventListener("click", async (event) => {
             event.stopPropagation();
-            await runAction(task, action);
+            if (action === "remedy") await createRemedy(task);
+            else await runAction(task, action);
         });
         actions.append(button);
     }
@@ -138,7 +171,7 @@ function actionsFor(task) {
         case "InProgress":
             return [["Release", "release", "secondary"], ["Complete", "complete"], ["Block", "block", "danger"]];
         case "Blocked":
-            return [["Unblock", "unblock"]];
+            return [["Remedy", "remedy"], ["Unblock", "unblock", "secondary"]];
         case "Done":
             return task.canUndo ? [["Undo", "undo", "secondary"]] : [];
         default:
@@ -149,13 +182,29 @@ function actionsFor(task) {
 async function runAction(task, action) {
     let note = "";
     if (action === "block") {
-        note = window.prompt("What is blocking this task?", task.blockNote || "") ?? "";
-        if (!note && task.effectiveState !== "Blocked") return;
+        const response = window.prompt("What is blocking this task?", task.blockNote || "");
+        if (response === null) return;
+        note = response;
     }
     try {
         await request(`/api/tasks/${encodeURIComponent(task.id)}/${action}`, {
             method: "POST",
             body: JSON.stringify({ version: task.version, note }),
+        });
+        await loadBoard();
+    } catch (error) {
+        showToast(error.message);
+        if (error.status === 409) await loadBoard();
+    }
+}
+
+async function createRemedy(task) {
+    const title = window.prompt("Remedy title", `Remedy for ${task.title}`);
+    if (title === null) return;
+    try {
+        await request(`/api/tasks/${encodeURIComponent(task.id)}/remedy`, {
+            method: "POST",
+            body: JSON.stringify({ title: title.trim(), version: task.version }),
         });
         await loadBoard();
     } catch (error) {
@@ -183,7 +232,7 @@ function enableDropTarget(list) {
         if (destination === "Blocked" && ["Ready", "InProgress"].includes(task.effectiveState)) {
             return runAction(task, "block");
         }
-        if (destination === "Done" && ["Ready", "InProgress"].includes(task.effectiveState)) {
+        if (destination === "Done" && task.effectiveState === "InProgress") {
             return runAction(task, "complete");
         }
         showToast(`Move ${LABELS[task.effectiveState]} to ${LABELS[destination]} using its command first`);
@@ -191,6 +240,7 @@ function enableDropTarget(list) {
 }
 
 function openEditor(task = null) {
+    closeSettings();
     editorTaskID = task?.id || null;
     document.getElementById("editor-title").textContent = task ? "Edit task" : "New task";
     document.getElementById("task-title").value = task?.title || "";
@@ -203,6 +253,8 @@ function openEditor(task = null) {
     document.getElementById("task-recurrence").value = task?.recurrence.kind || "none";
     document.getElementById("task-recurrence-days").value = String(task?.recurrence.days || 30);
     document.getElementById("task-paused").checked = Boolean(task?.recurrence.paused);
+    document.getElementById("task-time-critical").checked = Boolean(task?.timeCritical);
+    renderTaskContext(task);
     renderDependencies(task);
     updateRecurrenceControls();
     backdrop.hidden = false;
@@ -215,7 +267,29 @@ function closeEditor() {
     editorTaskID = null;
     editor.classList.remove("open");
     editor.setAttribute("aria-hidden", "true");
-    backdrop.hidden = true;
+    if (!settings.classList.contains("open")) backdrop.hidden = true;
+}
+
+function renderTaskContext(task) {
+    const context = document.getElementById("task-context");
+    if (!task) {
+        context.hidden = true;
+        context.replaceChildren();
+        return;
+    }
+    const values = [
+        LABELS[task.effectiveState],
+        `Priority ${task.priority || 1}`,
+        `Created ${formatDate(task.createdAt)}`,
+    ];
+    if (task.claimedBy) values.push(`Claimed by ${task.claimedBy}`);
+    if (task.lastCompletedAt) values.push(`Completed ${formatDate(task.lastCompletedAt)}`);
+    if (task.remedyFor) {
+        const parent = tasks.find((candidate) => candidate.id === task.remedyFor);
+        values.push(parent ? `Remedy for ${parent.title}` : "Remedy task");
+    }
+    context.replaceChildren(...values.map((value) => element("span", "", value)));
+    context.hidden = false;
 }
 
 function renderDependencies(task) {
@@ -246,6 +320,7 @@ async function saveEditor(event) {
         title: document.getElementById("task-title").value.trim(),
         description: document.getElementById("task-description").value.trim(),
         blockNote: document.getElementById("task-block-note").value.trim(),
+        timeCritical: document.getElementById("task-time-critical").checked,
         scheduledAt: scheduledValue ? new Date(scheduledValue).toISOString() : null,
         leadDays: Number(document.getElementById("task-lead").value || 0),
         recurrence: {
@@ -270,6 +345,49 @@ async function saveEditor(event) {
     } catch (error) {
         showToast(error.message);
         if (error.status === 409) await loadBoard();
+    }
+}
+
+function openSettings() {
+    closeEditor();
+    for (const state of STATES) {
+        const limit = wipLimits[state];
+        document.getElementById(`limit-${state}`).value = limit === null || limit === undefined ? "" : String(limit);
+    }
+    backdrop.hidden = false;
+    settings.classList.add("open");
+    settings.setAttribute("aria-hidden", "false");
+    document.getElementById("limit-InProgress").focus();
+}
+
+function closeSettings() {
+    settings.classList.remove("open");
+    settings.setAttribute("aria-hidden", "true");
+    if (!editor.classList.contains("open")) backdrop.hidden = true;
+}
+
+function closePanels() {
+    closeEditor();
+    closeSettings();
+    backdrop.hidden = true;
+}
+
+async function saveSettings(event) {
+    event.preventDefault();
+    const payload = {};
+    for (const state of STATES) {
+        const value = document.getElementById(`limit-${state}`).value;
+        payload[state] = value === "" ? null : Number(value);
+    }
+    try {
+        wipLimits = await request("/api/wip-limits", {
+            method: "PATCH",
+            body: JSON.stringify(payload),
+        });
+        closeSettings();
+        renderBoard();
+    } catch (error) {
+        showToast(error.message);
     }
 }
 
@@ -343,6 +461,29 @@ function formatDate(value) {
     return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 }
 
+function dateValue(value, fallback) {
+    if (!value) return fallback;
+    const parsed = new Date(value).getTime();
+    return Number.isNaN(parsed) ? fallback : parsed;
+}
+
+function priorityColor(value) {
+    const priority = Number(value) || 0;
+    if (priority <= 33) return "var(--ready)";
+    if (priority <= 66) return "var(--waiting)";
+    return "var(--blocked)";
+}
+
+function isTimeCriticalActive(task) {
+    if (!task.timeCritical || !task.scheduledAt || ["Waiting", "Done"].includes(task.effectiveState)) return false;
+    const due = new Date(task.scheduledAt);
+    if (Number.isNaN(due.getTime())) return false;
+    const today = new Date();
+    const dueDate = new Date(due.getFullYear(), due.getMonth(), due.getDate()).getTime();
+    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+    return dueDate <= todayDate;
+}
+
 function toLocalInput(value) {
     const date = new Date(value);
     const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
@@ -359,14 +500,18 @@ function showToast(message) {
 
 document.getElementById("quick-add").addEventListener("submit", quickAdd);
 document.getElementById("new-task").addEventListener("click", () => openEditor());
+document.getElementById("settings-button").addEventListener("click", openSettings);
 document.getElementById("task-form").addEventListener("submit", saveEditor);
+document.getElementById("settings-form").addEventListener("submit", saveSettings);
 document.getElementById("close-editor").addEventListener("click", closeEditor);
 document.getElementById("cancel-editor").addEventListener("click", closeEditor);
 document.getElementById("delete-task").addEventListener("click", deleteEditorTask);
-document.getElementById("backdrop").addEventListener("click", closeEditor);
+document.getElementById("close-settings").addEventListener("click", closeSettings);
+document.getElementById("cancel-settings").addEventListener("click", closeSettings);
+document.getElementById("backdrop").addEventListener("click", closePanels);
 document.getElementById("task-recurrence").addEventListener("change", updateRecurrenceControls);
 document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && editor.classList.contains("open")) closeEditor();
+    if (event.key === "Escape") closePanels();
 });
 
 const events = new EventSource("/api/events");

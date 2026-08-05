@@ -15,7 +15,10 @@
                 <input id="quick-title" name="title" maxlength="200" placeholder="Add a task" required>
                 <button type="submit">Add</button>
             </form>
-            <button id="new-task" type="button" class="secondary">New task</button>
+            <div class="topbar-actions">
+                <button id="settings-button" type="button" class="secondary">Settings</button>
+                <button id="new-task" type="button" class="secondary">New task</button>
+            </div>
         </header>
 
         <main id="board" class="board" aria-live="polite"></main>
@@ -31,6 +34,8 @@
 
                 <label for="task-description">Description</label>
                 <textarea id="task-description" rows="6" maxlength="20000"></textarea>
+
+                <div id="task-context" class="task-context" hidden></div>
 
                 <div id="block-note-wrap" hidden>
                     <label for="task-block-note">Block note</label>
@@ -68,6 +73,11 @@
                     Pause recurrence
                 </label>
 
+                <label class="checkbox-line">
+                    <input id="task-time-critical" type="checkbox">
+                    Time critical
+                </label>
+
                 <fieldset>
                     <legend>Dependencies</legend>
                     <div id="dependency-list" class="dependency-list"></div>
@@ -77,6 +87,36 @@
                     <button type="submit">Save</button>
                     <button id="cancel-editor" type="button" class="secondary">Cancel</button>
                     <button id="delete-task" type="button" class="danger delete" hidden>Delete</button>
+                </div>
+            </form>
+        </aside>
+
+        <aside id="settings" class="editor" aria-hidden="true">
+            <div class="editor-header">
+                <h2>Settings</h2>
+                <button id="close-settings" type="button" class="secondary">Close</button>
+            </div>
+            <form id="settings-form">
+                <fieldset>
+                    <legend>WIP limits</legend>
+                    <div class="settings-grid">
+                        <label for="limit-Waiting">Waiting</label>
+                        <input id="limit-Waiting" type="number" min="0" step="1" placeholder="No limit">
+                        <label for="limit-Ready">Ready</label>
+                        <input id="limit-Ready" type="number" min="0" step="1" placeholder="No limit">
+                        <label for="limit-InProgress">In Progress</label>
+                        <input id="limit-InProgress" type="number" min="0" step="1" placeholder="No limit">
+                        <label for="limit-Blocked">Blocked</label>
+                        <input id="limit-Blocked" type="number" min="0" step="1" placeholder="No limit">
+                        <label for="limit-Suspended">Suspended</label>
+                        <input id="limit-Suspended" type="number" min="0" step="1" placeholder="No limit">
+                        <label for="limit-Done">Done</label>
+                        <input id="limit-Done" type="number" min="0" step="1" placeholder="No limit">
+                    </div>
+                </fieldset>
+                <div class="editor-actions">
+                    <button type="submit">Save</button>
+                    <button id="cancel-settings" type="button" class="secondary">Cancel</button>
                 </div>
             </form>
         </aside>

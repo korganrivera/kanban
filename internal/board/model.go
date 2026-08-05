@@ -44,6 +44,8 @@ type Task struct {
 	ReadyAt         *time.Time     `json:"readyAt"`
 	LeadDays        int            `json:"leadDays"`
 	Recurrence      Recurrence     `json:"recurrence"`
+	TimeCritical    bool           `json:"timeCritical"`
+	RemedyFor       *string        `json:"remedyFor"`
 	ClaimedBy       *string        `json:"claimedBy"`
 	ClaimedAt       *time.Time     `json:"claimedAt"`
 	BlockNote       string         `json:"blockNote"`
@@ -52,12 +54,17 @@ type Task struct {
 	UpdatedAt       time.Time      `json:"updatedAt"`
 	Version         int64          `json:"version"`
 	CanUndo         bool           `json:"canUndo"`
+	Priority        int            `json:"priority"`
+	Importance      float64        `json:"importance"`
+	Urgency         float64        `json:"urgency"`
+	Deadlock        bool           `json:"deadlock"`
 }
 
 type TaskInput struct {
 	Title        string     `json:"title"`
 	Description  string     `json:"description"`
 	BlockNote    string     `json:"blockNote"`
+	TimeCritical bool       `json:"timeCritical"`
 	ScheduledAt  *time.Time `json:"scheduledAt"`
 	LeadDays     int        `json:"leadDays"`
 	Recurrence   Recurrence `json:"recurrence"`
@@ -78,6 +85,28 @@ type DeleteInput struct {
 type TaskReference struct {
 	ID    string `json:"id"`
 	Title string `json:"title"`
+}
+
+type RemedyInput struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Version     int64  `json:"version"`
+}
+
+type RemedyResult struct {
+	BlockedTask *Task `json:"blockedTask"`
+	RemedyTask  *Task `json:"remedyTask"`
+}
+
+type WIPLimits map[EffectiveState]*int
+
+type WIPLimitError struct {
+	State EffectiveState
+	Limit int
+}
+
+func (err *WIPLimitError) Error() string {
+	return fmt.Sprintf("WIP limit exceeded for %s; limit: %d", err.State, err.Limit)
 }
 
 var (
@@ -133,6 +162,36 @@ func (input *TaskInput) Normalize() error {
 	}
 	input.Dependencies = cleaned
 	return nil
+}
+
+func (input *RemedyInput) Normalize(parentTitle string) error {
+	input.Title = strings.TrimSpace(input.Title)
+	input.Description = strings.TrimSpace(input.Description)
+	if input.Title == "" {
+		input.Title = "Remedy for " + parentTitle
+	}
+	if input.Description == "" {
+		input.Description = "Remedy for: " + parentTitle
+	}
+	if len(input.Title) > 200 {
+		return errors.New("title must be 200 characters or fewer")
+	}
+	if len(input.Description) > 20000 {
+		return errors.New("description must be 20000 characters or fewer")
+	}
+	if input.Version < 1 {
+		return errors.New("version is required")
+	}
+	return nil
+}
+
+func ValidState(value EffectiveState) bool {
+	switch value {
+	case StateWaiting, StateReady, StateInProgress, StateBlocked, StateSuspended, StateDone:
+		return true
+	default:
+		return false
+	}
 }
 
 func DeriveStates(tasks []*Task, now time.Time) {

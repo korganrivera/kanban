@@ -44,6 +44,10 @@ func Open(path string) (*Store, error) {
 		db.Close()
 		return nil, fmt.Errorf("initialize database: %w", err)
 	}
+	if err := migrate(db); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("migrate database: %w", err)
+	}
 	return &Store{db: db, now: time.Now}, nil
 }
 
@@ -57,6 +61,7 @@ func (store *Store) List(ctx context.Context) ([]*board.Task, error) {
 		return nil, err
 	}
 	board.DeriveStates(tasks, store.now().UTC())
+	board.ComputePriorities(tasks, store.now().UTC())
 	return tasks, nil
 }
 
@@ -89,11 +94,12 @@ func (store *Store) Create(ctx context.Context, input board.TaskInput) (*board.T
         INSERT INTO tasks (
             id, title, description, lifecycle, scheduled_at, lead_days,
             recurrence_kind, recurrence_days, recurrence_paused,
-            created_at, updated_at, version
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+			time_critical, created_at, updated_at, version
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
 		id, input.Title, input.Description, board.LifecycleReady,
 		timeValue(input.ScheduledAt), input.LeadDays, input.Recurrence.Kind,
 		input.Recurrence.Days, boolInt(input.Recurrence.Paused),
+		boolInt(input.TimeCritical),
 		formatTime(now), formatTime(now),
 	)
 	if err != nil {
@@ -142,11 +148,12 @@ func (store *Store) Update(ctx context.Context, id string, input board.TaskInput
 	result, err := tx.ExecContext(ctx, `
         UPDATE tasks SET
 			title = ?, description = ?, block_note = ?, scheduled_at = ?, lead_days = ?,
-            recurrence_kind = ?, recurrence_days = ?, recurrence_paused = ?,
+			recurrence_kind = ?, recurrence_days = ?, recurrence_paused = ?, time_critical = ?,
             updated_at = ?, version = version + 1
         WHERE id = ? AND version = ?`,
 		input.Title, input.Description, input.BlockNote, timeValue(input.ScheduledAt), input.LeadDays,
 		input.Recurrence.Kind, input.Recurrence.Days, boolInt(input.Recurrence.Paused),
+		boolInt(input.TimeCritical),
 		formatTime(now), id, input.Version,
 	)
 	if err != nil {
@@ -214,10 +221,16 @@ func (store *Store) Action(ctx context.Context, id, action, actor string, input 
 		if task.EffectiveState != board.StateReady {
 			return nil, board.ErrInvalidAction
 		}
+		if err := enforceWIP(ctx, tx, tasks, board.StateInProgress, task.ID, now); err != nil {
+			return nil, err
+		}
 		err = updateLifecycle(ctx, tx, task, board.LifecycleInProgress, &actor, &now, "", now)
 	case "release":
 		if task.EffectiveState != board.StateInProgress {
 			return nil, board.ErrInvalidAction
+		}
+		if err := enforceWIP(ctx, tx, tasks, board.StateReady, task.ID, now); err != nil {
+			return nil, err
 		}
 		err = updateLifecycle(ctx, tx, task, board.LifecycleReady, nil, nil, "", now)
 	case "block":
@@ -228,15 +241,26 @@ func (store *Store) Action(ctx context.Context, id, action, actor string, input 
 		if len(note) > 5000 {
 			return nil, errors.New("block note must be 5000 characters or fewer")
 		}
+		if task.EffectiveState != board.StateBlocked {
+			if err := enforceWIP(ctx, tx, tasks, board.StateBlocked, task.ID, now); err != nil {
+				return nil, err
+			}
+		}
 		err = updateLifecycle(ctx, tx, task, board.LifecycleBlocked, nil, nil, note, now)
 	case "unblock":
 		if task.EffectiveState != board.StateBlocked {
 			return nil, board.ErrInvalidAction
 		}
+		if err := enforceWIP(ctx, tx, tasks, board.StateReady, task.ID, now); err != nil {
+			return nil, err
+		}
 		err = updateLifecycle(ctx, tx, task, board.LifecycleReady, nil, nil, "", now)
 	case "complete":
 		if task.EffectiveState != board.StateInProgress {
 			return nil, board.ErrInvalidAction
+		}
+		if err := enforceWIP(ctx, tx, tasks, board.StateDone, task.ID, now); err != nil {
+			return nil, err
 		}
 		err = completeTask(ctx, tx, task, actor, now)
 	case "undo":
@@ -251,6 +275,106 @@ func (store *Store) Action(ctx context.Context, id, action, actor string, input 
 		return nil, err
 	}
 	return store.Get(ctx, id)
+}
+
+func (store *Store) WIPLimits(ctx context.Context) (board.WIPLimits, error) {
+	return listWIPLimits(ctx, store.db)
+}
+
+func (store *Store) UpdateWIPLimits(ctx context.Context, updates board.WIPLimits) (board.WIPLimits, error) {
+	tx, err := store.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+	for state, limit := range updates {
+		if !board.ValidState(state) {
+			return nil, fmt.Errorf("unknown WIP state %q", state)
+		}
+		if limit != nil && *limit < 0 {
+			return nil, fmt.Errorf("%s WIP limit must be non-negative or null", state)
+		}
+		if _, err := tx.ExecContext(ctx, `UPDATE wip_limits SET limit_count = ? WHERE state = ?`, intValue(limit), state); err != nil {
+			return nil, err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	return store.WIPLimits(ctx)
+}
+
+func (store *Store) CreateRemedy(ctx context.Context, id string, input board.RemedyInput) (*board.RemedyResult, error) {
+	tx, err := store.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+	tasks, err := listTasks(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+	now := store.now().UTC()
+	board.DeriveStates(tasks, now)
+	parent, err := findTask(tasks, id)
+	if err != nil {
+		return nil, err
+	}
+	if err := input.Normalize(parent.Title); err != nil {
+		return nil, err
+	}
+	if parent.Version != input.Version {
+		return nil, board.ErrConflict
+	}
+	if parent.EffectiveState != board.StateBlocked {
+		return nil, board.ErrInvalidAction
+	}
+
+	remedyID, err := newID()
+	if err != nil {
+		return nil, err
+	}
+	_, err = tx.ExecContext(ctx, `
+		INSERT INTO tasks (
+			id, title, description, lifecycle, scheduled_at, lead_days,
+			recurrence_kind, recurrence_days, recurrence_paused, time_critical,
+			remedy_for, created_at, updated_at, version
+		) VALUES (?, ?, ?, ?, ?, ?, 'none', 0, 0, 0, ?, ?, ?, 1)`,
+		remedyID, input.Title, input.Description, board.LifecycleReady,
+		timeValue(parent.ScheduledAt), parent.LeadDays, parent.ID,
+		formatTime(now), formatTime(now),
+	)
+	if err != nil {
+		return nil, err
+	}
+	if _, err := tx.ExecContext(ctx, `
+		INSERT INTO task_dependencies(task_id, depends_on_id) VALUES (?, ?)`, parent.ID, remedyID); err != nil {
+		return nil, err
+	}
+	result, err := tx.ExecContext(ctx, `
+		UPDATE tasks SET lifecycle = ?, claimed_by = NULL, claimed_at = NULL,
+			block_note = '', updated_at = ?, version = version + 1
+		WHERE id = ? AND version = ?`,
+		board.LifecycleReady, formatTime(now), parent.ID, parent.Version,
+	)
+	if err != nil {
+		return nil, err
+	}
+	if err := requireChanged(result); err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	blockedTask, err := store.Get(ctx, parent.ID)
+	if err != nil {
+		return nil, err
+	}
+	remedyTask, err := store.Get(ctx, remedyID)
+	if err != nil {
+		return nil, err
+	}
+	return &board.RemedyResult{BlockedTask: blockedTask, RemedyTask: remedyTask}, nil
 }
 
 func (store *Store) Delete(ctx context.Context, id string, input board.DeleteInput) ([]board.TaskReference, error) {
@@ -423,7 +547,7 @@ func listTasks(ctx context.Context, query queryer) ([]*board.Task, error) {
 	rows, err := query.QueryContext(ctx, `
         SELECT t.id, t.title, t.description, t.lifecycle, t.scheduled_at, t.lead_days,
             t.recurrence_kind, t.recurrence_days, t.recurrence_paused,
-            t.claimed_by, t.claimed_at, t.block_note, t.last_completed_at,
+			t.time_critical, t.remedy_for, t.claimed_by, t.claimed_at, t.block_note, t.last_completed_at,
             t.created_at, t.updated_at, t.version,
             EXISTS (
                 SELECT 1 FROM task_occurrences o
@@ -441,13 +565,14 @@ func listTasks(ctx context.Context, query queryer) ([]*board.Task, error) {
 	for rows.Next() {
 		task := &board.Task{}
 		var lifecycle string
-		var scheduled, claimedBy, claimedAt, lastCompleted sql.NullString
-		var recurrencePaused int
+		var scheduled, remedyFor, claimedBy, claimedAt, lastCompleted sql.NullString
+		var recurrencePaused, timeCritical int
 		var createdAt, updatedAt string
 		var canUndo int
 		if err := rows.Scan(
 			&task.ID, &task.Title, &task.Description, &lifecycle, &scheduled, &task.LeadDays,
 			&task.Recurrence.Kind, &task.Recurrence.Days, &recurrencePaused,
+			&timeCritical, &remedyFor,
 			&claimedBy, &claimedAt, &task.BlockNote, &lastCompleted,
 			&createdAt, &updatedAt, &task.Version, &canUndo,
 		); err != nil {
@@ -455,6 +580,8 @@ func listTasks(ctx context.Context, query queryer) ([]*board.Task, error) {
 		}
 		task.Lifecycle = board.Lifecycle(lifecycle)
 		task.Recurrence.Paused = recurrencePaused == 1
+		task.TimeCritical = timeCritical == 1
+		task.RemedyFor = parseNullableString(remedyFor)
 		task.ScheduledAt, err = parseNullableTime(scheduled)
 		if err != nil {
 			return nil, err
@@ -513,6 +640,51 @@ func ensureDependenciesExist(ctx context.Context, tx *sql.Tx, taskID string, dep
 		if exists == 0 {
 			return fmt.Errorf("dependency %s does not exist", dependencyID)
 		}
+	}
+	return nil
+}
+
+func listWIPLimits(ctx context.Context, query queryer) (board.WIPLimits, error) {
+	rows, err := query.QueryContext(ctx, `SELECT state, limit_count FROM wip_limits ORDER BY state`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	limits := make(board.WIPLimits)
+	for rows.Next() {
+		var state string
+		var value sql.NullInt64
+		if err := rows.Scan(&state, &value); err != nil {
+			return nil, err
+		}
+		if value.Valid {
+			limit := int(value.Int64)
+			limits[board.EffectiveState(state)] = &limit
+		} else {
+			limits[board.EffectiveState(state)] = nil
+		}
+	}
+	return limits, rows.Err()
+}
+
+func enforceWIP(ctx context.Context, tx *sql.Tx, tasks []*board.Task, state board.EffectiveState, excludeID string, now time.Time) error {
+	limits, err := listWIPLimits(ctx, tx)
+	if err != nil {
+		return err
+	}
+	limit := limits[state]
+	if limit == nil {
+		return nil
+	}
+	board.DeriveStates(tasks, now)
+	count := 0
+	for _, task := range tasks {
+		if task.ID != excludeID && task.EffectiveState == state {
+			count++
+		}
+	}
+	if count+1 > *limit {
+		return &board.WIPLimitError{State: state, Limit: *limit}
 	}
 	return nil
 }
@@ -642,4 +814,11 @@ func boolInt(value bool) int {
 		return 1
 	}
 	return 0
+}
+
+func intValue(value *int) any {
+	if value == nil {
+		return nil
+	}
+	return *value
 }
