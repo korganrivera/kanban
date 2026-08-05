@@ -258,6 +258,8 @@ function makeColumn(state, columnTasks) {
 function makeCard(task) {
     const draggable = ["Ready", "InProgress", "Blocked"].includes(task.effectiveState);
     const card = element("article", "card");
+    const stateClass = task.effectiveState.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+    card.classList.add(`state-${stateClass}`);
     if (isTimeCriticalActive(task)) card.classList.add("time-critical");
     if (task.overdue) card.classList.add("overdue");
     card.style.setProperty("--state-color", COLORS[task.effectiveState]);
@@ -282,10 +284,10 @@ function makeCard(task) {
     if (task.readyAt && task.effectiveState === "Waiting") metadata.append(element("span", "", `Ready ${formatDate(task.readyAt)}`));
     if (task.deadline) metadata.append(element("span", "", `Deadline ${formatDate(task.deadline)}`));
     if (task.overdue) metadata.append(element("span", "overdue-label", "Overdue"));
-    if (task.timeCritical) metadata.append(element("span", "", "Time critical"));
+    if (task.timeCritical) metadata.append(element("span", "critical-label", "Time critical"));
     if (task.claimedBy) {
         const ownerLabel = task.effectiveState === "Done" ? "Completed by" : "Claimed by";
-        metadata.append(element("span", "", `${ownerLabel} ${task.claimedBy}`));
+        metadata.append(element("span", "owner-label", `${ownerLabel} ${task.claimedBy}`));
     }
     if (task.dependencies.length) metadata.append(element("span", "", `${task.dependencies.length} dependencies`));
     if (task.recurrence.kind !== "none") {

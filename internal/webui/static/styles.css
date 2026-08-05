@@ -1,39 +1,59 @@
 :root {
     color-scheme: light;
-    --page: #f4f5f7;
+    --page: #f6f8fa;
     --surface: #ffffff;
-    --surface-alt: #eceff2;
-    --text: #20252b;
-    --muted: #68717b;
-    --line: #cfd5dc;
-    --primary: #1769aa;
-    --primary-hover: #0f568e;
-    --waiting: #8b6b12;
-    --ready: #237447;
-    --progress: #1769aa;
-    --blocked: #b33a32;
-    --suspended: #76528a;
-    --done: #59636e;
-    --shadow: 0 2px 8px rgba(20, 28, 38, 0.12);
+    --surface-alt: #f3f4f6;
+    --text: #24292f;
+    --muted: #57606a;
+    --line: rgba(27, 31, 36, 0.15);
+    --primary: #0969da;
+    --primary-hover: #0757b8;
+    --waiting: #9a6700;
+    --ready: #1a7f37;
+    --progress: #0969da;
+    --blocked: #cf222e;
+    --suspended: #8250df;
+    --done: #57606a;
+    --field-bg: #ffffff;
+    --button-fg: #ffffff;
+    --shadow: 0 8px 24px rgba(140, 149, 159, 0.2);
+    --column-shadow: 0 1px 3px rgba(140, 149, 159, 0.24);
+    --card-shadow: 0 1px 2px rgba(27, 31, 36, 0.08);
+    --button-shadow: 0 1px 0 rgba(27, 31, 36, 0.12);
+    --heatmap-0: #ebedf0;
+    --heatmap-1: #9be9a8;
+    --heatmap-2: #40c463;
+    --heatmap-3: #30a14e;
+    --heatmap-4: #216e39;
 }
 
 :root[data-palette="dark"] {
     color-scheme: dark;
-    --page: #171a1d;
-    --surface: #23272b;
-    --surface-alt: #30363c;
-    --text: #f0f2f4;
-    --muted: #a8b0b8;
-    --line: #49515a;
-    --primary: #4da3df;
-    --primary-hover: #6db5e7;
+    --page: #071428;
+    --surface: #081826;
+    --surface-alt: #0d2234;
+    --text: #e6eef6;
+    --muted: #97a6b6;
+    --line: rgba(255, 255, 255, 0.09);
+    --primary: #60a5fa;
+    --primary-hover: #7dd3fc;
     --waiting: #d1a93d;
     --ready: #46a66f;
-    --progress: #4da3df;
+    --progress: #60a5fa;
     --blocked: #e26058;
     --suspended: #aa7fc0;
     --done: #929aa3;
-    --shadow: 0 2px 8px rgba(0, 0, 0, 0.32);
+    --field-bg: #0b1e30;
+    --button-fg: #06202b;
+    --shadow: 0 12px 30px rgba(2, 6, 23, 0.58);
+    --column-shadow: 0 2px 7px rgba(2, 6, 23, 0.46);
+    --card-shadow: 0 1px 3px rgba(2, 6, 23, 0.52);
+    --button-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+    --heatmap-0: #161b22;
+    --heatmap-1: #0e4429;
+    --heatmap-2: #006d32;
+    --heatmap-3: #26a641;
+    --heatmap-4: #39d353;
 }
 
 :root[data-palette="forest"] {
@@ -51,6 +71,14 @@
     --blocked: #ac3f38;
     --suspended: #755181;
     --done: #59645d;
+    --field-bg: #ffffff;
+    --column-shadow: 0 1px 3px rgba(80, 102, 88, 0.2);
+    --card-shadow: 0 1px 2px rgba(53, 82, 60, 0.1);
+    --heatmap-0: #e6eee3;
+    --heatmap-1: #b6d7b8;
+    --heatmap-2: #7cba83;
+    --heatmap-3: #4b9658;
+    --heatmap-4: #2f6f3f;
 }
 
 :root[data-palette="machine-shop"] {
@@ -69,6 +97,13 @@
     --suspended: #6a5578;
     --done: #666660;
     --shadow: 0 2px 8px rgba(70, 70, 64, 0.16);
+    --column-shadow: 0 1px 3px rgba(102, 102, 102, 0.2);
+    --card-shadow: 0 1px 2px rgba(51, 51, 51, 0.08);
+    --heatmap-0: #e4e4dc;
+    --heatmap-1: #cfd9cf;
+    --heatmap-2: #97b497;
+    --heatmap-3: #5f8d5f;
+    --heatmap-4: #346734;
 }
 
 :root[data-palette="warm-paper"] {
@@ -87,6 +122,13 @@
     --suspended: #765276;
     --done: #6c6257;
     --shadow: 0 2px 8px rgba(98, 78, 58, 0.18);
+    --column-shadow: 0 1px 3px rgba(139, 118, 89, 0.22);
+    --card-shadow: 0 1px 2px rgba(98, 78, 58, 0.1);
+    --heatmap-0: #efe6d8;
+    --heatmap-1: #e3c89e;
+    --heatmap-2: #d39f62;
+    --heatmap-3: #bf773c;
+    --heatmap-4: #8f4e2d;
 }
 
 :root[data-palette="peachy-delight"] {
@@ -105,6 +147,13 @@
     --suspended: #806080;
     --done: #74686c;
     --shadow: 0 2px 8px rgba(120, 91, 100, 0.16);
+    --column-shadow: 0 1px 3px rgba(157, 129, 137, 0.2);
+    --card-shadow: 0 1px 2px rgba(94, 75, 82, 0.09);
+    --heatmap-0: #d8e2dc;
+    --heatmap-1: #ffe5d9;
+    --heatmap-2: #ffcad4;
+    --heatmap-3: #f4acb7;
+    --heatmap-4: #9d8189;
 }
 
 :root[data-palette="contrast"] {
@@ -123,6 +172,14 @@
     --suspended: #5c2877;
     --done: #333333;
     --shadow: none;
+    --column-shadow: none;
+    --card-shadow: none;
+    --button-shadow: none;
+    --heatmap-0: #ffffff;
+    --heatmap-1: #b8e2c5;
+    --heatmap-2: #63bc7c;
+    --heatmap-3: #238643;
+    --heatmap-4: #005a24;
 }
 
 * {
@@ -132,11 +189,12 @@
 html,
 body {
     margin: 0;
+    height: 100%;
     min-height: 100%;
-    background: var(--page);
+    background: linear-gradient(180deg, var(--page), color-mix(in srgb, var(--surface-alt) 72%, var(--page)));
     color: var(--text);
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    font-size: 14px;
+    font-size: 13px;
     letter-spacing: 0;
 }
 
@@ -149,13 +207,16 @@ select {
 }
 
 button {
-    min-height: 34px;
-    border: 1px solid var(--primary);
-    border-radius: 5px;
+    min-height: 30px;
+    border: 1px solid color-mix(in srgb, var(--primary) 78%, #000000);
+    border-radius: 6px;
     background: var(--primary);
-    color: #ffffff;
-    padding: 6px 12px;
+    color: var(--button-fg);
+    padding: 5px 9px;
+    box-shadow: var(--button-shadow);
     cursor: pointer;
+    font-size: 12px;
+    font-weight: 650;
 }
 
 button:hover {
@@ -164,8 +225,8 @@ button:hover {
 
 button.secondary {
     border-color: var(--line);
-    background: var(--surface);
-    color: var(--text);
+    background: color-mix(in srgb, var(--surface) 88%, var(--surface-alt));
+    color: var(--muted);
 }
 
 button.secondary:hover {
@@ -175,6 +236,11 @@ button.secondary:hover {
 button.danger {
     border-color: var(--blocked);
     background: var(--blocked);
+    color: #ffffff;
+}
+
+button.danger:hover {
+    background: color-mix(in srgb, var(--blocked) 86%, #000000);
 }
 
 .auth-screen {
@@ -193,7 +259,7 @@ button.danger {
     width: min(380px, 100%);
     border: 1px solid var(--line);
     border-radius: 6px;
-    background: var(--surface);
+    background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface-alt) 52%, var(--surface)));
     box-shadow: var(--shadow);
     padding: 24px;
 }
@@ -229,11 +295,12 @@ button.danger {
     display: grid;
     grid-template-columns: auto minmax(260px, 560px) auto;
     align-items: center;
-    gap: 16px;
-    min-height: 58px;
-    padding: 10px 16px;
+    gap: 10px;
+    min-height: 50px;
+    padding: 8px 12px;
     border-bottom: 1px solid var(--line);
-    background: var(--surface);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 96%, transparent), color-mix(in srgb, var(--surface-alt) 56%, var(--surface)));
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--line) 38%, transparent);
 }
 
 #app-shell {
@@ -245,7 +312,8 @@ button.danger {
 }
 
 .brand {
-    font-size: 18px;
+    color: var(--primary);
+    font-size: 15px;
     font-weight: 700;
     white-space: nowrap;
 }
@@ -253,7 +321,7 @@ button.danger {
 .prototype {
     margin-left: 6px;
     color: var(--muted);
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
 }
@@ -264,7 +332,7 @@ button.danger {
     gap: 4px;
     margin-left: 8px;
     color: var(--muted);
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 500;
     white-space: nowrap;
 }
@@ -288,7 +356,7 @@ button.danger {
 .quick-add {
     display: grid;
     grid-template-columns: 1fr auto;
-    gap: 8px;
+    gap: 6px;
 }
 
 .topbar-actions {
@@ -296,7 +364,7 @@ button.danger {
     align-items: center;
     flex-wrap: wrap;
     justify-content: flex-end;
-    gap: 8px;
+    gap: 6px;
 }
 
 .account-summary {
@@ -321,9 +389,9 @@ select {
     width: 100%;
     border: 1px solid var(--line);
     border-radius: 5px;
-    background: var(--surface);
+    background: var(--field-bg);
     color: var(--text);
-    padding: 8px 10px;
+    padding: 7px 9px;
 }
 
 textarea {
@@ -334,7 +402,7 @@ input:focus,
 textarea:focus,
 select:focus {
     border-color: var(--primary);
-    outline: 2px solid rgba(23, 105, 170, 0.16);
+    outline: 2px solid color-mix(in srgb, var(--primary) 18%, transparent);
 }
 
 .board-scroll {
@@ -345,16 +413,17 @@ select:focus {
     overflow-x: auto;
     overflow-y: hidden;
     overscroll-behavior-inline: contain;
+    padding: 10px;
 }
 
 .board {
     display: grid;
     grid-template-columns: repeat(6, minmax(260px, 1fr));
-    gap: 1px;
+    gap: 10px;
     height: 100%;
-    min-width: 1560px;
+    min-width: 1610px;
     min-height: 0;
-    background: var(--line);
+    background: transparent;
 }
 
 .column {
@@ -363,7 +432,10 @@ select:focus {
     min-width: 0;
     min-height: 0;
     overflow: hidden;
-    background: var(--page);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface-alt) 72%, var(--surface)));
+    box-shadow: var(--column-shadow);
 }
 
 .column-header {
@@ -373,16 +445,18 @@ select:focus {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: 44px;
-    padding: 10px 12px;
-    border-bottom: 3px solid var(--state-color);
-    background: var(--surface);
+    min-height: 38px;
+    padding: 8px 10px 7px;
+    border-bottom: 2px solid color-mix(in srgb, var(--state-color) 65%, var(--line));
+    background: color-mix(in srgb, var(--surface) 78%, transparent);
+    color: var(--muted);
+    font-size: 12px;
     font-weight: 700;
 }
 
 .column-count {
     color: var(--muted);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
 }
 
@@ -397,12 +471,12 @@ select:focus {
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior-y: contain;
-    padding: 10px;
+    padding: 8px;
     scrollbar-gutter: stable;
 }
 
 .column-list.drop-target {
-    background: rgba(23, 105, 170, 0.1);
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
     box-shadow: inset 0 0 0 2px var(--primary);
 }
 
@@ -410,22 +484,42 @@ select:focus {
     position: relative;
     min-width: 0;
     border: 1px solid var(--line);
-    border-left: 4px solid var(--state-color);
     border-radius: 6px;
-    background: var(--surface);
-    box-shadow: var(--shadow);
-    padding: 10px;
+    background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--page) 42%, var(--surface)));
+    box-shadow: inset 3px 0 0 color-mix(in srgb, var(--state-color) 48%, var(--line)), var(--card-shadow);
+    padding: 10px 9px 9px 11px;
     cursor: pointer;
+    transition: border-color 100ms ease, box-shadow 100ms ease, opacity 100ms ease;
+}
+
+.card:hover {
+    border-color: color-mix(in srgb, var(--primary) 32%, var(--line));
+    box-shadow: inset 3px 0 0 color-mix(in srgb, var(--state-color) 72%, var(--line)), 0 3px 8px rgba(27, 31, 36, 0.12);
+}
+
+.card.state-waiting {
+    opacity: 0.66;
+    filter: grayscale(0.08);
+}
+
+.card.state-waiting:hover {
+    opacity: 0.82;
 }
 
 .card.time-critical {
-    border-top-color: var(--blocked);
-    border-right-color: var(--blocked);
-    border-bottom-color: var(--blocked);
+    border-color: rgba(234, 88, 12, 0.52);
+    background: linear-gradient(180deg, #fff7ed, #ffedd5);
+    box-shadow: inset 3px 0 0 #f97316, 0 1px 3px rgba(154, 52, 18, 0.18);
+}
+
+:root[data-palette="dark"] .card.time-critical {
+    border-color: rgba(251, 146, 60, 0.52);
+    background: linear-gradient(180deg, #351c10, #27150d);
+    box-shadow: inset 3px 0 0 #fb923c, 0 2px 5px rgba(0, 0, 0, 0.38);
 }
 
 .card.overdue {
-    box-shadow: inset 0 0 0 1px var(--blocked), var(--shadow);
+    box-shadow: inset 3px 0 0 var(--blocked), inset 0 0 0 1px color-mix(in srgb, var(--blocked) 42%, transparent), var(--card-shadow);
 }
 
 .overdue-label {
@@ -442,11 +536,11 @@ select:focus {
 }
 
 .card-title {
-    margin: 0 0 6px;
+    margin: 0 0 5px;
     overflow-wrap: anywhere;
-    font-size: 14px;
-    padding-right: 34px;
-    line-height: 1.35;
+    padding-right: 40px;
+    font-size: 13px;
+    line-height: 1.32;
 }
 
 .priority {
@@ -455,47 +549,73 @@ select:focus {
     right: 8px;
     display: grid;
     place-items: center;
-    width: 27px;
-    height: 24px;
-    border-radius: 4px;
+    min-width: 31px;
+    height: 21px;
+    border-radius: 999px;
     color: #ffffff;
+    padding: 0 7px;
     font-size: 11px;
     font-weight: 700;
+    box-shadow: 0 2px 5px rgba(27, 31, 36, 0.24);
 }
 
 .card-description {
-    margin: 0 0 8px;
+    margin: 0 0 7px;
     color: var(--muted);
+    font-size: 12px;
     line-height: 1.35;
     overflow-wrap: anywhere;
 }
 
 .card-note {
-    margin: 8px 0;
+    margin: 7px 0;
     border-left: 3px solid var(--blocked);
-    padding-left: 8px;
+    border-radius: 0 4px 4px 0;
+    background: color-mix(in srgb, var(--blocked) 7%, transparent);
+    padding: 6px 7px;
     color: var(--blocked);
+    font-size: 12px;
+    line-height: 1.35;
 }
 
 .metadata {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px 8px;
+    gap: 4px 8px;
     color: var(--muted);
-    font-size: 12px;
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+.owner-label {
+    color: color-mix(in srgb, var(--primary) 78%, var(--text));
+    font-weight: 650;
+}
+
+.critical-label {
+    border: 1px solid rgba(234, 88, 12, 0.28);
+    border-radius: 999px;
+    background: rgba(249, 115, 22, 0.1);
+    color: #c2410c;
+    padding: 1px 5px;
+    font-weight: 700;
+}
+
+:root[data-palette="dark"] .critical-label {
+    color: #fdba74;
 }
 
 .card-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 10px;
+    gap: 5px;
+    margin-top: 8px;
 }
 
 .card-actions button {
-    min-height: 28px;
-    padding: 3px 8px;
-    font-size: 12px;
+    min-height: 26px;
+    padding: 3px 7px;
+    font-size: 11px;
 }
 
 .editor {
@@ -503,13 +623,13 @@ select:focus {
     top: 0;
     right: 0;
     z-index: 30;
-    width: min(520px, 100vw);
+    width: min(440px, 100vw);
     height: 100vh;
     overflow-y: auto;
     border-left: 1px solid var(--line);
-    background: var(--surface);
-    box-shadow: -8px 0 30px rgba(20, 28, 38, 0.2);
-    padding: 18px;
+    background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface-alt) 36%, var(--surface)));
+    box-shadow: -12px 0 30px rgba(27, 31, 36, 0.2);
+    padding: 16px 16px 32px;
     transform: translateX(105%);
     transition: transform 160ms ease;
 }
@@ -523,12 +643,12 @@ select:focus {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
 }
 
 .editor-header h2 {
     margin: 0;
-    font-size: 19px;
+    font-size: 17px;
 }
 
 #task-form {
@@ -557,6 +677,8 @@ select:focus {
 
 #task-form label,
 #task-form legend {
+    color: var(--muted);
+    font-size: 12px;
     font-weight: 650;
 }
 
@@ -585,7 +707,8 @@ select:focus {
 fieldset {
     margin: 6px 0;
     border: 1px solid var(--line);
-    border-radius: 5px;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--surface-alt) 42%, transparent);
     padding: 10px;
 }
 
@@ -657,9 +780,10 @@ fieldset {
     display: flex;
     flex-wrap: wrap;
     gap: 5px 12px;
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-    padding: 9px 0;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: color-mix(in srgb, var(--surface-alt) 62%, transparent);
+    padding: 8px;
     color: var(--muted);
     font-size: 12px;
 }
@@ -679,14 +803,14 @@ fieldset {
     position: fixed;
     inset: 0;
     z-index: 20;
-    background: rgba(20, 28, 38, 0.28);
+    background: rgba(20, 28, 38, 0.38);
 }
 
 .history-dialog {
     width: min(760px, calc(100vw - 32px));
     border: 1px solid var(--line);
     border-radius: 6px;
-    background: var(--surface);
+    background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface-alt) 38%, var(--surface)));
     color: var(--text);
     padding: 20px;
     box-shadow: 0 12px 36px rgba(20, 28, 38, 0.24);
@@ -734,23 +858,23 @@ fieldset {
     height: 10px;
     border: 1px solid rgba(32, 37, 43, 0.08);
     border-radius: 2px;
-    background: #e5e8eb;
+    background: var(--heatmap-0);
 }
 
 .heatmap-cell.level-1 {
-    background: #a8d8b9;
+    background: var(--heatmap-1);
 }
 
 .heatmap-cell.level-2 {
-    background: #69b887;
+    background: var(--heatmap-2);
 }
 
 .heatmap-cell.level-3 {
-    background: #338c59;
+    background: var(--heatmap-3);
 }
 
 .heatmap-cell.level-4 {
-    background: #17683d;
+    background: var(--heatmap-4);
 }
 
 .heatmap-legend {
@@ -769,8 +893,9 @@ fieldset {
     z-index: 50;
     max-width: min(420px, calc(100vw - 32px));
     border-radius: 5px;
-    background: #20252b;
-    color: #ffffff;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--text);
     padding: 10px 14px;
     box-shadow: var(--shadow);
     opacity: 0;
