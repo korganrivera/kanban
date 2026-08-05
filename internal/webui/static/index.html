@@ -42,7 +42,10 @@
                 <button type="submit">Add</button>
             </form>
             <div class="topbar-actions">
-                <span id="current-user" class="current-user"></span>
+                <button id="account-summary" type="button" class="account-summary secondary">
+                    <span id="current-user" class="current-user"></span>
+                    <span id="current-points" class="current-points">0 pts</span>
+                </button>
                 <button id="settings-button" type="button" class="secondary">Settings</button>
                 <button id="new-task" type="button" class="secondary">New task</button>
                 <button id="logout-button" type="button" class="secondary">Log out</button>
@@ -176,6 +179,28 @@
             </form>
         </aside>
         <div id="backdrop" class="backdrop" hidden></div>
+
+        <dialog id="history-dialog" class="history-dialog">
+            <div class="dialog-header">
+                <div>
+                    <h2>Completion history</h2>
+                    <div id="history-summary" class="history-summary"></div>
+                </div>
+                <button id="close-history" type="button" class="secondary">Close</button>
+            </div>
+            <div class="heatmap-scroll">
+                <div id="heatmap-grid" class="heatmap-grid" aria-label="Task completions in the last year"></div>
+            </div>
+            <div class="heatmap-legend" aria-hidden="true">
+                <span>Less</span>
+                <span class="heatmap-cell level-0"></span>
+                <span class="heatmap-cell level-1"></span>
+                <span class="heatmap-cell level-2"></span>
+                <span class="heatmap-cell level-3"></span>
+                <span class="heatmap-cell level-4"></span>
+                <span>More</span>
+            </div>
+        </dialog>
         </div>
         <div id="toast" class="toast" role="status" aria-live="polite"></div>
     </body>

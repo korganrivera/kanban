@@ -48,8 +48,10 @@ Set `COOKIE_SECURE=1` when the browser reaches the board through HTTPS.
 - Embedded browser assets and live board refresh through server-sent events
 - Account registration, login, logout, rolling sessions, and password rotation
 - Authenticated creator, claimant, and completion attribution
+- Claim-time priority snapshots with transactional point awards and exact undo
+- Durable completion history with a one-year activity heatmap
 
-Points/history and migration from the existing board remain to be implemented.
+Migration from the existing board remains to be implemented.
 
 ## Test
 

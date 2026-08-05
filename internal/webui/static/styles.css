@@ -156,12 +156,26 @@ button.danger {
     gap: 8px;
 }
 
+.account-summary {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    max-width: 220px;
+}
+
 .current-user {
     max-width: 160px;
     overflow: hidden;
     color: var(--muted);
     font-size: 12px;
     text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.current-points {
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 700;
     white-space: nowrap;
 }
 
@@ -500,6 +514,86 @@ fieldset {
     inset: 0;
     z-index: 20;
     background: rgba(20, 28, 38, 0.28);
+}
+
+.history-dialog {
+    width: min(760px, calc(100vw - 32px));
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    padding: 20px;
+    box-shadow: 0 12px 36px rgba(20, 28, 38, 0.24);
+}
+
+.history-dialog::backdrop {
+    background: rgba(20, 28, 38, 0.34);
+}
+
+.dialog-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.dialog-header h2 {
+    margin: 0 0 5px;
+    font-size: 19px;
+}
+
+.history-summary {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.heatmap-scroll {
+    overflow-x: auto;
+    padding: 4px 0 10px;
+}
+
+.heatmap-grid {
+    display: grid;
+    grid-auto-columns: 10px;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(7, 10px);
+    gap: 3px;
+    width: max-content;
+    min-width: 100%;
+}
+
+.heatmap-cell {
+    width: 10px;
+    height: 10px;
+    border: 1px solid rgba(32, 37, 43, 0.08);
+    border-radius: 2px;
+    background: #e5e8eb;
+}
+
+.heatmap-cell.level-1 {
+    background: #a8d8b9;
+}
+
+.heatmap-cell.level-2 {
+    background: #69b887;
+}
+
+.heatmap-cell.level-3 {
+    background: #338c59;
+}
+
+.heatmap-cell.level-4 {
+    background: #17683d;
+}
+
+.heatmap-legend {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    color: var(--muted);
+    font-size: 11px;
 }
 
 .toast {

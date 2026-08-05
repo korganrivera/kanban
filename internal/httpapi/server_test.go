@@ -245,6 +245,55 @@ func TestAuthenticationAndPasswordRotation(t *testing.T) {
 	if remedyResult.RemedyTask.CreatedBy == nil || *remedyResult.RemedyTask.CreatedBy != "alice" {
 		t.Fatalf("remedy creator = %v", remedyResult.RemedyTask.CreatedBy)
 	}
+	pointsTaskResponse := performJSONWithCookie(t, handler, http.MethodPost, "/api/tasks", map[string]string{
+		"title": "Earn points",
+	}, firstCookie)
+	pointsTask := decodeTask(t, pointsTaskResponse)
+	pointsTaskResponse = performJSONWithCookie(t, handler, http.MethodPost, "/api/tasks/"+pointsTask.ID+"/claim", board.ActionInput{
+		Version: pointsTask.Version,
+	}, firstCookie)
+	pointsTask = decodeTask(t, pointsTaskResponse)
+	pointsTaskResponse = performJSONWithCookie(t, handler, http.MethodPost, "/api/tasks/"+pointsTask.ID+"/complete", board.ActionInput{
+		Version: pointsTask.Version,
+	}, firstCookie)
+	if pointsTaskResponse.Code != http.StatusOK {
+		t.Fatalf("point completion status = %d, body = %s", pointsTaskResponse.Code, pointsTaskResponse.Body.String())
+	}
+	pointsTask = decodeTask(t, pointsTaskResponse)
+	if pointsTask.Awarded == nil || pointsTask.PointsSnapshot == nil || pointsTask.Awarded.Points != *pointsTask.PointsSnapshot {
+		t.Fatalf("point completion award = %#v, snapshot = %v", pointsTask.Awarded, pointsTask.PointsSnapshot)
+	}
+	accountResponse := performJSONWithCookie(t, handler, http.MethodGet, "/api/auth/me", nil, firstCookie)
+	var account struct {
+		Points int `json:"points"`
+	}
+	if err := json.NewDecoder(accountResponse.Body).Decode(&account); err != nil {
+		t.Fatal(err)
+	}
+	if account.Points != pointsTask.Awarded.Points {
+		t.Fatalf("account points after completion = %d, want %d", account.Points, pointsTask.Awarded.Points)
+	}
+	history := performJSONWithCookie(t, handler, http.MethodGet, "/api/account/completions", nil, firstCookie)
+	if history.Code != http.StatusOK || !strings.Contains(history.Body.String(), `"taskTitle":"Earn points"`) {
+		t.Fatalf("completion history = %d, %s", history.Code, history.Body.String())
+	}
+	pointsTaskResponse = performJSONWithCookie(t, handler, http.MethodPost, "/api/tasks/"+pointsTask.ID+"/undo", board.ActionInput{
+		Version: pointsTask.Version,
+	}, firstCookie)
+	if pointsTaskResponse.Code != http.StatusOK {
+		t.Fatalf("point undo status = %d, body = %s", pointsTaskResponse.Code, pointsTaskResponse.Body.String())
+	}
+	history = performJSONWithCookie(t, handler, http.MethodGet, "/api/account/completions", nil, firstCookie)
+	if history.Code != http.StatusOK || strings.Contains(history.Body.String(), `"taskTitle":"Earn points"`) {
+		t.Fatalf("completion history after undo = %d, %s", history.Code, history.Body.String())
+	}
+	accountResponse = performJSONWithCookie(t, handler, http.MethodGet, "/api/auth/me", nil, firstCookie)
+	if err := json.NewDecoder(accountResponse.Body).Decode(&account); err != nil {
+		t.Fatal(err)
+	}
+	if account.Points != 0 {
+		t.Fatalf("account points after undo = %d", account.Points)
+	}
 
 	secondLogin := performJSON(t, handler, http.MethodPost, "/api/auth/login", map[string]string{
 		"username": "alice", "password": "correct horse battery staple",

@@ -36,6 +36,35 @@ var migrations = []string{
 	 CREATE INDEX idx_sessions_expiry ON sessions(expires_at);
 	 CREATE INDEX idx_sessions_user ON sessions(username);
 	 ALTER TABLE tasks ADD COLUMN created_by TEXT REFERENCES users(username) ON DELETE SET NULL;`,
+	`ALTER TABLE tasks ADD COLUMN points_snapshot INTEGER CHECK (points_snapshot IS NULL OR points_snapshot >= 0);
+	 ALTER TABLE tasks ADD COLUMN points_snapshot_by TEXT REFERENCES users(username) ON DELETE SET NULL;
+	 ALTER TABLE tasks ADD COLUMN points_snapshot_at TEXT;
+	 ALTER TABLE tasks ADD COLUMN unclaimed_at TEXT;
+	 CREATE TABLE task_point_snapshots (
+		id TEXT PRIMARY KEY,
+		task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+		username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
+		points INTEGER NOT NULL CHECK (points >= 0),
+		created_at TEXT NOT NULL
+	 );
+	 CREATE INDEX idx_task_point_snapshots_task ON task_point_snapshots(task_id, created_at DESC);
+	 CREATE TABLE point_entries (
+		id TEXT PRIMARY KEY,
+		username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
+		task_id TEXT NOT NULL,
+		task_title TEXT NOT NULL,
+		points INTEGER NOT NULL CHECK (points >= 0),
+		reason TEXT NOT NULL,
+		occurred_at TEXT NOT NULL,
+		reversed_at TEXT
+	 );
+	 CREATE INDEX idx_point_entries_user_time ON point_entries(username, occurred_at DESC);
+	 CREATE INDEX idx_point_entries_task ON point_entries(task_id);
+	 ALTER TABLE task_occurrences ADD COLUMN award_entry_id TEXT REFERENCES point_entries(id);
+	 ALTER TABLE task_occurrences ADD COLUMN previous_points_snapshot INTEGER;
+	 ALTER TABLE task_occurrences ADD COLUMN previous_points_snapshot_by TEXT;
+	 ALTER TABLE task_occurrences ADD COLUMN previous_points_snapshot_at TEXT;
+	 ALTER TABLE task_occurrences ADD COLUMN previous_unclaimed_at TEXT;`,
 }
 
 func migrate(db *sql.DB) error {

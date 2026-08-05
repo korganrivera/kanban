@@ -30,7 +30,7 @@ design is simpler or safer.
 - [x] Truncated card descriptions with full descriptions in the editor
 - [ ] Separate legacy `deadline` field for API and import fidelity
 - [x] Created-by attribution on tasks and remedies
-- [ ] Priority snapshot metadata on claimed tasks
+- [x] Priority snapshot metadata on claimed tasks
 - [ ] Remedy-aware dependency removal with optional remedy cleanup
 
 ## Accounts And Security
@@ -49,14 +49,14 @@ design is simpler or safer.
 
 ## Points And Completion History
 
-- [ ] Snapshot automatic priority when a task is claimed
-- [ ] Refresh snapshots for a different claimant or after the cooldown
-- [ ] Award the exact snapshot on completion
-- [ ] Reverse only the matching award when completion is undone
-- [ ] Preserve user completion history after task deletion
-- [ ] Show current user and point total in the top bar
-- [ ] Show claim snapshot and award state in task details
-- [ ] Completion heatmap, totals, and streak summaries
+- [x] Snapshot automatic priority when a task is claimed
+- [x] Refresh snapshots for a different claimant or after the cooldown
+- [x] Award the exact snapshot on completion
+- [x] Reverse only the matching award when completion is undone
+- [x] Preserve user completion history after task deletion
+- [x] Show current user and point total in the top bar
+- [x] Show claim snapshot and award state in task details
+- [x] Completion heatmap, totals, and streak summaries
 
 ## Browser Experience
 

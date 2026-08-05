@@ -69,7 +69,7 @@ async function startApplication(account) {
     currentUser = account;
     authScreen.hidden = true;
     appShell.hidden = false;
-    document.getElementById("current-user").textContent = account.username;
+    updateAccount(account);
     clearInterval(refreshTimer);
     await loadBoard();
     connectEvents();
@@ -171,14 +171,24 @@ function connectEvents() {
 
 async function loadBoard() {
     try {
-        [tasks, wipLimits] = await Promise.all([
+        const [loadedTasks, loadedLimits, account] = await Promise.all([
             request("/api/tasks"),
             request("/api/wip-limits"),
+            request("/api/auth/me"),
         ]);
+        tasks = loadedTasks;
+        wipLimits = loadedLimits;
+        updateAccount(account);
         renderBoard();
     } catch (error) {
         if (error.status !== 401) showToast(error.message);
     }
+}
+
+function updateAccount(account) {
+    currentUser = account;
+    document.getElementById("current-user").textContent = account.username || "";
+    document.getElementById("current-points").textContent = `${Number(account.points || 0)} pts`;
 }
 
 function renderBoard() {
@@ -418,6 +428,11 @@ function renderTaskContext(task) {
     ];
     if (task.claimedBy) values.push(`Claimed by ${task.claimedBy}`);
     if (task.createdBy) values.push(`Created by ${task.createdBy}`);
+    if (typeof task.pointsSnapshot === "number") {
+        const state = task.pointsSnapshotAwarded ? "awarded" : "frozen";
+        values.push(`${task.pointsSnapshot} point snapshot (${state})`);
+    }
+    if (task.awarded) values.push(`Awarded ${task.awarded.points} points to ${task.awarded.to}`);
     if (task.lastCompletedAt) values.push(`Completed ${formatDate(task.lastCompletedAt)}`);
     if (task.remedyFor) {
         const parent = tasks.find((candidate) => candidate.id === task.remedyFor);
@@ -551,6 +566,102 @@ async function changePassword(event) {
     }
 }
 
+async function openHistory() {
+    try {
+        const result = await request("/api/account/completions");
+        renderHeatmap(result.entries || []);
+        document.getElementById("history-dialog").showModal();
+    } catch (error) {
+        showToast(error.message);
+    }
+}
+
+function renderHeatmap(entries) {
+    const today = startOfLocalDay(new Date());
+    const endSunday = new Date(today);
+    endSunday.setDate(endSunday.getDate() - endSunday.getDay());
+    const start = new Date(endSunday);
+    start.setDate(start.getDate() - 52 * 7);
+    const counts = new Map();
+    for (const entry of entries) {
+        const occurredAt = new Date(entry.occurredAt);
+        if (Number.isNaN(occurredAt.getTime())) continue;
+        const key = localDateKey(occurredAt);
+        counts.set(key, (counts.get(key) || 0) + 1);
+    }
+
+    let maxCount = 0;
+    for (let week = 0; week < 53; week++) {
+        for (let day = 0; day < 7; day++) {
+            const date = new Date(start);
+            date.setDate(start.getDate() + week * 7 + day);
+            if (date <= today) maxCount = Math.max(maxCount, counts.get(localDateKey(date)) || 0);
+        }
+    }
+
+    const cells = [];
+    for (let week = 0; week < 53; week++) {
+        for (let day = 0; day < 7; day++) {
+            const date = new Date(start);
+            date.setDate(start.getDate() + week * 7 + day);
+            const count = date <= today ? counts.get(localDateKey(date)) || 0 : 0;
+            const cell = element("span", `heatmap-cell level-${heatmapLevel(count, maxCount)}`);
+            cell.title = date <= today
+                ? `${date.toLocaleDateString()}: ${count} completion${count === 1 ? "" : "s"}`
+                : "";
+            cells.push(cell);
+        }
+    }
+    document.getElementById("heatmap-grid").replaceChildren(...cells);
+
+    const oneYearAgo = new Date(today);
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    const activeEntries = entries.filter((entry) => {
+        const occurredAt = new Date(entry.occurredAt);
+        return occurredAt >= oneYearAgo && occurredAt <= todayWithEndTime(today);
+    });
+    let currentStreak = 0;
+    for (let offset = 0; ; offset++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - offset);
+        if ((counts.get(localDateKey(date)) || 0) === 0) break;
+        currentStreak++;
+    }
+    let longestStreak = 0;
+    let runningStreak = 0;
+    for (let date = new Date(oneYearAgo); date <= today; date.setDate(date.getDate() + 1)) {
+        if ((counts.get(localDateKey(date)) || 0) > 0) {
+            runningStreak++;
+            longestStreak = Math.max(longestStreak, runningStreak);
+        } else {
+            runningStreak = 0;
+        }
+    }
+    document.getElementById("history-summary").textContent =
+        `${activeEntries.length} completions in the last year | Current streak ${currentStreak} days | Longest ${longestStreak} days`;
+}
+
+function heatmapLevel(count, maxCount) {
+    if (!count) return 0;
+    if (maxCount <= 1) return 4;
+    return Math.min(4, Math.max(1, Math.ceil((count / maxCount) * 4)));
+}
+
+function startOfLocalDay(date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function todayWithEndTime(date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+}
+
+function localDateKey(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
 async function deleteEditorTask() {
     const task = editorTaskID ? tasks.find((candidate) => candidate.id === editorTaskID) : null;
     if (!task || !window.confirm(`Delete task "${task.title}"? This cannot be undone.`)) return;
@@ -679,6 +790,8 @@ document.getElementById("register-form").addEventListener("submit", register);
 document.getElementById("show-register").addEventListener("click", showRegistrationForm);
 document.getElementById("show-login").addEventListener("click", showLoginForm);
 document.getElementById("logout-button").addEventListener("click", logout);
+document.getElementById("account-summary").addEventListener("click", openHistory);
+document.getElementById("close-history").addEventListener("click", () => document.getElementById("history-dialog").close());
 document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closePanels();
 });

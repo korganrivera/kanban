@@ -34,6 +34,7 @@ type taskStore interface {
 	CreateSession(context.Context, string, string, time.Time, time.Time) error
 	SessionUser(context.Context, string, time.Time, time.Time) (*store.User, error)
 	DeleteSession(context.Context, string) error
+	CompletionHistory(context.Context, string) ([]store.CompletionEntry, error)
 }
 
 type Config struct {
@@ -94,6 +95,7 @@ func (server *Server) routes() {
 	server.mux.HandleFunc("GET /api/auth/me", server.me)
 	server.mux.Handle("POST /api/auth/change-password", server.requireAuth(http.HandlerFunc(server.changePassword)))
 	server.mux.Handle("POST /api/auth/logout", server.requireAuth(http.HandlerFunc(server.logout)))
+	server.mux.Handle("GET /api/account/completions", server.requireAuth(http.HandlerFunc(server.completionHistory)))
 	server.mux.Handle("GET /api/tasks", server.requireAuth(http.HandlerFunc(server.listTasks)))
 	server.mux.Handle("POST /api/tasks", server.requireAuth(http.HandlerFunc(server.createTask)))
 	server.mux.Handle("PATCH /api/tasks/{id}", server.requireAuth(http.HandlerFunc(server.updateTask)))
@@ -104,6 +106,16 @@ func (server *Server) routes() {
 	server.mux.Handle("PATCH /api/wip-limits", server.requireAuth(http.HandlerFunc(server.updateWIPLimits)))
 	server.mux.Handle("GET /api/events", server.requireAuth(http.HandlerFunc(server.streamEvents)))
 	server.mux.Handle("GET /", webui.Handler())
+}
+
+func (server *Server) completionHistory(response http.ResponseWriter, request *http.Request) {
+	entries, err := server.store.CompletionHistory(request.Context(), requestIdentity(request).Username)
+	if err != nil {
+		log.Printf("completion history: %v", err)
+		writeError(response, http.StatusInternalServerError, "could not load completion history")
+		return
+	}
+	writeJSON(response, http.StatusOK, map[string]any{"entries": entries})
 }
 
 func (server *Server) createRemedy(response http.ResponseWriter, request *http.Request) {
