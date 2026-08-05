@@ -1,13 +1,17 @@
 package httpapi
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
+	"net/http/cookiejar"
 	"net/http/httptest"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"kanban-go/internal/board"
 	"kanban-go/internal/store"
@@ -103,6 +107,61 @@ func TestTaskWorkflowThroughHTTP(t *testing.T) {
 	}
 	if task = decodeTask(t, undone); task.EffectiveState != board.StateInProgress {
 		t.Fatalf("undone task state = %s", task.EffectiveState)
+	}
+}
+
+func TestLegacyRouteEquivalentsThroughHTTP(t *testing.T) {
+	handler := testServer(t)
+	for _, endpoint := range []string{"/healthz", "/api/tasks", "/api/wip-limits"} {
+		response := performJSON(t, handler, http.MethodGet, endpoint, nil)
+		if response.Code != http.StatusOK {
+			t.Fatalf("GET %s status = %d, body = %s", endpoint, response.Code, response.Body.String())
+		}
+	}
+
+	created := performJSON(t, handler, http.MethodPost, "/api/tasks", map[string]string{"title": "Route coverage"})
+	if created.Code != http.StatusCreated {
+		t.Fatalf("create status = %d, body = %s", created.Code, created.Body.String())
+	}
+	task := decodeTask(t, created)
+	updated := performJSON(t, handler, http.MethodPatch, "/api/tasks/"+task.ID, board.TaskInput{
+		Title: "Updated route coverage", Description: "Edited", Recurrence: task.Recurrence, Version: task.Version,
+	})
+	if updated.Code != http.StatusOK {
+		t.Fatalf("update status = %d, body = %s", updated.Code, updated.Body.String())
+	}
+	task = decodeTask(t, updated)
+
+	for _, transition := range []struct {
+		action string
+		state  board.EffectiveState
+	}{
+		{"block", board.StateBlocked},
+		{"unblock", board.StateReady},
+		{"claim", board.StateInProgress},
+		{"release", board.StateReady},
+		{"complete", board.StateDone},
+		{"undo", board.StateReady},
+	} {
+		response := performJSON(t, handler, http.MethodPost, "/api/tasks/"+task.ID+"/"+transition.action, board.ActionInput{
+			Version: task.Version, Note: "Route test blocker",
+		})
+		if response.Code != http.StatusOK {
+			t.Fatalf("%s status = %d, body = %s", transition.action, response.Code, response.Body.String())
+		}
+		task = decodeTask(t, response)
+		if task.EffectiveState != transition.state {
+			t.Fatalf("%s state = %s, want %s", transition.action, task.EffectiveState, transition.state)
+		}
+	}
+
+	deleted := performJSON(t, handler, http.MethodDelete, "/api/tasks/"+task.ID, board.DeleteInput{Version: task.Version})
+	if deleted.Code != http.StatusOK {
+		t.Fatalf("delete status = %d, body = %s", deleted.Code, deleted.Body.String())
+	}
+	listed := performJSON(t, handler, http.MethodGet, "/api/tasks", nil)
+	if listed.Code != http.StatusOK || listed.Body.String() != "[]\n" {
+		t.Fatalf("task list after delete = %d, %s", listed.Code, listed.Body.String())
 	}
 }
 
@@ -353,4 +412,171 @@ func TestCrossOriginMutationIsRejected(t *testing.T) {
 	if response.Code != http.StatusForbidden {
 		t.Fatalf("cross-origin response status = %d, body = %s", response.Code, response.Body.String())
 	}
+}
+
+func TestMultiSessionLiveUpdatesStaleEditsAndRevocation(t *testing.T) {
+	database, err := store.Open(filepath.Join(t.TempDir(), "kanban.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { database.Close() })
+	application := New(database, Config{AuthEnabled: true})
+	webServer := httptest.NewServer(application.Handler())
+	t.Cleanup(webServer.Close)
+	t.Cleanup(application.Close)
+	t.Cleanup(webServer.CloseClientConnections)
+
+	first := newSessionClient(t)
+	second := newSessionClient(t)
+	register := clientJSON(t, first, http.MethodPost, webServer.URL+"/api/auth/register", map[string]string{
+		"username": "alice", "password": "correct horse battery staple",
+	})
+	if register.StatusCode != http.StatusCreated {
+		t.Fatalf("registration status = %d, body = %s", register.StatusCode, readBody(t, register))
+	}
+	register.Body.Close()
+	login := clientJSON(t, second, http.MethodPost, webServer.URL+"/api/auth/login", map[string]string{
+		"username": "alice", "password": "correct horse battery staple",
+	})
+	if login.StatusCode != http.StatusOK {
+		t.Fatalf("second login status = %d, body = %s", login.StatusCode, readBody(t, login))
+	}
+	login.Body.Close()
+
+	eventRequest, err := http.NewRequest(http.MethodGet, webServer.URL+"/api/events", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	events, err := second.Do(eventRequest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer events.Body.Close()
+	if events.StatusCode != http.StatusOK || events.Header.Get("Content-Type") != "text/event-stream" {
+		t.Fatalf("event stream response = %d, %s", events.StatusCode, events.Header.Get("Content-Type"))
+	}
+	eventReader := bufio.NewReader(events.Body)
+	awaitBoardEvent(t, eventReader)
+
+	createdResponse := clientJSON(t, first, http.MethodPost, webServer.URL+"/api/tasks", map[string]string{"title": "Shared edit"})
+	if createdResponse.StatusCode != http.StatusCreated {
+		t.Fatalf("create status = %d, body = %s", createdResponse.StatusCode, readBody(t, createdResponse))
+	}
+	var task board.Task
+	if err := json.NewDecoder(createdResponse.Body).Decode(&task); err != nil {
+		t.Fatal(err)
+	}
+	createdResponse.Body.Close()
+	awaitBoardEvent(t, eventReader)
+
+	update := board.TaskInput{Title: "First edit", Recurrence: task.Recurrence, Version: task.Version}
+	updated := clientJSON(t, first, http.MethodPatch, webServer.URL+"/api/tasks/"+task.ID, update)
+	if updated.StatusCode != http.StatusOK {
+		t.Fatalf("first update status = %d, body = %s", updated.StatusCode, readBody(t, updated))
+	}
+	updated.Body.Close()
+	awaitBoardEvent(t, eventReader)
+	stale := clientJSON(t, second, http.MethodPatch, webServer.URL+"/api/tasks/"+task.ID, board.TaskInput{
+		Title: "Stale edit", Recurrence: task.Recurrence, Version: task.Version,
+	})
+	if stale.StatusCode != http.StatusConflict {
+		t.Fatalf("stale update status = %d, body = %s", stale.StatusCode, readBody(t, stale))
+	}
+	stale.Body.Close()
+
+	streamClosed := make(chan error, 1)
+	go func() {
+		_, err := io.Copy(io.Discard, eventReader)
+		streamClosed <- err
+	}()
+	changed := clientJSON(t, first, http.MethodPost, webServer.URL+"/api/auth/change-password", map[string]string{
+		"currentPassword": "correct horse battery staple", "newPassword": "a different long password",
+	})
+	if changed.StatusCode != http.StatusOK {
+		t.Fatalf("password change status = %d, body = %s", changed.StatusCode, readBody(t, changed))
+	}
+	changed.Body.Close()
+	select {
+	case <-streamClosed:
+	case <-time.After(2 * time.Second):
+		t.Fatal("revoked session event stream remained open")
+	}
+	revoked := clientJSON(t, second, http.MethodGet, webServer.URL+"/api/tasks", nil)
+	if revoked.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("revoked session status = %d, body = %s", revoked.StatusCode, readBody(t, revoked))
+	}
+	revoked.Body.Close()
+}
+
+func newSessionClient(t *testing.T) *http.Client {
+	t.Helper()
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return &http.Client{Jar: jar, Timeout: 5 * time.Second}
+}
+
+func clientJSON(t *testing.T, client *http.Client, method, endpoint string, input any) *http.Response {
+	t.Helper()
+	var body io.Reader
+	if input != nil {
+		var encoded bytes.Buffer
+		if err := json.NewEncoder(&encoded).Encode(input); err != nil {
+			t.Fatal(err)
+		}
+		body = &encoded
+	}
+	request, err := http.NewRequest(method, endpoint, body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if input != nil {
+		request.Header.Set("Content-Type", "application/json")
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return response
+}
+
+func awaitBoardEvent(t *testing.T, reader *bufio.Reader) {
+	t.Helper()
+	result := make(chan error, 1)
+	go func() {
+		seenRefresh := false
+		for {
+			line, err := reader.ReadString('\n')
+			if err != nil {
+				result <- err
+				return
+			}
+			line = strings.TrimSpace(line)
+			if line == "data: refresh" {
+				seenRefresh = true
+			}
+			if line == "" && seenRefresh {
+				result <- nil
+				return
+			}
+		}
+	}()
+	select {
+	case err := <-result:
+		if err != nil {
+			t.Fatalf("read board event: %v", err)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("timed out waiting for board event")
+	}
+}
+
+func readBody(t *testing.T, response *http.Response) string {
+	t.Helper()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(body)
 }

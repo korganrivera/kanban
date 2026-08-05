@@ -111,6 +111,31 @@ func TestCompletionAndUndoAreTransactional(t *testing.T) {
 	}
 }
 
+func TestReadyTaskCanCompleteDirectlyWithAttributionAndNoPoints(t *testing.T) {
+	store, ctx, _ := openTestStore(t)
+	task, err := store.Create(ctx, board.TaskInput{Title: "Quick completion"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	task, err = store.Action(ctx, task.ID, "complete", "alice", board.ActionInput{Version: task.Version})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if task.EffectiveState != board.StateDone || task.ClaimedBy == nil || *task.ClaimedBy != "alice" {
+		t.Fatalf("direct completion = state %s, owner %v", task.EffectiveState, task.ClaimedBy)
+	}
+	if task.Awarded == nil || task.Awarded.Points != 0 || !task.CanUndo {
+		t.Fatalf("direct completion award/undo = %#v/%v", task.Awarded, task.CanUndo)
+	}
+	task, err = store.Action(ctx, task.ID, "undo", "alice", board.ActionInput{Version: task.Version})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if task.EffectiveState != board.StateReady || task.ClaimedBy != nil {
+		t.Fatalf("direct completion undo = state %s, owner %v", task.EffectiveState, task.ClaimedBy)
+	}
+}
+
 func TestSchedulingClaimedTaskForFutureReleasesClaim(t *testing.T) {
 	store, ctx, now := openTestStore(t)
 	task, err := store.Create(ctx, board.TaskInput{Title: "Reschedule me"})

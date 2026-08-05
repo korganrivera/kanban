@@ -93,12 +93,12 @@ design is simpler or safer.
 
 ## Final Verification
 
-- [ ] API parity tests for every legacy route or equivalent command
-- [ ] Multi-session tests for login, revocation, live updates, and stale edits
+- [x] API parity tests for every legacy route or equivalent command
+- [x] Multi-session tests for login, revocation, live updates, and stale edits
 - [x] Import fixture covering every legacy task shape
 - [x] Backup corruption and restore-drill tests
 - [ ] Manual side-by-side workflow review before migration
-- [ ] Final migration plan with rollback steps
+- [x] Final migration plan with rollback steps
 
 ## Implementation Order
 
