@@ -48,6 +48,7 @@ type Task struct {
 	Recurrence      Recurrence     `json:"recurrence"`
 	TimeCritical    bool           `json:"timeCritical"`
 	RemedyFor       *string        `json:"remedyFor"`
+	CreatedBy       *string        `json:"createdBy"`
 	ClaimedBy       *string        `json:"claimedBy"`
 	ClaimedAt       *time.Time     `json:"claimedAt"`
 	BlockNote       string         `json:"blockNote"`
@@ -72,6 +73,7 @@ type TaskInput struct {
 	Recurrence   Recurrence `json:"recurrence"`
 	Dependencies []string   `json:"dependencies"`
 	Version      int64      `json:"version"`
+	CreatedBy    *string    `json:"-"`
 }
 
 type ActionInput struct {

@@ -15,15 +15,21 @@ go run ./cmd/kanban
 ```
 
 Open <http://127.0.0.1:3100>. The database is created at `data/kanban.db`.
+The first visit offers account registration. After the first account is
+created, further registration is disabled by default.
 
 Configuration is available through environment variables:
 
 ```sh
 KANBAN_ADDR=127.0.0.1:3100 \
 KANBAN_DATA_DIR=/path/to/data \
-KANBAN_USER=your-name \
+ALLOW_REGISTRATION=0 \
+COOKIE_SECURE=0 \
 go run ./cmd/kanban
 ```
+
+Set `ALLOW_REGISTRATION=1` only while additional accounts should be creatable.
+Set `COOKIE_SECURE=1` when the browser reaches the board through HTTPS.
 
 ## Current scope
 
@@ -40,9 +46,10 @@ go run ./cmd/kanban
   completion ownership
 - Optimistic version checks and transactional updates
 - Embedded browser assets and live board refresh through server-sent events
+- Account registration, login, logout, rolling sessions, and password rotation
+- Authenticated creator, claimant, and completion attribution
 
-Authentication, points/history, and migration from the existing board remain
-to be implemented.
+Points/history and migration from the existing board remain to be implemented.
 
 ## Test
 

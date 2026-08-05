@@ -16,9 +16,9 @@ import (
 )
 
 func main() {
+	syscall.Umask(0o077)
 	address := envOr("KANBAN_ADDR", "127.0.0.1:3100")
 	dataDir := envOr("KANBAN_DATA_DIR", "data")
-	actor := envOr("KANBAN_USER", envOr("USER", "local"))
 
 	database, err := store.Open(filepath.Join(dataDir, "kanban.db"))
 	if err != nil {
@@ -26,7 +26,11 @@ func main() {
 	}
 	defer database.Close()
 
-	application := httpapi.New(database, actor)
+	application := httpapi.New(database, httpapi.Config{
+		AuthEnabled:       true,
+		AllowRegistration: envBool("ALLOW_REGISTRATION"),
+		CookieSecure:      envBool("COOKIE_SECURE"),
+	})
 	httpServer := &http.Server{
 		Addr:              address,
 		Handler:           application.Handler(),
@@ -57,4 +61,13 @@ func envOr(name, fallback string) string {
 		return value
 	}
 	return fallback
+}
+
+func envBool(name string) bool {
+	switch os.Getenv(name) {
+	case "1", "true", "TRUE", "yes", "YES", "on", "ON":
+		return true
+	default:
+		return false
+	}
 }

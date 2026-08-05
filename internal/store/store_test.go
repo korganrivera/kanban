@@ -300,7 +300,7 @@ func TestRemedySuspendsBlockedTask(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	result, err := store.CreateRemedy(ctx, blocked.ID, board.RemedyInput{
+	result, err := store.CreateRemedy(ctx, blocked.ID, "", board.RemedyInput{
 		Title: "Resolve the blocker", Version: blocked.Version,
 	})
 	if err != nil {

@@ -69,6 +69,51 @@ button.danger {
     background: var(--blocked);
 }
 
+.auth-screen {
+    display: grid;
+    min-height: 100vh;
+    place-items: center;
+    padding: 24px;
+}
+
+.auth-screen[hidden],
+#app-shell[hidden] {
+    display: none;
+}
+
+.auth-panel {
+    width: min(380px, 100%);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    padding: 24px;
+}
+
+.auth-brand {
+    margin-bottom: 24px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.auth-panel h1 {
+    margin: 0 0 18px;
+    font-size: 20px;
+}
+
+.auth-form {
+    display: grid;
+    gap: 9px;
+}
+
+.auth-form[hidden] {
+    display: none;
+}
+
+.auth-form button:first-of-type {
+    margin-top: 8px;
+}
+
 .topbar {
     position: sticky;
     top: 0;
@@ -105,8 +150,19 @@ button.danger {
 
 .topbar-actions {
     display: flex;
+    align-items: center;
+    flex-wrap: wrap;
     justify-content: flex-end;
     gap: 8px;
+}
+
+.current-user {
+    max-width: 160px;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 input,
@@ -306,6 +362,20 @@ select:focus {
 #settings-form {
     display: grid;
     gap: 8px;
+}
+
+#password-form {
+    display: grid;
+    gap: 8px;
+    margin-top: 18px;
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+}
+
+.password-fields {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 10px;
 }
 
 #task-form label,

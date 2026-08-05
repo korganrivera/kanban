@@ -20,6 +20,22 @@ var migrations = []string{
 		weekday INTEGER NOT NULL CHECK (weekday BETWEEN 0 AND 6),
 		PRIMARY KEY (task_id, weekday)
 	);`,
+	`CREATE TABLE users (
+		username TEXT PRIMARY KEY,
+		password_hash TEXT,
+		points INTEGER NOT NULL DEFAULT 0 CHECK (points >= 0),
+		created_at TEXT NOT NULL,
+		password_changed_at TEXT
+	);
+	 CREATE TABLE sessions (
+		token_hash TEXT PRIMARY KEY,
+		username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
+		created_at TEXT NOT NULL,
+		expires_at TEXT NOT NULL
+	);
+	 CREATE INDEX idx_sessions_expiry ON sessions(expires_at);
+	 CREATE INDEX idx_sessions_user ON sessions(username);
+	 ALTER TABLE tasks ADD COLUMN created_by TEXT REFERENCES users(username) ON DELETE SET NULL;`,
 }
 
 func migrate(db *sql.DB) error {

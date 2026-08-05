@@ -29,23 +29,23 @@ design is simpler or safer.
 - [x] Quick add and full task editor
 - [x] Truncated card descriptions with full descriptions in the editor
 - [ ] Separate legacy `deadline` field for API and import fidelity
-- [ ] Created-by attribution on tasks and remedies
+- [x] Created-by attribution on tasks and remedies
 - [ ] Priority snapshot metadata on claimed tasks
 - [ ] Remedy-aware dependency removal with optional remedy cleanup
 
 ## Accounts And Security
 
-- [ ] Initial account registration
-- [ ] Registration disabled after the first account unless explicitly enabled
-- [ ] Login and logout
-- [ ] Persistent rolling sessions with secure cookie settings
-- [ ] Authentication required for task data, WIP settings, and live events
-- [ ] Claims and creation attributed to the authenticated user
-- [ ] Password change with current-password verification
-- [ ] Password change revokes the user's other sessions and live connections
-- [ ] Authentication rate limiting and constant-work invalid login checks
-- [ ] Same-origin checks for mutating requests
-- [ ] Account controls in the browser UI
+- [x] Initial account registration
+- [x] Registration disabled after the first account unless explicitly enabled
+- [x] Login and logout
+- [x] Persistent rolling sessions with secure cookie settings
+- [x] Authentication required for task data, WIP settings, and live events
+- [x] Claims and creation attributed to the authenticated user
+- [x] Password change with current-password verification
+- [x] Password change revokes the user's other sessions and live connections
+- [x] Authentication rate limiting and constant-work invalid login checks
+- [x] Same-origin checks for mutating requests
+- [x] Account controls in the browser UI
 
 ## Points And Completion History
 
@@ -60,13 +60,13 @@ design is simpler or safer.
 
 ## Browser Experience
 
-- [ ] Login and registration screen
+- [x] Login and registration screen
 - [ ] Live-connection status indicator
 - [ ] Ready-at and overdue indicators on cards
 - [ ] Recurrence-aware overdue calculation
 - [ ] Complete task metadata: creator, age, completion date, and owner
 - [ ] Palette selection persisted per browser user
-- [ ] Automatic time-boundary refresh without waiting up to one minute
+- [x] Automatic time-boundary refresh without waiting up to one minute
 - [ ] Recheck desktop and mobile layout after parity controls are present
 
 ## Data Migration
@@ -81,8 +81,8 @@ design is simpler or safer.
 
 ## Operations And Recovery
 
-- [ ] Restrictive data-directory and database file permissions
-- [ ] Consistent configuration for address, data path, registration, and cookies
+- [x] Restrictive data-directory and database file permissions
+- [x] Consistent configuration for address, data path, registration, and cookies
 - [ ] SQLite-consistent backup command
 - [ ] SHA-256 backup manifest and verification command
 - [ ] Atomic latest-backup pointer and retention pruning

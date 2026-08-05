@@ -34,6 +34,9 @@ func Open(path string) (*Store, error) {
 	if err := os.MkdirAll(filepath.Dir(absPath), 0o700); err != nil {
 		return nil, err
 	}
+	if err := os.Chmod(filepath.Dir(absPath), 0o700); err != nil {
+		return nil, err
+	}
 	dsn := fmt.Sprintf("file:%s?_pragma=foreign_keys(1)&_pragma=busy_timeout(5000)", filepath.ToSlash(absPath))
 	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
@@ -47,6 +50,10 @@ func Open(path string) (*Store, error) {
 	if err := migrate(db); err != nil {
 		db.Close()
 		return nil, fmt.Errorf("migrate database: %w", err)
+	}
+	if err := os.Chmod(absPath, 0o600); err != nil {
+		db.Close()
+		return nil, err
 	}
 	return &Store{db: db, now: time.Now}, nil
 }
@@ -94,12 +101,12 @@ func (store *Store) Create(ctx context.Context, input board.TaskInput) (*board.T
         INSERT INTO tasks (
             id, title, description, lifecycle, scheduled_at, lead_days,
             recurrence_kind, recurrence_days, recurrence_paused,
-			time_critical, created_at, updated_at, version
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+			time_critical, created_by, created_at, updated_at, version
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
 		id, input.Title, input.Description, board.LifecycleReady,
 		timeValue(input.ScheduledAt), input.LeadDays, input.Recurrence.Kind,
 		input.Recurrence.Days, boolInt(input.Recurrence.Paused),
-		boolInt(input.TimeCritical),
+		boolInt(input.TimeCritical), stringValue(input.CreatedBy),
 		formatTime(now), formatTime(now),
 	)
 	if err != nil {
@@ -310,7 +317,7 @@ func (store *Store) UpdateWIPLimits(ctx context.Context, updates board.WIPLimits
 	return store.WIPLimits(ctx)
 }
 
-func (store *Store) CreateRemedy(ctx context.Context, id string, input board.RemedyInput) (*board.RemedyResult, error) {
+func (store *Store) CreateRemedy(ctx context.Context, id, actor string, input board.RemedyInput) (*board.RemedyResult, error) {
 	tx, err := store.db.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
@@ -344,10 +351,10 @@ func (store *Store) CreateRemedy(ctx context.Context, id string, input board.Rem
 		INSERT INTO tasks (
 			id, title, description, lifecycle, scheduled_at, lead_days,
 			recurrence_kind, recurrence_days, recurrence_paused, time_critical,
-			remedy_for, created_at, updated_at, version
-		) VALUES (?, ?, ?, ?, ?, ?, 'none', 0, 0, 0, ?, ?, ?, 1)`,
+			remedy_for, created_by, created_at, updated_at, version
+		) VALUES (?, ?, ?, ?, ?, ?, 'none', 0, 0, 0, ?, ?, ?, ?, 1)`,
 		remedyID, input.Title, input.Description, board.LifecycleReady,
-		timeValue(parent.ScheduledAt), parent.LeadDays, parent.ID,
+		timeValue(parent.ScheduledAt), parent.LeadDays, parent.ID, nullableString(actor),
 		formatTime(now), formatTime(now),
 	)
 	if err != nil {
@@ -381,6 +388,13 @@ func (store *Store) CreateRemedy(ctx context.Context, id string, input board.Rem
 		return nil, err
 	}
 	return &board.RemedyResult{BlockedTask: blockedTask, RemedyTask: remedyTask}, nil
+}
+
+func nullableString(value string) any {
+	if value == "" {
+		return nil
+	}
+	return value
 }
 
 func (store *Store) Delete(ctx context.Context, id string, input board.DeleteInput) ([]board.TaskReference, error) {
@@ -553,7 +567,7 @@ func listTasks(ctx context.Context, query queryer) ([]*board.Task, error) {
 	rows, err := query.QueryContext(ctx, `
         SELECT t.id, t.title, t.description, t.lifecycle, t.scheduled_at, t.lead_days,
             t.recurrence_kind, t.recurrence_days, t.recurrence_paused,
-			t.time_critical, t.remedy_for, t.claimed_by, t.claimed_at, t.block_note, t.last_completed_at,
+			t.time_critical, t.remedy_for, t.created_by, t.claimed_by, t.claimed_at, t.block_note, t.last_completed_at,
             t.created_at, t.updated_at, t.version,
             EXISTS (
                 SELECT 1 FROM task_occurrences o
@@ -571,14 +585,14 @@ func listTasks(ctx context.Context, query queryer) ([]*board.Task, error) {
 	for rows.Next() {
 		task := &board.Task{}
 		var lifecycle string
-		var scheduled, remedyFor, claimedBy, claimedAt, lastCompleted sql.NullString
+		var scheduled, remedyFor, createdBy, claimedBy, claimedAt, lastCompleted sql.NullString
 		var recurrencePaused, timeCritical int
 		var createdAt, updatedAt string
 		var canUndo int
 		if err := rows.Scan(
 			&task.ID, &task.Title, &task.Description, &lifecycle, &scheduled, &task.LeadDays,
 			&task.Recurrence.Kind, &task.Recurrence.Days, &recurrencePaused,
-			&timeCritical, &remedyFor,
+			&timeCritical, &remedyFor, &createdBy,
 			&claimedBy, &claimedAt, &task.BlockNote, &lastCompleted,
 			&createdAt, &updatedAt, &task.Version, &canUndo,
 		); err != nil {
@@ -588,6 +602,7 @@ func listTasks(ctx context.Context, query queryer) ([]*board.Task, error) {
 		task.Recurrence.Paused = recurrencePaused == 1
 		task.TimeCritical = timeCritical == 1
 		task.RemedyFor = parseNullableString(remedyFor)
+		task.CreatedBy = parseNullableString(createdBy)
 		task.ScheduledAt, err = parseNullableTime(scheduled)
 		if err != nil {
 			return nil, err

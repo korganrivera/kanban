@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -25,26 +26,54 @@ type taskStore interface {
 	Delete(context.Context, string, board.DeleteInput) ([]board.TaskReference, error)
 	WIPLimits(context.Context) (board.WIPLimits, error)
 	UpdateWIPLimits(context.Context, board.WIPLimits) (board.WIPLimits, error)
-	CreateRemedy(context.Context, string, board.RemedyInput) (*board.RemedyResult, error)
+	CreateRemedy(context.Context, string, string, board.RemedyInput) (*board.RemedyResult, error)
+	RegistrationEnabled(context.Context, bool) (bool, error)
+	RegisterUser(context.Context, string, string, bool, time.Time) (*store.User, error)
+	User(context.Context, string) (*store.User, error)
+	UpdatePassword(context.Context, string, string, time.Time) error
+	CreateSession(context.Context, string, string, time.Time, time.Time) error
+	SessionUser(context.Context, string, time.Time, time.Time) (*store.User, error)
+	DeleteSession(context.Context, string) error
+}
+
+type Config struct {
+	AuthEnabled       bool
+	Actor             string
+	AllowRegistration bool
+	CookieSecure      bool
+	SessionTTL        time.Duration
 }
 
 type Server struct {
-	store  taskStore
-	actor  string
-	mux    *http.ServeMux
-	events *broker
-	closed chan struct{}
-	close  sync.Once
+	store     taskStore
+	config    Config
+	mux       *http.ServeMux
+	events    *broker
+	limiter   *loginLimiter
+	dummyHash []byte
+	now       func() time.Time
+	closed    chan struct{}
+	close     sync.Once
 }
 
-func New(store *store.Store, actor string) *Server {
-	server := &Server{
-		store:  store,
-		actor:  strings.TrimSpace(actor),
-		mux:    http.NewServeMux(),
-		events: newBroker(),
-		closed: make(chan struct{}),
+func New(store *store.Store, config Config) *Server {
+	config.Actor = strings.TrimSpace(config.Actor)
+	if config.Actor == "" {
+		config.Actor = "local"
 	}
+	if config.SessionTTL <= 0 {
+		config.SessionTTL = 7 * 24 * time.Hour
+	}
+	server := &Server{
+		store:   store,
+		config:  config,
+		mux:     http.NewServeMux(),
+		events:  newBroker(),
+		limiter: newLoginLimiter(20, 15*time.Minute),
+		now:     time.Now,
+		closed:  make(chan struct{}),
+	}
+	server.initializeDummyHash()
 	server.routes()
 	return server
 }
@@ -59,15 +88,21 @@ func (server *Server) Close() {
 
 func (server *Server) routes() {
 	server.mux.HandleFunc("GET /healthz", server.health)
-	server.mux.HandleFunc("GET /api/tasks", server.listTasks)
-	server.mux.HandleFunc("POST /api/tasks", server.createTask)
-	server.mux.HandleFunc("PATCH /api/tasks/{id}", server.updateTask)
-	server.mux.HandleFunc("DELETE /api/tasks/{id}", server.deleteTask)
-	server.mux.HandleFunc("POST /api/tasks/{id}/remedy", server.createRemedy)
-	server.mux.HandleFunc("POST /api/tasks/{id}/{action}", server.actionTask)
-	server.mux.HandleFunc("GET /api/wip-limits", server.getWIPLimits)
-	server.mux.HandleFunc("PATCH /api/wip-limits", server.updateWIPLimits)
-	server.mux.HandleFunc("GET /api/events", server.streamEvents)
+	server.mux.HandleFunc("GET /api/auth/registration", server.registrationStatus)
+	server.mux.HandleFunc("POST /api/auth/register", server.register)
+	server.mux.HandleFunc("POST /api/auth/login", server.login)
+	server.mux.HandleFunc("GET /api/auth/me", server.me)
+	server.mux.Handle("POST /api/auth/change-password", server.requireAuth(http.HandlerFunc(server.changePassword)))
+	server.mux.Handle("POST /api/auth/logout", server.requireAuth(http.HandlerFunc(server.logout)))
+	server.mux.Handle("GET /api/tasks", server.requireAuth(http.HandlerFunc(server.listTasks)))
+	server.mux.Handle("POST /api/tasks", server.requireAuth(http.HandlerFunc(server.createTask)))
+	server.mux.Handle("PATCH /api/tasks/{id}", server.requireAuth(http.HandlerFunc(server.updateTask)))
+	server.mux.Handle("DELETE /api/tasks/{id}", server.requireAuth(http.HandlerFunc(server.deleteTask)))
+	server.mux.Handle("POST /api/tasks/{id}/remedy", server.requireAuth(http.HandlerFunc(server.createRemedy)))
+	server.mux.Handle("POST /api/tasks/{id}/{action}", server.requireAuth(http.HandlerFunc(server.actionTask)))
+	server.mux.Handle("GET /api/wip-limits", server.requireAuth(http.HandlerFunc(server.getWIPLimits)))
+	server.mux.Handle("PATCH /api/wip-limits", server.requireAuth(http.HandlerFunc(server.updateWIPLimits)))
+	server.mux.Handle("GET /api/events", server.requireAuth(http.HandlerFunc(server.streamEvents)))
 	server.mux.Handle("GET /", webui.Handler())
 }
 
@@ -77,7 +112,11 @@ func (server *Server) createRemedy(response http.ResponseWriter, request *http.R
 		writeError(response, http.StatusBadRequest, err.Error())
 		return
 	}
-	result, err := server.store.CreateRemedy(request.Context(), request.PathValue("id"), input)
+	actor := ""
+	if server.config.AuthEnabled {
+		actor = requestIdentity(request).Username
+	}
+	result, err := server.store.CreateRemedy(request.Context(), request.PathValue("id"), actor, input)
 	if err != nil {
 		writeStoreError(response, err)
 		return
@@ -160,6 +199,10 @@ func (server *Server) createTask(response http.ResponseWriter, request *http.Req
 		writeError(response, http.StatusBadRequest, err.Error())
 		return
 	}
+	if server.config.AuthEnabled {
+		actor := requestIdentity(request).Username
+		input.CreatedBy = &actor
+	}
 	task, err := server.store.Create(request.Context(), input)
 	if err != nil {
 		writeStoreError(response, err)
@@ -191,7 +234,7 @@ func (server *Server) actionTask(response http.ResponseWriter, request *http.Req
 		return
 	}
 	task, err := server.store.Action(
-		request.Context(), request.PathValue("id"), request.PathValue("action"), server.actor, input,
+		request.Context(), request.PathValue("id"), request.PathValue("action"), requestIdentity(request).Username, input,
 	)
 	if err != nil {
 		writeStoreError(response, err)
@@ -210,7 +253,8 @@ func (server *Server) streamEvents(response http.ResponseWriter, request *http.R
 	response.Header().Set("Content-Type", "text/event-stream")
 	response.Header().Set("Cache-Control", "no-cache")
 	response.Header().Set("Connection", "keep-alive")
-	updates, unsubscribe := server.events.subscribe()
+	identity := requestIdentity(request)
+	updates, unsubscribe := server.events.subscribe(identity.Username, identity.SessionHash)
 	defer unsubscribe()
 	fmt.Fprint(response, "event: board\ndata: refresh\n\n")
 	flusher.Flush()
@@ -222,7 +266,10 @@ func (server *Server) streamEvents(response http.ResponseWriter, request *http.R
 			return
 		case <-server.closed:
 			return
-		case <-updates:
+		case _, ok := <-updates:
+			if !ok {
+				return
+			}
 			fmt.Fprint(response, "event: board\ndata: refresh\n\n")
 			flusher.Flush()
 		case <-heartbeat.C:
@@ -279,6 +326,19 @@ func securityHeaders(next http.Handler) http.Handler {
 		response.Header().Set("X-Frame-Options", "DENY")
 		response.Header().Set("Referrer-Policy", "no-referrer")
 		response.Header().Set("Content-Security-Policy", "default-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'")
+		if request.Method != http.MethodGet && request.Method != http.MethodHead && request.Method != http.MethodOptions {
+			if origin := request.Header.Get("Origin"); origin != "" {
+				parsed, err := url.Parse(origin)
+				if err != nil || !strings.EqualFold(parsed.Host, request.Host) {
+					writeError(response, http.StatusForbidden, "cross-origin request rejected")
+					return
+				}
+			}
+			if site := request.Header.Get("Sec-Fetch-Site"); site != "" && site != "same-origin" && site != "none" {
+				writeError(response, http.StatusForbidden, "cross-origin request rejected")
+				return
+			}
+		}
 		next.ServeHTTP(response, request)
 	})
 }

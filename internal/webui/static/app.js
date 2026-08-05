@@ -24,11 +24,16 @@ let tasks = [];
 let wipLimits = {};
 let editorTaskID = null;
 let toastTimer = null;
+let currentUser = null;
+let events = null;
+let refreshTimer = null;
 
 const board = document.getElementById("board");
 const editor = document.getElementById("editor");
 const settings = document.getElementById("settings");
 const backdrop = document.getElementById("backdrop");
+const authScreen = document.getElementById("auth-screen");
+const appShell = document.getElementById("app-shell");
 
 async function request(path, options = {}) {
     const response = await fetch(path, {
@@ -40,9 +45,128 @@ async function request(path, options = {}) {
         const error = new Error(body.error || `Request failed (${response.status})`);
         error.status = response.status;
         error.body = body;
+        if (response.status === 401 && !path.startsWith("/api/auth/")) showAuth();
         throw error;
     }
     return body;
+}
+
+async function initialize() {
+    try {
+        const account = await request("/api/auth/me");
+        if (account.authenticated) {
+            await startApplication(account);
+        } else {
+            await showAuth();
+        }
+    } catch (error) {
+        await showAuth();
+        showToast(error.message);
+    }
+}
+
+async function startApplication(account) {
+    currentUser = account;
+    authScreen.hidden = true;
+    appShell.hidden = false;
+    document.getElementById("current-user").textContent = account.username;
+    clearInterval(refreshTimer);
+    await loadBoard();
+    connectEvents();
+    refreshTimer = setInterval(loadBoard, 15000);
+}
+
+async function showAuth() {
+    currentUser = null;
+    if (events) {
+        events.close();
+        events = null;
+    }
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+    closePanels();
+    appShell.hidden = true;
+    authScreen.hidden = false;
+    showLoginForm();
+    try {
+        const status = await request("/api/auth/registration");
+        const registerButton = document.getElementById("show-register");
+        registerButton.hidden = !status.enabled;
+        registerButton.textContent = status.enabled ? "Create account" : "";
+    } catch (error) {
+        document.getElementById("show-register").hidden = true;
+    }
+    document.getElementById("login-username").focus();
+}
+
+function showLoginForm() {
+    document.getElementById("auth-title").textContent = "Log in";
+    document.getElementById("login-form").hidden = false;
+    document.getElementById("register-form").hidden = true;
+}
+
+function showRegistrationForm() {
+    document.getElementById("auth-title").textContent = "Create account";
+    document.getElementById("login-form").hidden = true;
+    document.getElementById("register-form").hidden = false;
+    document.getElementById("register-username").focus();
+}
+
+async function login(event) {
+    event.preventDefault();
+    try {
+        const account = await request("/api/auth/login", {
+            method: "POST",
+            body: JSON.stringify({
+                username: document.getElementById("login-username").value.trim(),
+                password: document.getElementById("login-password").value,
+            }),
+        });
+        document.getElementById("login-password").value = "";
+        await startApplication({ ...account, authenticated: true });
+    } catch (error) {
+        showToast(error.message);
+    }
+}
+
+async function register(event) {
+    event.preventDefault();
+    const password = document.getElementById("register-password").value;
+    if (password !== document.getElementById("register-confirm").value) {
+        showToast("Passwords do not match");
+        return;
+    }
+    try {
+        const account = await request("/api/auth/register", {
+            method: "POST",
+            body: JSON.stringify({
+                username: document.getElementById("register-username").value.trim(),
+                password,
+            }),
+        });
+        document.getElementById("register-form").reset();
+        await startApplication({ ...account, authenticated: true });
+    } catch (error) {
+        showToast(error.message);
+    }
+}
+
+async function logout() {
+    try {
+        await request("/api/auth/logout", { method: "POST", body: "{}" });
+    } catch (error) {
+        if (error.status !== 401) showToast(error.message);
+    }
+    await showAuth();
+}
+
+function connectEvents() {
+    if (events) events.close();
+    events = new EventSource("/api/events");
+    events.addEventListener("board", loadBoard);
+    events.onerror = () => {
+        if (currentUser) showToast("Live connection interrupted; reconnecting");
+    };
 }
 
 async function loadBoard() {
@@ -53,7 +177,7 @@ async function loadBoard() {
         ]);
         renderBoard();
     } catch (error) {
-        showToast(error.message);
+        if (error.status !== 401) showToast(error.message);
     }
 }
 
@@ -293,6 +417,7 @@ function renderTaskContext(task) {
         `Created ${formatDate(task.createdAt)}`,
     ];
     if (task.claimedBy) values.push(`Claimed by ${task.claimedBy}`);
+    if (task.createdBy) values.push(`Created by ${task.createdBy}`);
     if (task.lastCompletedAt) values.push(`Completed ${formatDate(task.lastCompletedAt)}`);
     if (task.remedyFor) {
         const parent = tasks.find((candidate) => candidate.id === task.remedyFor);
@@ -399,6 +524,28 @@ async function saveSettings(event) {
         });
         closeSettings();
         renderBoard();
+    } catch (error) {
+        showToast(error.message);
+    }
+}
+
+async function changePassword(event) {
+    event.preventDefault();
+    const currentPassword = document.getElementById("current-password").value;
+    const newPassword = document.getElementById("new-password").value;
+    if (newPassword !== document.getElementById("confirm-password").value) {
+        showToast("New passwords do not match");
+        return;
+    }
+    try {
+        await request("/api/auth/change-password", {
+            method: "POST",
+            body: JSON.stringify({ currentPassword, newPassword }),
+        });
+        document.getElementById("password-form").reset();
+        closeSettings();
+        connectEvents();
+        showToast("Password changed");
     } catch (error) {
         showToast(error.message);
     }
@@ -519,6 +666,7 @@ document.getElementById("new-task").addEventListener("click", () => openEditor()
 document.getElementById("settings-button").addEventListener("click", openSettings);
 document.getElementById("task-form").addEventListener("submit", saveEditor);
 document.getElementById("settings-form").addEventListener("submit", saveSettings);
+document.getElementById("password-form").addEventListener("submit", changePassword);
 document.getElementById("close-editor").addEventListener("click", closeEditor);
 document.getElementById("cancel-editor").addEventListener("click", closeEditor);
 document.getElementById("delete-task").addEventListener("click", deleteEditorTask);
@@ -526,12 +674,13 @@ document.getElementById("close-settings").addEventListener("click", closeSetting
 document.getElementById("cancel-settings").addEventListener("click", closeSettings);
 document.getElementById("backdrop").addEventListener("click", closePanels);
 document.getElementById("task-recurrence").addEventListener("change", updateRecurrenceControls);
+document.getElementById("login-form").addEventListener("submit", login);
+document.getElementById("register-form").addEventListener("submit", register);
+document.getElementById("show-register").addEventListener("click", showRegistrationForm);
+document.getElementById("show-login").addEventListener("click", showLoginForm);
+document.getElementById("logout-button").addEventListener("click", logout);
 document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closePanels();
 });
 
-const events = new EventSource("/api/events");
-events.addEventListener("board", loadBoard);
-events.onerror = () => showToast("Live connection interrupted; reconnecting");
-setInterval(loadBoard, 60000);
-loadBoard();
+initialize();

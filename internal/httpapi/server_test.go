@@ -20,10 +20,14 @@ func testServer(t *testing.T) http.Handler {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { database.Close() })
-	return New(database, "tester").Handler()
+	return New(database, Config{Actor: "tester"}).Handler()
 }
 
 func performJSON(t *testing.T, handler http.Handler, method, path string, input any) *httptest.ResponseRecorder {
+	return performJSONWithCookie(t, handler, method, path, input, nil)
+}
+
+func performJSONWithCookie(t *testing.T, handler http.Handler, method, path string, input any, cookie *http.Cookie) *httptest.ResponseRecorder {
 	t.Helper()
 	var body bytes.Buffer
 	if input != nil {
@@ -33,9 +37,27 @@ func performJSON(t *testing.T, handler http.Handler, method, path string, input 
 	}
 	request := httptest.NewRequest(method, path, &body)
 	request.Header.Set("Content-Type", "application/json")
+	if cookie != nil {
+		request.AddCookie(cookie)
+	}
 	response := httptest.NewRecorder()
 	handler.ServeHTTP(response, request)
 	return response
+}
+
+func responseCookie(t *testing.T, response *httptest.ResponseRecorder) *http.Cookie {
+	t.Helper()
+	var sessionCookie *http.Cookie
+	for _, cookie := range response.Result().Cookies() {
+		if cookie.Name == sessionCookieName {
+			sessionCookie = cookie
+		}
+	}
+	if sessionCookie != nil {
+		return sessionCookie
+	}
+	t.Fatal("response did not include a session cookie")
+	return nil
 }
 
 func decodeTask(t *testing.T, response *httptest.ResponseRecorder) board.Task {
@@ -146,5 +168,140 @@ func TestWIPLimitsAndRemediesThroughHTTP(t *testing.T) {
 	}
 	if result.BlockedTask.EffectiveState != board.StateSuspended || result.RemedyTask.EffectiveState != board.StateReady {
 		t.Fatalf("remedy states = %s/%s", result.BlockedTask.EffectiveState, result.RemedyTask.EffectiveState)
+	}
+}
+
+func TestAuthenticationAndPasswordRotation(t *testing.T) {
+	database, err := store.Open(filepath.Join(t.TempDir(), "kanban.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { database.Close() })
+	server := New(database, Config{AuthEnabled: true})
+	t.Cleanup(server.Close)
+	handler := server.Handler()
+
+	unauthorized := performJSON(t, handler, http.MethodGet, "/api/tasks", nil)
+	if unauthorized.Code != http.StatusUnauthorized {
+		t.Fatalf("unauthenticated task list status = %d", unauthorized.Code)
+	}
+	registration := performJSON(t, handler, http.MethodGet, "/api/auth/registration", nil)
+	if registration.Code != http.StatusOK || !strings.Contains(registration.Body.String(), `"enabled":true`) {
+		t.Fatalf("registration status = %d, %s", registration.Code, registration.Body.String())
+	}
+
+	registered := performJSON(t, handler, http.MethodPost, "/api/auth/register", map[string]string{
+		"username": "alice", "password": "correct horse battery staple",
+	})
+	if registered.Code != http.StatusCreated {
+		t.Fatalf("register status = %d, body = %s", registered.Code, registered.Body.String())
+	}
+	firstCookie := responseCookie(t, registered)
+	if !firstCookie.HttpOnly || firstCookie.SameSite != http.SameSiteLaxMode {
+		t.Fatalf("session cookie flags = HttpOnly %v, SameSite %v", firstCookie.HttpOnly, firstCookie.SameSite)
+	}
+	secondRegistration := performJSON(t, handler, http.MethodPost, "/api/auth/register", map[string]string{
+		"username": "bob", "password": "another sufficiently long password",
+	})
+	if secondRegistration.Code != http.StatusForbidden {
+		t.Fatalf("second registration status = %d, body = %s", secondRegistration.Code, secondRegistration.Body.String())
+	}
+
+	created := performJSONWithCookie(t, handler, http.MethodPost, "/api/tasks", map[string]string{
+		"title": "Authenticated task",
+	}, firstCookie)
+	if created.Code != http.StatusCreated {
+		t.Fatalf("authenticated create status = %d, body = %s", created.Code, created.Body.String())
+	}
+	task := decodeTask(t, created)
+	if task.CreatedBy == nil || *task.CreatedBy != "alice" {
+		t.Fatalf("task creator = %v", task.CreatedBy)
+	}
+	claimed := performJSONWithCookie(t, handler, http.MethodPost, "/api/tasks/"+task.ID+"/claim", board.ActionInput{Version: task.Version}, firstCookie)
+	if claimed.Code != http.StatusOK {
+		t.Fatalf("authenticated claim status = %d, body = %s", claimed.Code, claimed.Body.String())
+	}
+	task = decodeTask(t, claimed)
+	if task.ClaimedBy == nil || *task.ClaimedBy != "alice" {
+		t.Fatalf("task claimant = %v", task.ClaimedBy)
+	}
+	blocked := performJSONWithCookie(t, handler, http.MethodPost, "/api/tasks/"+task.ID+"/block", board.ActionInput{
+		Version: task.Version, Note: "Needs a remedy",
+	}, firstCookie)
+	if blocked.Code != http.StatusOK {
+		t.Fatalf("authenticated block status = %d, body = %s", blocked.Code, blocked.Body.String())
+	}
+	task = decodeTask(t, blocked)
+	remedy := performJSONWithCookie(t, handler, http.MethodPost, "/api/tasks/"+task.ID+"/remedy", board.RemedyInput{
+		Title: "Resolve authenticated blocker", Version: task.Version,
+	}, firstCookie)
+	if remedy.Code != http.StatusCreated {
+		t.Fatalf("authenticated remedy status = %d, body = %s", remedy.Code, remedy.Body.String())
+	}
+	var remedyResult board.RemedyResult
+	if err := json.NewDecoder(remedy.Body).Decode(&remedyResult); err != nil {
+		t.Fatal(err)
+	}
+	if remedyResult.RemedyTask.CreatedBy == nil || *remedyResult.RemedyTask.CreatedBy != "alice" {
+		t.Fatalf("remedy creator = %v", remedyResult.RemedyTask.CreatedBy)
+	}
+
+	secondLogin := performJSON(t, handler, http.MethodPost, "/api/auth/login", map[string]string{
+		"username": "alice", "password": "correct horse battery staple",
+	})
+	if secondLogin.Code != http.StatusOK {
+		t.Fatalf("second login status = %d, body = %s", secondLogin.Code, secondLogin.Body.String())
+	}
+	secondCookie := responseCookie(t, secondLogin)
+
+	wrongPassword := performJSONWithCookie(t, handler, http.MethodPost, "/api/auth/change-password", map[string]string{
+		"currentPassword": "incorrect password", "newPassword": "a different long password",
+	}, firstCookie)
+	if wrongPassword.Code != http.StatusUnauthorized {
+		t.Fatalf("wrong current password status = %d", wrongPassword.Code)
+	}
+	changed := performJSONWithCookie(t, handler, http.MethodPost, "/api/auth/change-password", map[string]string{
+		"currentPassword": "correct horse battery staple", "newPassword": "a different long password",
+	}, firstCookie)
+	if changed.Code != http.StatusOK {
+		t.Fatalf("password change status = %d, body = %s", changed.Code, changed.Body.String())
+	}
+	replacementCookie := responseCookie(t, changed)
+
+	revoked := performJSONWithCookie(t, handler, http.MethodGet, "/api/tasks", nil, secondCookie)
+	if revoked.Code != http.StatusUnauthorized {
+		t.Fatalf("revoked session status = %d", revoked.Code)
+	}
+	current := performJSONWithCookie(t, handler, http.MethodGet, "/api/tasks", nil, replacementCookie)
+	if current.Code != http.StatusOK {
+		t.Fatalf("replacement session status = %d", current.Code)
+	}
+	oldLogin := performJSON(t, handler, http.MethodPost, "/api/auth/login", map[string]string{
+		"username": "alice", "password": "correct horse battery staple",
+	})
+	if oldLogin.Code != http.StatusUnauthorized {
+		t.Fatalf("old password login status = %d", oldLogin.Code)
+	}
+
+	logout := performJSONWithCookie(t, handler, http.MethodPost, "/api/auth/logout", map[string]any{}, replacementCookie)
+	if logout.Code != http.StatusOK {
+		t.Fatalf("logout status = %d, body = %s", logout.Code, logout.Body.String())
+	}
+	afterLogout := performJSONWithCookie(t, handler, http.MethodGet, "/api/tasks", nil, replacementCookie)
+	if afterLogout.Code != http.StatusUnauthorized {
+		t.Fatalf("logged-out session status = %d", afterLogout.Code)
+	}
+}
+
+func TestCrossOriginMutationIsRejected(t *testing.T) {
+	handler := testServer(t)
+	request := httptest.NewRequest(http.MethodPost, "/api/tasks", strings.NewReader(`{"title":"Rejected"}`))
+	request.Host = "kanban.example"
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Origin", "https://attacker.example")
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, request)
+	if response.Code != http.StatusForbidden {
+		t.Fatalf("cross-origin response status = %d, body = %s", response.Code, response.Body.String())
 	}
 }

@@ -8,6 +8,32 @@
         <script src="/app.js" defer></script>
     </head>
     <body>
+        <main id="auth-screen" class="auth-screen" hidden>
+            <section class="auth-panel" aria-labelledby="auth-title">
+                <div class="auth-brand">Kanban Go</div>
+                <h1 id="auth-title">Log in</h1>
+                <form id="login-form" class="auth-form">
+                    <label for="login-username">Username</label>
+                    <input id="login-username" name="username" autocomplete="username" maxlength="64" required>
+                    <label for="login-password">Password</label>
+                    <input id="login-password" name="password" type="password" autocomplete="current-password" maxlength="200" required>
+                    <button type="submit">Log in</button>
+                    <button id="show-register" type="button" class="secondary" hidden>Create account</button>
+                </form>
+                <form id="register-form" class="auth-form" hidden>
+                    <label for="register-username">Username</label>
+                    <input id="register-username" name="username" autocomplete="username" minlength="3" maxlength="32" pattern="[A-Za-z0-9_.-]+" required>
+                    <label for="register-password">Password</label>
+                    <input id="register-password" name="password" type="password" autocomplete="new-password" minlength="10" maxlength="200" required>
+                    <label for="register-confirm">Confirm password</label>
+                    <input id="register-confirm" name="confirmPassword" type="password" autocomplete="new-password" minlength="10" maxlength="200" required>
+                    <button type="submit">Create account</button>
+                    <button id="show-login" type="button" class="secondary">Back to login</button>
+                </form>
+            </section>
+        </main>
+
+        <div id="app-shell" hidden>
         <header class="topbar">
             <div class="brand">Kanban Go <span class="prototype">Prototype</span></div>
             <form id="quick-add" class="quick-add">
@@ -16,8 +42,10 @@
                 <button type="submit">Add</button>
             </form>
             <div class="topbar-actions">
+                <span id="current-user" class="current-user"></span>
                 <button id="settings-button" type="button" class="secondary">Settings</button>
                 <button id="new-task" type="button" class="secondary">New task</button>
+                <button id="logout-button" type="button" class="secondary">Log out</button>
             </div>
         </header>
 
@@ -132,8 +160,23 @@
                     <button id="cancel-settings" type="button" class="secondary">Cancel</button>
                 </div>
             </form>
+            <form id="password-form">
+                <fieldset>
+                    <legend>Change password</legend>
+                    <div class="password-fields">
+                        <label for="current-password">Current password</label>
+                        <input id="current-password" type="password" autocomplete="current-password" maxlength="200" required>
+                        <label for="new-password">New password</label>
+                        <input id="new-password" type="password" autocomplete="new-password" minlength="10" maxlength="200" required>
+                        <label for="confirm-password">Confirm new password</label>
+                        <input id="confirm-password" type="password" autocomplete="new-password" minlength="10" maxlength="200" required>
+                    </div>
+                    <button type="submit">Change password</button>
+                </fieldset>
+            </form>
         </aside>
         <div id="backdrop" class="backdrop" hidden></div>
+        </div>
         <div id="toast" class="toast" role="status" aria-live="polite"></div>
     </body>
 </html>
