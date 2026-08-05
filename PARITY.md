@@ -28,10 +28,10 @@ design is simpler or safer.
 - [x] Live board updates
 - [x] Quick add and full task editor
 - [x] Truncated card descriptions with full descriptions in the editor
-- [ ] Separate legacy `deadline` field for API and import fidelity
+- [x] Separate legacy `deadline` field for API and import fidelity
 - [x] Created-by attribution on tasks and remedies
 - [x] Priority snapshot metadata on claimed tasks
-- [ ] Remedy-aware dependency removal with optional remedy cleanup
+- [x] Remedy-aware dependency removal with optional remedy cleanup
 
 ## Accounts And Security
 
@@ -61,11 +61,11 @@ design is simpler or safer.
 ## Browser Experience
 
 - [x] Login and registration screen
-- [ ] Live-connection status indicator
-- [ ] Ready-at and overdue indicators on cards
-- [ ] Recurrence-aware overdue calculation
-- [ ] Complete task metadata: creator, age, completion date, and owner
-- [ ] Palette selection persisted per browser user
+- [x] Live-connection status indicator
+- [x] Ready-at and overdue indicators on cards
+- [x] Recurrence-aware overdue calculation
+- [x] Complete task metadata: creator, age, completion date, and owner
+- [x] Palette selection persisted per browser user
 - [x] Automatic time-boundary refresh without waiting up to one minute
 - [ ] Recheck desktop and mobile layout after parity controls are present
 

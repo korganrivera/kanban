@@ -57,7 +57,11 @@ func ComputePriorities(tasks []*Task, now time.Time) {
 	for _, task := range tasks {
 		raw := rawImportance(task.ID)
 		task.Importance = importanceScore(raw)
-		task.Urgency = urgencyScore(task.ScheduledAt, now)
+		dueAt := task.Deadline
+		if dueAt == nil {
+			dueAt = task.ScheduledAt
+		}
+		task.Urgency = urgencyScore(dueAt, now)
 		task.Priority = int(math.Round(1 + task.Importance + task.Urgency))
 		if task.Deadlock {
 			task.Importance = 0

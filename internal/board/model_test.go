@@ -70,3 +70,29 @@ func TestAnchoredWeekdaySchedulePreservesDueTime(t *testing.T) {
 		t.Fatalf("weekday schedule = %s, want %s", next, want)
 	}
 }
+
+func TestReadyAndRecurrenceAwareOverdueMetadata(t *testing.T) {
+	now := time.Date(2026, time.August, 5, 12, 0, 0, 0, time.UTC)
+	dueYesterday := now.AddDate(0, 0, -1)
+	dueInTenDays := now.AddDate(0, 0, 10)
+	tasks := []*Task{
+		{ID: "overdue", Lifecycle: LifecycleReady, ScheduledAt: &dueYesterday, CreatedAt: now},
+		{ID: "recurring", Lifecycle: LifecycleReady, ScheduledAt: &dueYesterday, Recurrence: Recurrence{Kind: "rolling", Days: 10}, CreatedAt: now},
+		{ID: "waiting", Lifecycle: LifecycleReady, ScheduledAt: &dueInTenDays, LeadDays: 3, CreatedAt: now},
+		{ID: "done", Lifecycle: LifecycleDone, ScheduledAt: &dueYesterday, CreatedAt: now},
+	}
+	DeriveStates(tasks, now)
+	if !tasks[0].Overdue {
+		t.Fatal("non-recurring task due yesterday was not overdue")
+	}
+	if tasks[1].Overdue {
+		t.Fatal("recurring task was overdue before half its interval elapsed")
+	}
+	wantReadyAt := dueInTenDays.AddDate(0, 0, -3)
+	if tasks[2].ReadyAt == nil || !tasks[2].ReadyAt.Equal(wantReadyAt) || tasks[2].EffectiveState != StateWaiting {
+		t.Fatalf("waiting ready metadata = %v/%s, want %v/Waiting", tasks[2].ReadyAt, tasks[2].EffectiveState, wantReadyAt)
+	}
+	if tasks[3].Overdue {
+		t.Fatal("done task was marked overdue")
+	}
+}

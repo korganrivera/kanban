@@ -43,7 +43,9 @@ type Task struct {
 	EffectiveState  EffectiveState `json:"effectiveState"`
 	Dependencies    []string       `json:"dependencies"`
 	ScheduledAt     *time.Time     `json:"scheduledAt"`
+	Deadline        *time.Time     `json:"deadline"`
 	ReadyAt         *time.Time     `json:"readyAt"`
+	Overdue         bool           `json:"overdue"`
 	LeadDays        int            `json:"leadDays"`
 	Recurrence      Recurrence     `json:"recurrence"`
 	TimeCritical    bool           `json:"timeCritical"`
@@ -76,16 +78,18 @@ type PointAward struct {
 }
 
 type TaskInput struct {
-	Title        string     `json:"title"`
-	Description  string     `json:"description"`
-	BlockNote    string     `json:"blockNote"`
-	TimeCritical bool       `json:"timeCritical"`
-	ScheduledAt  *time.Time `json:"scheduledAt"`
-	LeadDays     int        `json:"leadDays"`
-	Recurrence   Recurrence `json:"recurrence"`
-	Dependencies []string   `json:"dependencies"`
-	Version      int64      `json:"version"`
-	CreatedBy    *string    `json:"-"`
+	Title           string     `json:"title"`
+	Description     string     `json:"description"`
+	BlockNote       string     `json:"blockNote"`
+	TimeCritical    bool       `json:"timeCritical"`
+	ScheduledAt     *time.Time `json:"scheduledAt"`
+	Deadline        *time.Time `json:"deadline"`
+	LeadDays        int        `json:"leadDays"`
+	Recurrence      Recurrence `json:"recurrence"`
+	Dependencies    []string   `json:"dependencies"`
+	Version         int64      `json:"version"`
+	CreatedBy       *string    `json:"-"`
+	CleanupRemedies []string   `json:"cleanupRemedies"`
 }
 
 type ActionInput struct {
@@ -104,9 +108,10 @@ type TaskReference struct {
 }
 
 type RemedyInput struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Version     int64  `json:"version"`
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	Version     int64      `json:"version"`
+	Deadline    *time.Time `json:"deadline"`
 }
 
 type RemedyResult struct {
@@ -204,6 +209,20 @@ func (input *TaskInput) Normalize() error {
 		cleaned = append(cleaned, dependencyID)
 	}
 	input.Dependencies = cleaned
+	seenCleanup := make(map[string]struct{}, len(input.CleanupRemedies))
+	cleanedCleanup := make([]string, 0, len(input.CleanupRemedies))
+	for _, remedyID := range input.CleanupRemedies {
+		remedyID = strings.TrimSpace(remedyID)
+		if remedyID == "" {
+			continue
+		}
+		if _, exists := seenCleanup[remedyID]; exists {
+			continue
+		}
+		seenCleanup[remedyID] = struct{}{}
+		cleanedCleanup = append(cleanedCleanup, remedyID)
+	}
+	input.CleanupRemedies = cleanedCleanup
 	return nil
 }
 
@@ -244,11 +263,23 @@ func DeriveStates(tasks []*Task, now time.Time) {
 	}
 	for _, task := range tasks {
 		task.ReadyAt = nil
+		task.Overdue = false
 		if task.ScheduledAt != nil {
 			readyAt := task.ScheduledAt.AddDate(0, 0, -task.LeadDays)
 			task.ReadyAt = &readyAt
+			overdueAt := *task.ScheduledAt
+			if task.Recurrence.Kind != "none" && task.Recurrence.Days > 0 {
+				overdueAt = overdueAt.AddDate(0, 0, task.Recurrence.Days/2)
+				if task.Recurrence.Days%2 != 0 {
+					overdueAt = overdueAt.Add(12 * time.Hour)
+				}
+			}
+			task.Overdue = !now.Before(overdueAt)
 		}
 		task.EffectiveState = EffectiveStateFor(task, byID, now)
+		if task.EffectiveState == StateDone || task.EffectiveState == StateWaiting {
+			task.Overdue = false
+		}
 	}
 }
 

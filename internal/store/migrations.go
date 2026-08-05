@@ -65,6 +65,7 @@ var migrations = []string{
 	 ALTER TABLE task_occurrences ADD COLUMN previous_points_snapshot_by TEXT;
 	 ALTER TABLE task_occurrences ADD COLUMN previous_points_snapshot_at TEXT;
 	 ALTER TABLE task_occurrences ADD COLUMN previous_unclaimed_at TEXT;`,
+	`ALTER TABLE tasks ADD COLUMN deadline TEXT;`,
 }
 
 func migrate(db *sql.DB) error {

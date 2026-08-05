@@ -294,9 +294,10 @@ func TestWIPLimitPreventsAdditionalClaim(t *testing.T) {
 }
 
 func TestRemedySuspendsBlockedTask(t *testing.T) {
-	store, ctx, _ := openTestStore(t)
+	store, ctx, now := openTestStore(t)
+	deadline := now.Add(8 * time.Hour)
 	blocked, err := store.Create(ctx, board.TaskInput{
-		Title: "Blocked parent", TimeCritical: true,
+		Title: "Blocked parent", TimeCritical: true, Deadline: &deadline,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -325,7 +326,72 @@ func TestRemedySuspendsBlockedTask(t *testing.T) {
 	if result.RemedyTask.EffectiveState != board.StateReady {
 		t.Fatalf("remedy state = %s", result.RemedyTask.EffectiveState)
 	}
+	if result.RemedyTask.Deadline == nil || !result.RemedyTask.Deadline.Equal(deadline) {
+		t.Fatalf("remedy deadline = %v, want %v", result.RemedyTask.Deadline, deadline)
+	}
 	if !result.BlockedTask.TimeCritical {
 		t.Fatal("time-critical metadata was not persisted on parent")
+	}
+	parent, err := store.Update(ctx, result.BlockedTask.ID, board.TaskInput{
+		Title: result.BlockedTask.Title, Description: result.BlockedTask.Description,
+		Recurrence: result.BlockedTask.Recurrence, Version: result.BlockedTask.Version,
+		CleanupRemedies: []string{result.RemedyTask.ID},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(parent.Dependencies) != 0 || parent.EffectiveState != board.StateReady {
+		t.Fatalf("parent after remedy cleanup = dependencies %v, state %s", parent.Dependencies, parent.EffectiveState)
+	}
+	if _, err := store.Get(ctx, result.RemedyTask.ID); !errors.Is(err, board.ErrNotFound) {
+		t.Fatalf("cleaned remedy lookup error = %v", err)
+	}
+}
+
+func TestSharedRemedyCleanupRollsBack(t *testing.T) {
+	store, ctx, _ := openTestStore(t)
+	parent, err := store.Create(ctx, board.TaskInput{Title: "Blocked parent"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	parent, err = store.Action(ctx, parent.ID, "block", "korgan", board.ActionInput{Version: parent.Version, Note: "Blocked"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := store.CreateRemedy(ctx, parent.ID, "", board.RemedyInput{Title: "Shared remedy", Version: parent.Version})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.Create(ctx, board.TaskInput{Title: "Other dependent", Dependencies: []string{result.RemedyTask.ID}}); err != nil {
+		t.Fatal(err)
+	}
+	_, err = store.Update(ctx, result.BlockedTask.ID, board.TaskInput{
+		Title: result.BlockedTask.Title, Recurrence: result.BlockedTask.Recurrence,
+		Version: result.BlockedTask.Version, CleanupRemedies: []string{result.RemedyTask.ID},
+	})
+	if err == nil {
+		t.Fatal("expected shared remedy cleanup to fail")
+	}
+	parent, err = store.Get(ctx, result.BlockedTask.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(parent.Dependencies) != 1 || parent.Dependencies[0] != result.RemedyTask.ID {
+		t.Fatalf("rolled-back parent dependencies = %v", parent.Dependencies)
+	}
+	if _, err := store.Get(ctx, result.RemedyTask.ID); err != nil {
+		t.Fatalf("shared remedy was deleted: %v", err)
+	}
+}
+
+func TestDeadlinePersists(t *testing.T) {
+	store, ctx, now := openTestStore(t)
+	deadline := now.Add(6 * time.Hour)
+	task, err := store.Create(ctx, board.TaskInput{Title: "Deadline task", Deadline: &deadline})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if task.Deadline == nil || !task.Deadline.Equal(deadline) {
+		t.Fatalf("stored deadline = %v, want %v", task.Deadline, deadline)
 	}
 }

@@ -99,12 +99,12 @@ func (store *Store) Create(ctx context.Context, input board.TaskInput) (*board.T
 	}
 	_, err = tx.ExecContext(ctx, `
         INSERT INTO tasks (
-            id, title, description, lifecycle, scheduled_at, lead_days,
+			id, title, description, lifecycle, scheduled_at, deadline, lead_days,
             recurrence_kind, recurrence_days, recurrence_paused,
 			time_critical, created_by, created_at, updated_at, version
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
 		id, input.Title, input.Description, board.LifecycleReady,
-		timeValue(input.ScheduledAt), input.LeadDays, input.Recurrence.Kind,
+		timeValue(input.ScheduledAt), timeValue(input.Deadline), input.LeadDays, input.Recurrence.Kind,
 		input.Recurrence.Days, boolInt(input.Recurrence.Paused),
 		boolInt(input.TimeCritical), stringValue(input.CreatedBy),
 		formatTime(now), formatTime(now),
@@ -145,7 +145,8 @@ func (store *Store) Update(ctx context.Context, id string, input board.TaskInput
 	if err != nil {
 		return nil, err
 	}
-	if _, err := findTask(allTasks, id); err != nil {
+	existing, err := findTask(allTasks, id)
+	if err != nil {
 		return nil, err
 	}
 	if err := ensureDependenciesExist(ctx, tx, id, input.Dependencies); err != nil {
@@ -157,11 +158,11 @@ func (store *Store) Update(ctx context.Context, id string, input board.TaskInput
 	now := store.now().UTC()
 	result, err := tx.ExecContext(ctx, `
         UPDATE tasks SET
-			title = ?, description = ?, block_note = ?, scheduled_at = ?, lead_days = ?,
+			title = ?, description = ?, block_note = ?, scheduled_at = ?, deadline = ?, lead_days = ?,
 			recurrence_kind = ?, recurrence_days = ?, recurrence_paused = ?, time_critical = ?,
             updated_at = ?, version = version + 1
         WHERE id = ? AND version = ?`,
-		input.Title, input.Description, input.BlockNote, timeValue(input.ScheduledAt), input.LeadDays,
+		input.Title, input.Description, input.BlockNote, timeValue(input.ScheduledAt), timeValue(input.Deadline), input.LeadDays,
 		input.Recurrence.Kind, input.Recurrence.Days, boolInt(input.Recurrence.Paused),
 		boolInt(input.TimeCritical),
 		formatTime(now), id, input.Version,
@@ -173,6 +174,9 @@ func (store *Store) Update(ctx context.Context, id string, input board.TaskInput
 		return nil, err
 	}
 	if err := replaceDependencies(ctx, tx, id, input.Dependencies); err != nil {
+		return nil, err
+	}
+	if err := cleanupRemovedRemedies(ctx, tx, existing, input.Dependencies, input.CleanupRemedies); err != nil {
 		return nil, err
 	}
 	if err := replaceRecurrenceWeekdays(ctx, tx, id, input.Recurrence.Weekdays); err != nil {
@@ -350,12 +354,13 @@ func (store *Store) CreateRemedy(ctx context.Context, id, actor string, input bo
 	}
 	_, err = tx.ExecContext(ctx, `
 		INSERT INTO tasks (
-			id, title, description, lifecycle, scheduled_at, lead_days,
+			id, title, description, lifecycle, scheduled_at, deadline, lead_days,
 			recurrence_kind, recurrence_days, recurrence_paused, time_critical,
 			remedy_for, created_by, created_at, updated_at, version
-		) VALUES (?, ?, ?, ?, ?, ?, 'none', 0, 0, 0, ?, ?, ?, ?, 1)`,
+		) VALUES (?, ?, ?, ?, ?, ?, ?, 'none', 0, 0, 0, ?, ?, ?, ?, 1)`,
 		remedyID, input.Title, input.Description, board.LifecycleReady,
-		timeValue(parent.ScheduledAt), parent.LeadDays, parent.ID, nullableString(actor),
+		timeValue(parent.ScheduledAt), timeValue(firstTime(input.Deadline, parent.Deadline)), parent.LeadDays,
+		parent.ID, nullableString(actor),
 		formatTime(now), formatTime(now),
 	)
 	if err != nil {
@@ -396,6 +401,13 @@ func nullableString(value string) any {
 		return nil
 	}
 	return value
+}
+
+func firstTime(preferred, fallback *time.Time) *time.Time {
+	if preferred != nil {
+		return preferred
+	}
+	return fallback
 }
 
 func (store *Store) Delete(ctx context.Context, id string, input board.DeleteInput) ([]board.TaskReference, error) {
@@ -704,7 +716,7 @@ func undoCompletion(ctx context.Context, tx *sql.Tx, task *board.Task, now time.
 
 func listTasks(ctx context.Context, query queryer) ([]*board.Task, error) {
 	rows, err := query.QueryContext(ctx, `
-        SELECT t.id, t.title, t.description, t.lifecycle, t.scheduled_at, t.lead_days,
+		SELECT t.id, t.title, t.description, t.lifecycle, t.scheduled_at, t.deadline, t.lead_days,
             t.recurrence_kind, t.recurrence_days, t.recurrence_paused,
 			t.time_critical, t.remedy_for, t.created_by, t.claimed_by, t.claimed_at, t.block_note, t.last_completed_at,
 			t.points_snapshot, t.points_snapshot_by, t.points_snapshot_at, t.unclaimed_at,
@@ -734,14 +746,14 @@ func listTasks(ctx context.Context, query queryer) ([]*board.Task, error) {
 	for rows.Next() {
 		task := &board.Task{}
 		var lifecycle string
-		var scheduled, remedyFor, createdBy, claimedBy, claimedAt, lastCompleted sql.NullString
+		var scheduled, deadline, remedyFor, createdBy, claimedBy, claimedAt, lastCompleted sql.NullString
 		var snapshotBy, snapshotAt, unclaimedAt, awardedTo, awardedAt sql.NullString
 		var snapshotPoints, awardedPoints sql.NullInt64
 		var recurrencePaused, timeCritical int
 		var createdAt, updatedAt string
 		var canUndo int
 		if err := rows.Scan(
-			&task.ID, &task.Title, &task.Description, &lifecycle, &scheduled, &task.LeadDays,
+			&task.ID, &task.Title, &task.Description, &lifecycle, &scheduled, &deadline, &task.LeadDays,
 			&task.Recurrence.Kind, &task.Recurrence.Days, &recurrencePaused,
 			&timeCritical, &remedyFor, &createdBy,
 			&claimedBy, &claimedAt, &task.BlockNote, &lastCompleted,
@@ -757,6 +769,10 @@ func listTasks(ctx context.Context, query queryer) ([]*board.Task, error) {
 		task.RemedyFor = parseNullableString(remedyFor)
 		task.CreatedBy = parseNullableString(createdBy)
 		task.ScheduledAt, err = parseNullableTime(scheduled)
+		if err != nil {
+			return nil, err
+		}
+		task.Deadline, err = parseNullableTime(deadline)
 		if err != nil {
 			return nil, err
 		}
@@ -913,6 +929,52 @@ func replaceDependencies(ctx context.Context, tx *sql.Tx, taskID string, depende
 	}
 	for _, dependencyID := range dependencies {
 		if _, err := tx.ExecContext(ctx, `INSERT INTO task_dependencies(task_id, depends_on_id) VALUES (?, ?)`, taskID, dependencyID); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func cleanupRemovedRemedies(ctx context.Context, tx *sql.Tx, parent *board.Task, newDependencies, cleanupIDs []string) error {
+	if len(cleanupIDs) == 0 {
+		return nil
+	}
+	previous := make(map[string]struct{}, len(parent.Dependencies))
+	for _, dependencyID := range parent.Dependencies {
+		previous[dependencyID] = struct{}{}
+	}
+	current := make(map[string]struct{}, len(newDependencies))
+	for _, dependencyID := range newDependencies {
+		current[dependencyID] = struct{}{}
+	}
+	for _, remedyID := range cleanupIDs {
+		if _, existed := previous[remedyID]; !existed {
+			return fmt.Errorf("task %s was not a dependency", remedyID)
+		}
+		if _, retained := current[remedyID]; retained {
+			return fmt.Errorf("cannot clean up remedy %s while retaining its dependency", remedyID)
+		}
+		var remedyFor sql.NullString
+		err := tx.QueryRowContext(ctx, `SELECT remedy_for FROM tasks WHERE id = ?`, remedyID).Scan(&remedyFor)
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("remedy task %s does not exist", remedyID)
+		}
+		if err != nil {
+			return err
+		}
+		if !remedyFor.Valid || remedyFor.String != parent.ID {
+			return fmt.Errorf("task %s is not a remedy for this task", remedyID)
+		}
+		var remainingDependents int
+		if err := tx.QueryRowContext(ctx, `
+			SELECT COUNT(*) FROM task_dependencies WHERE depends_on_id = ?`, remedyID,
+		).Scan(&remainingDependents); err != nil {
+			return err
+		}
+		if remainingDependents > 0 {
+			return fmt.Errorf("remedy %s is still used by another task", remedyID)
+		}
+		if _, err := tx.ExecContext(ctx, `DELETE FROM tasks WHERE id = ?`, remedyID); err != nil {
 			return err
 		}
 	}

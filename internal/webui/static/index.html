@@ -35,7 +35,10 @@
 
         <div id="app-shell" hidden>
         <header class="topbar">
-            <div class="brand">Kanban Go <span class="prototype">Prototype</span></div>
+            <div class="brand">
+                Kanban Go <span class="prototype">Prototype</span>
+                <span id="connection-status" class="connection-status connecting">Connecting</span>
+            </div>
             <form id="quick-add" class="quick-add">
                 <label class="sr-only" for="quick-title">Task title</label>
                 <input id="quick-title" name="title" maxlength="200" placeholder="Add a task" required>
@@ -141,6 +144,16 @@
                 <button id="close-settings" type="button" class="secondary">Close</button>
             </div>
             <form id="settings-form">
+                <fieldset>
+                    <legend>Appearance</legend>
+                    <label for="palette-select">Palette</label>
+                    <select id="palette-select">
+                        <option value="standard">Standard</option>
+                        <option value="dark">Dark</option>
+                        <option value="forest">Forest</option>
+                        <option value="contrast">High contrast</option>
+                    </select>
+                </fieldset>
                 <fieldset>
                     <legend>WIP limits</legend>
                     <div class="settings-grid">

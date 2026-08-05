@@ -50,6 +50,8 @@ Set `COOKIE_SECURE=1` when the browser reaches the board through HTTPS.
 - Authenticated creator, claimant, and completion attribution
 - Claim-time priority snapshots with transactional point awards and exact undo
 - Durable completion history with a one-year activity heatmap
+- Ready-time, overdue, deadline, creator, age, and completion metadata
+- Per-account browser palettes and visible live-connection state
 
 Migration from the existing board remains to be implemented.
 

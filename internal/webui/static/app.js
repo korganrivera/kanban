@@ -19,6 +19,7 @@ const COLORS = {
 };
 const MANUAL_TARGETS = new Set(["Ready", "InProgress", "Blocked", "Done"]);
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DEFAULT_PALETTE = "standard";
 
 let tasks = [];
 let wipLimits = {};
@@ -70,6 +71,7 @@ async function startApplication(account) {
     authScreen.hidden = true;
     appShell.hidden = false;
     updateAccount(account);
+    loadPalette(account.username);
     clearInterval(refreshTimer);
     await loadBoard();
     connectEvents();
@@ -87,6 +89,7 @@ async function showAuth() {
     closePanels();
     appShell.hidden = true;
     authScreen.hidden = false;
+    setConnectionState("disconnected");
     showLoginForm();
     try {
         const status = await request("/api/auth/registration");
@@ -162,11 +165,19 @@ async function logout() {
 
 function connectEvents() {
     if (events) events.close();
+    setConnectionState("connecting");
     events = new EventSource("/api/events");
     events.addEventListener("board", loadBoard);
+    events.onopen = () => setConnectionState("connected");
     events.onerror = () => {
-        if (currentUser) showToast("Live connection interrupted; reconnecting");
+        if (currentUser) setConnectionState("connecting");
     };
+}
+
+function setConnectionState(state) {
+    const status = document.getElementById("connection-status");
+    status.className = `connection-status ${state}`;
+    status.textContent = state === "connected" ? "Live" : state === "connecting" ? "Reconnecting" : "Offline";
 }
 
 async function loadBoard() {
@@ -249,6 +260,7 @@ function makeCard(task) {
     const draggable = ["Ready", "InProgress", "Blocked"].includes(task.effectiveState);
     const card = element("article", "card");
     if (isTimeCriticalActive(task)) card.classList.add("time-critical");
+    if (task.overdue) card.classList.add("overdue");
     card.style.setProperty("--state-color", COLORS[task.effectiveState]);
     card.draggable = draggable;
     card.dataset.id = task.id;
@@ -266,8 +278,14 @@ function makeCard(task) {
 
     const metadata = element("div", "metadata");
     if (task.scheduledAt) metadata.append(element("span", "", `Due ${formatDate(task.scheduledAt)}`));
+    if (task.readyAt && task.effectiveState === "Waiting") metadata.append(element("span", "", `Ready ${formatDate(task.readyAt)}`));
+    if (task.deadline) metadata.append(element("span", "", `Deadline ${formatDate(task.deadline)}`));
+    if (task.overdue) metadata.append(element("span", "overdue-label", "Overdue"));
     if (task.timeCritical) metadata.append(element("span", "", "Time critical"));
-    if (task.claimedBy) metadata.append(element("span", "", `Claimed by ${task.claimedBy}`));
+    if (task.claimedBy) {
+        const ownerLabel = task.effectiveState === "Done" ? "Completed by" : "Claimed by";
+        metadata.append(element("span", "", `${ownerLabel} ${task.claimedBy}`));
+    }
     if (task.dependencies.length) metadata.append(element("span", "", `${task.dependencies.length} dependencies`));
     if (task.recurrence.kind !== "none") {
         const recurrenceText = task.recurrence.weekdays?.length
@@ -425,7 +443,11 @@ function renderTaskContext(task) {
         LABELS[task.effectiveState],
         `Priority ${task.priority || 1}`,
         `Created ${formatDate(task.createdAt)}`,
+        formatAge(task.createdAt),
     ];
+    if (task.readyAt) values.push(`Ready ${formatDate(task.readyAt)}`);
+    if (task.deadline) values.push(`Deadline ${formatDate(task.deadline)}`);
+    if (task.overdue) values.push("Overdue");
     if (task.claimedBy) values.push(`Claimed by ${task.claimedBy}`);
     if (task.createdBy) values.push(`Created by ${task.createdBy}`);
     if (typeof task.pointsSnapshot === "number") {
@@ -466,12 +488,32 @@ async function saveEditor(event) {
     const existing = editorTaskID ? tasks.find((task) => task.id === editorTaskID) : null;
     const recurrenceKind = document.getElementById("task-recurrence").value;
     const scheduledValue = document.getElementById("task-scheduled").value;
+    const selectedDependencies = Array.from(
+        document.querySelectorAll("#dependency-list input:checked"),
+        (input) => input.value,
+    );
+    const cleanupRemedies = [];
+    if (existing) {
+        const selected = new Set(selectedDependencies);
+        for (const dependencyID of existing.dependencies || []) {
+            if (selected.has(dependencyID)) continue;
+            const dependency = tasks.find((task) => task.id === dependencyID);
+            const usedElsewhere = tasks.some((task) =>
+                task.id !== existing.id && (task.dependencies || []).includes(dependencyID));
+            if (dependency?.remedyFor === existing.id && !usedElsewhere && window.confirm(
+                `Delete the now-unused remedy task "${dependency.title}"?`,
+            )) {
+                cleanupRemedies.push(dependencyID);
+            }
+        }
+    }
     const payload = {
         title: document.getElementById("task-title").value.trim(),
         description: document.getElementById("task-description").value.trim(),
         blockNote: document.getElementById("task-block-note").value.trim(),
         timeCritical: document.getElementById("task-time-critical").checked,
         scheduledAt: scheduledValue ? new Date(scheduledValue).toISOString() : null,
+        deadline: existing?.deadline || null,
         leadDays: Number(document.getElementById("task-lead").value || 0),
         recurrence: {
             kind: recurrenceKind,
@@ -481,7 +523,8 @@ async function saveEditor(event) {
                 : [],
             paused: recurrenceKind !== "none" && document.getElementById("task-paused").checked,
         },
-        dependencies: Array.from(document.querySelectorAll("#dependency-list input:checked"), (input) => input.value),
+        dependencies: selectedDependencies,
+        cleanupRemedies,
         version: existing?.version || 0,
     };
     try {
@@ -507,6 +550,7 @@ function openSettings() {
         const limit = wipLimits[state];
         document.getElementById(`limit-${state}`).value = limit === null || limit === undefined ? "" : String(limit);
     }
+    document.getElementById("palette-select").value = getCurrentPalette();
     backdrop.hidden = false;
     settings.classList.add("open");
     settings.setAttribute("aria-hidden", "false");
@@ -537,6 +581,9 @@ async function saveSettings(event) {
             method: "PATCH",
             body: JSON.stringify(payload),
         });
+        const palette = document.getElementById("palette-select").value || DEFAULT_PALETTE;
+        applyPalette(palette);
+        savePalette(palette);
         closeSettings();
         renderBoard();
     } catch (error) {
@@ -733,6 +780,47 @@ function truncate(value, max) {
 
 function formatDate(value) {
     return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+}
+
+function formatAge(value) {
+    const createdAt = new Date(value);
+    if (Number.isNaN(createdAt.getTime())) return "Age unknown";
+    const minutes = Math.max(0, Math.floor((Date.now() - createdAt.getTime()) / 60000));
+    if (minutes < 1) return "Just created";
+    if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} old`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} old`;
+    const days = Math.floor(hours / 24);
+    return `${days} day${days === 1 ? "" : "s"} old`;
+}
+
+function getCurrentPalette() {
+    return document.documentElement.dataset.palette || DEFAULT_PALETTE;
+}
+
+function applyPalette(palette) {
+    if (!palette || palette === DEFAULT_PALETTE) delete document.documentElement.dataset.palette;
+    else document.documentElement.dataset.palette = palette;
+}
+
+function paletteStorageKey(username = currentUser?.username) {
+    return `kanban.palette.${username || "default"}`;
+}
+
+function loadPalette(username) {
+    try {
+        applyPalette(localStorage.getItem(paletteStorageKey(username)) || DEFAULT_PALETTE);
+    } catch (error) {
+        applyPalette(DEFAULT_PALETTE);
+    }
+}
+
+function savePalette(palette) {
+    try {
+        localStorage.setItem(paletteStorageKey(), palette);
+    } catch (error) {
+        showToast("Palette preference could not be saved");
+    }
 }
 
 function dateValue(value, fallback) {

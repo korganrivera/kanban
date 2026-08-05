@@ -34,3 +34,15 @@ func TestDoneDependentsDoNotIncreasePriority(t *testing.T) {
 		t.Fatalf("root priority/importance = %d/%f", tasks[0].Priority, tasks[0].Importance)
 	}
 }
+
+func TestDeadlineOverridesScheduleForUrgency(t *testing.T) {
+	now := time.Date(2026, time.August, 5, 12, 0, 0, 0, time.UTC)
+	scheduled := now.AddDate(0, 0, 30)
+	deadline := now.AddDate(0, 0, 1)
+	withDeadline := &Task{ID: "deadline", Lifecycle: LifecycleReady, ScheduledAt: &scheduled, Deadline: &deadline, CreatedAt: now}
+	withSchedule := &Task{ID: "schedule", Lifecycle: LifecycleReady, ScheduledAt: &scheduled, CreatedAt: now}
+	ComputePriorities([]*Task{withDeadline, withSchedule}, now)
+	if withDeadline.Priority <= withSchedule.Priority || withDeadline.Urgency <= withSchedule.Urgency {
+		t.Fatalf("deadline priority/urgency %d/%f <= schedule %d/%f", withDeadline.Priority, withDeadline.Urgency, withSchedule.Priority, withSchedule.Urgency)
+	}
+}
