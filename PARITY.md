@@ -83,20 +83,20 @@ design is simpler or safer.
 
 - [x] Restrictive data-directory and database file permissions
 - [x] Consistent configuration for address, data path, registration, and cookies
-- [ ] SQLite-consistent backup command
-- [ ] SHA-256 backup manifest and verification command
-- [ ] Atomic latest-backup pointer and retention pruning
-- [ ] Database and domain-invariant audit command
-- [ ] Persistent user systemd service with restart policy and hardening
-- [ ] Automated backup service and timer
-- [ ] Service installer and operating documentation
+- [x] SQLite-consistent backup command
+- [x] SHA-256 backup manifest and verification command
+- [x] Atomic latest-backup pointer and retention pruning
+- [x] Database and domain-invariant audit command
+- [x] Persistent user systemd service with restart policy and hardening
+- [x] Automated backup service and timer
+- [x] Service installer and operating documentation
 
 ## Final Verification
 
 - [ ] API parity tests for every legacy route or equivalent command
 - [ ] Multi-session tests for login, revocation, live updates, and stale edits
 - [x] Import fixture covering every legacy task shape
-- [ ] Backup corruption and restore-drill tests
+- [x] Backup corruption and restore-drill tests
 - [ ] Manual side-by-side workflow review before migration
 - [ ] Final migration plan with rollback steps
 

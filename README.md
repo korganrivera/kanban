@@ -78,6 +78,37 @@ Every applied import first creates a consistent database under
 reports source and destination counts, invariant failures, and any legacy undo
 record that could not be converted safely.
 
+## Operations
+
+Build the operational binaries with the server:
+
+```sh
+go build -o bin/kanban-go ./cmd/kanban
+go build -o bin/kanban-admin ./cmd/kanban-admin
+go build -o bin/kanban-import ./cmd/kanban-import
+```
+
+Audit the live database, create a consistent local backup, and verify the
+published backup with:
+
+```sh
+bin/kanban-admin audit --data-dir data
+bin/kanban-admin backup \
+  --data-dir data \
+  --destination /path/outside/data \
+  --retention 30
+bin/kanban-admin verify --backup /path/outside/data/latest
+```
+
+Each backup is published atomically with a SHA-256 manifest, an audited SQLite
+database, an atomic `latest` symlink, and bounded retention. Local backups do
+not protect against loss of the whole machine, so copy the backup directory to
+independent storage when one becomes available.
+
+Run `./scripts/install-service.sh` to install the persistent user service and
+six-hour backup timer. See [systemd/README.md](systemd/README.md) for service,
+configuration, and restore details.
+
 ## Test
 
 ```sh

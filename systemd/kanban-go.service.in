@@ -1,0 +1,24 @@
+[Unit]
+Description=Kanban Go server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=@KANBAN_ROOT@
+Environment=KANBAN_DATA_DIR=@KANBAN_ROOT@/data
+EnvironmentFile=-%h/.config/kanban-go/server.env
+ExecStart=@KANBAN_ROOT@/bin/kanban-go
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=15s
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=@KANBAN_ROOT@/data
+RestrictSUIDSGID=true
+LockPersonality=true
+
+[Install]
+WantedBy=default.target

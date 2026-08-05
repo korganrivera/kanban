@@ -1,0 +1,16 @@
+[Unit]
+Description=Back up Kanban Go database
+
+[Service]
+Type=oneshot
+WorkingDirectory=@KANBAN_ROOT@
+Environment=KANBAN_DATA_DIR=@KANBAN_ROOT@/data
+Environment=KANBAN_BACKUP_DEST=%h/.local/state/kanban-go/backups
+EnvironmentFile=-%h/.config/kanban-go/backup.env
+ExecStart=@KANBAN_ROOT@/bin/kanban-admin backup
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateNetwork=true
+RestrictSUIDSGID=true
+LockPersonality=true
