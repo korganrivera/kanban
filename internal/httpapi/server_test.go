@@ -182,6 +182,17 @@ func TestStaticAssetsAndRequestValidation(t *testing.T) {
 	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), "Kanban Go") {
 		t.Fatalf("index response = %d, body = %q", response.Code, response.Body.String())
 	}
+	index := response.Body.String()
+	deleteButton := strings.Index(index, `id="delete-task"`)
+	rightActions := strings.Index(index, `class="editor-actions-main"`)
+	if deleteButton < 0 || rightActions < 0 || deleteButton > rightActions {
+		t.Fatal("task editor actions do not place Delete left of Save and Cancel")
+	}
+	for _, palette := range []string{"machine-shop", "warm-paper", "peachy-delight"} {
+		if !strings.Contains(index, `value="`+palette+`"`) {
+			t.Fatalf("palette %q is missing from settings", palette)
+		}
+	}
 	if response.Header().Get("Content-Security-Policy") == "" {
 		t.Fatal("content security policy header is missing")
 	}
