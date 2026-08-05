@@ -34,9 +34,9 @@ revocation, and closure of the revoked session's event stream.
 - All six columns use the same effective-state rules. Waiting and Suspended are
   derived rather than persisted as contradictory mutable states.
 - Dragging and card commands cover Ready to In Progress, In Progress to Ready,
-  Ready/In Progress to Blocked, Blocked to Ready, and Ready/In Progress to Done.
-- Direct Ready-to-Done completion remains available and now records the
-  authenticated completer while awarding zero points without a claim snapshot.
+  Ready/In Progress to Blocked, Blocked to Ready, and In Progress to Done.
+- Completion is available only after a task is claimed into In Progress; both
+  the command API and drag/drop reject Ready-to-Done completion.
 - Claims exist only in In Progress; Done keeps completion ownership.
 - Scheduling, lead time, rolling recurrence, anchored intervals, anchored
   weekdays, paused recurrence, recurring dependency occurrences, deadlines,

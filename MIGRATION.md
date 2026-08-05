@@ -33,7 +33,7 @@ only users have no password and cannot log in.
 7. Confirm task, user, point-entry, point-snapshot, and undo counts against the
    dry-run report.
 8. Start the Go service and verify login, all six columns, claim/release,
-   direct and claimed completion, undo, scheduling, recurrence, dependencies,
+   claim-before-complete, undo, scheduling, recurrence, dependencies,
    block notes, remedies, deletion, WIP limits, points, history, and live
    updates in desktop and mobile layouts.
 9. Create and verify the first post-migration backup before ending the write

@@ -111,28 +111,22 @@ func TestCompletionAndUndoAreTransactional(t *testing.T) {
 	}
 }
 
-func TestReadyTaskCanCompleteDirectlyWithAttributionAndNoPoints(t *testing.T) {
+func TestReadyTaskCannotCompleteBeforeClaim(t *testing.T) {
 	store, ctx, _ := openTestStore(t)
-	task, err := store.Create(ctx, board.TaskInput{Title: "Quick completion"})
+	task, err := store.Create(ctx, board.TaskInput{Title: "Claim before completion"})
 	if err != nil {
 		t.Fatal(err)
 	}
-	task, err = store.Action(ctx, task.ID, "complete", "alice", board.ActionInput{Version: task.Version})
+	_, err = store.Action(ctx, task.ID, "complete", "alice", board.ActionInput{Version: task.Version})
+	if !errors.Is(err, board.ErrInvalidAction) {
+		t.Fatalf("complete ready task error = %v, want %v", err, board.ErrInvalidAction)
+	}
+	task, err = store.Get(ctx, task.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if task.EffectiveState != board.StateDone || task.ClaimedBy == nil || *task.ClaimedBy != "alice" {
-		t.Fatalf("direct completion = state %s, owner %v", task.EffectiveState, task.ClaimedBy)
-	}
-	if task.Awarded == nil || task.Awarded.Points != 0 || !task.CanUndo {
-		t.Fatalf("direct completion award/undo = %#v/%v", task.Awarded, task.CanUndo)
-	}
-	task, err = store.Action(ctx, task.ID, "undo", "alice", board.ActionInput{Version: task.Version})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if task.EffectiveState != board.StateReady || task.ClaimedBy != nil {
-		t.Fatalf("direct completion undo = state %s, owner %v", task.EffectiveState, task.ClaimedBy)
+	if task.EffectiveState != board.StateReady || task.ClaimedBy != nil || task.CanUndo {
+		t.Fatalf("rejected completion changed task = state %s, owner %v, undo %v", task.EffectiveState, task.ClaimedBy, task.CanUndo)
 	}
 }
 

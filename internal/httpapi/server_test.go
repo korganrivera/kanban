@@ -131,6 +131,12 @@ func TestLegacyRouteEquivalentsThroughHTTP(t *testing.T) {
 		t.Fatalf("update status = %d, body = %s", updated.Code, updated.Body.String())
 	}
 	task = decodeTask(t, updated)
+	rejected := performJSON(t, handler, http.MethodPost, "/api/tasks/"+task.ID+"/complete", board.ActionInput{
+		Version: task.Version,
+	})
+	if rejected.Code != http.StatusConflict {
+		t.Fatalf("unclaimed complete status = %d, body = %s", rejected.Code, rejected.Body.String())
+	}
 
 	for _, transition := range []struct {
 		action string
@@ -140,8 +146,10 @@ func TestLegacyRouteEquivalentsThroughHTTP(t *testing.T) {
 		{"unblock", board.StateReady},
 		{"claim", board.StateInProgress},
 		{"release", board.StateReady},
+		{"claim", board.StateInProgress},
 		{"complete", board.StateDone},
-		{"undo", board.StateReady},
+		{"undo", board.StateInProgress},
+		{"release", board.StateReady},
 	} {
 		response := performJSON(t, handler, http.MethodPost, "/api/tasks/"+task.ID+"/"+transition.action, board.ActionInput{
 			Version: task.Version, Note: "Route test blocker",

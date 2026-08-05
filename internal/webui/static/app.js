@@ -325,7 +325,7 @@ function makeCard(task) {
 function actionsFor(task) {
     switch (task.effectiveState) {
         case "Ready":
-            return [["Claim", "claim"], ["Complete", "complete", "secondary"], ["Block", "block", "danger"]];
+            return [["Claim", "claim"], ["Block", "block", "danger"]];
         case "InProgress":
             return [["Release", "release", "secondary"], ["Complete", "complete"], ["Block", "block", "danger"]];
         case "Blocked":
@@ -391,9 +391,6 @@ function enableDropTarget(list) {
             return runAction(task, "block");
         }
         if (destination === "Done" && task.effectiveState === "InProgress") {
-            return runAction(task, "complete");
-        }
-        if (destination === "Done" && task.effectiveState === "Ready") {
             return runAction(task, "complete");
         }
         showToast(`Move ${LABELS[task.effectiveState]} to ${LABELS[destination]} using its command first`);

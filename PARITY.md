@@ -10,6 +10,7 @@ design is simpler or safer.
 - [x] Waiting, Ready, In Progress, Blocked, Suspended, and Done columns
 - [x] Derived Waiting and Suspended states
 - [x] Claim, release, block, unblock, complete, and exact completion undo
+- [x] Completion requires a claimed task in In Progress
 - [x] Claims only in In Progress, with completion attribution retained in Done
 - [x] Editable block notes shown on blocked cards and in the task editor
 - [x] Scheduled due dates and lead-time readiness

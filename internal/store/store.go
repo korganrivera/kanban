@@ -275,7 +275,7 @@ func (store *Store) Action(ctx context.Context, id, action, actor string, input 
 		}
 		err = updateLifecycle(ctx, tx, task, board.LifecycleReady, nil, nil, "", now)
 	case "complete":
-		if task.EffectiveState != board.StateReady && task.EffectiveState != board.StateInProgress {
+		if task.EffectiveState != board.StateInProgress {
 			return nil, board.ErrInvalidAction
 		}
 		if err := enforceWIP(ctx, tx, tasks, board.StateDone, task.ID, now); err != nil {
