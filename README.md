@@ -53,7 +53,30 @@ Set `COOKIE_SECURE=1` when the browser reaches the board through HTTPS.
 - Ready-time, overdue, deadline, creator, age, and completion metadata
 - Per-account browser palettes and visible live-connection state
 
-Migration from the existing board remains to be implemented.
+## Legacy import
+
+The importer validates the Node board without writing anything by default:
+
+```sh
+go run ./cmd/kanban-import \
+  --source /path/to/node-kanban/server/data
+```
+
+Stop the Go server before applying an import. Applying to an empty destination
+requires `--apply`; replacing any existing Go users, tasks, or point history
+also requires the explicit `--replace` flag:
+
+```sh
+go run ./cmd/kanban-import \
+  --source /path/to/node-kanban/server/data \
+  --data-dir /path/to/go-kanban/data \
+  --apply --replace
+```
+
+Every applied import first creates a consistent database under
+`DATA_DIR/backups/pre-import-*.db`. The import itself is transactional and
+reports source and destination counts, invariant failures, and any legacy undo
+record that could not be converted safely.
 
 ## Test
 

@@ -1,0 +1,24 @@
+{
+  "alice": {
+    "username": "alice",
+    "password": "$2b$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ01234",
+    "points": 7,
+    "created_at": "2025-12-01T12:00:00Z",
+    "password_changed_at": "2026-07-01T12:00:00Z",
+    "history": [
+      {
+        "ts": "2026-08-04T10:00:00Z",
+        "points": 7,
+        "reason": "Completed task task-done (Completed task)",
+        "completionId": "completion-task-done"
+      }
+    ]
+  },
+  "bob": {
+    "username": "bob",
+    "password": "",
+    "points": 0,
+    "created_at": "2025-12-02T12:00:00Z",
+    "history": []
+  }
+}

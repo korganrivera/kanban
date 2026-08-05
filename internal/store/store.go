@@ -18,8 +18,9 @@ import (
 )
 
 type Store struct {
-	db  *sql.DB
-	now func() time.Time
+	db   *sql.DB
+	path string
+	now  func() time.Time
 }
 
 type queryer interface {
@@ -55,7 +56,7 @@ func Open(path string) (*Store, error) {
 		db.Close()
 		return nil, err
 	}
-	return &Store{db: db, now: time.Now}, nil
+	return &Store{db: db, path: absPath, now: time.Now}, nil
 }
 
 func (store *Store) Close() error {
@@ -726,15 +727,15 @@ func listTasks(ctx context.Context, query queryer) ([]*board.Task, error) {
                 WHERE o.task_id = t.id AND o.outcome = 'completed'
                   AND o.undone_at IS NULL AND o.result_version = t.version
 			),
-			(SELECT p.username FROM task_occurrences o JOIN point_entries p ON p.id = o.award_entry_id
-			 WHERE o.task_id = t.id AND o.outcome = 'completed' AND o.undone_at IS NULL
-			   AND o.result_version = t.version AND p.reversed_at IS NULL LIMIT 1),
-			(SELECT p.points FROM task_occurrences o JOIN point_entries p ON p.id = o.award_entry_id
-			 WHERE o.task_id = t.id AND o.outcome = 'completed' AND o.undone_at IS NULL
-			   AND o.result_version = t.version AND p.reversed_at IS NULL LIMIT 1),
-			(SELECT p.occurred_at FROM task_occurrences o JOIN point_entries p ON p.id = o.award_entry_id
-			 WHERE o.task_id = t.id AND o.outcome = 'completed' AND o.undone_at IS NULL
-			   AND o.result_version = t.version AND p.reversed_at IS NULL LIMIT 1)
+			(SELECT p.username FROM point_entries p
+			 WHERE p.task_id = t.id AND p.occurred_at = t.last_completed_at
+			   AND p.reversed_at IS NULL ORDER BY p.id DESC LIMIT 1),
+			(SELECT p.points FROM point_entries p
+			 WHERE p.task_id = t.id AND p.occurred_at = t.last_completed_at
+			   AND p.reversed_at IS NULL ORDER BY p.id DESC LIMIT 1),
+			(SELECT p.occurred_at FROM point_entries p
+			 WHERE p.task_id = t.id AND p.occurred_at = t.last_completed_at
+			   AND p.reversed_at IS NULL ORDER BY p.id DESC LIMIT 1)
         FROM tasks t
         ORDER BY t.created_at, t.id`)
 	if err != nil {

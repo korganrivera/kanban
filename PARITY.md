@@ -71,13 +71,13 @@ design is simpler or safer.
 
 ## Data Migration
 
-- [ ] Dry-run importer for legacy tasks, users, and WIP limits
-- [ ] Preserve IDs, timestamps, ownership, recurrence, dependencies, and notes
-- [ ] Preserve bcrypt password hashes and user point history
-- [ ] Convert legacy completion undo data safely where possible
-- [ ] Validate source references and cycles before writing
-- [ ] Transactional import with a pre-import SQLite backup
-- [ ] Post-import count and invariant report
+- [x] Dry-run importer for legacy tasks, users, and WIP limits
+- [x] Preserve IDs, timestamps, ownership, recurrence, dependencies, and notes
+- [x] Preserve bcrypt password hashes and user point history
+- [x] Convert legacy completion undo data safely where possible
+- [x] Validate source references and cycles before writing
+- [x] Transactional import with a pre-import SQLite backup
+- [x] Post-import count and invariant report
 
 ## Operations And Recovery
 
@@ -95,7 +95,7 @@ design is simpler or safer.
 
 - [ ] API parity tests for every legacy route or equivalent command
 - [ ] Multi-session tests for login, revocation, live updates, and stale edits
-- [ ] Import fixture covering every legacy task shape
+- [x] Import fixture covering every legacy task shape
 - [ ] Backup corruption and restore-drill tests
 - [ ] Manual side-by-side workflow review before migration
 - [ ] Final migration plan with rollback steps

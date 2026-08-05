@@ -1,0 +1,150 @@
+[
+  {
+    "id": "task-waiting",
+    "title": "Waiting task",
+    "description": "Scheduled with lead time",
+    "state": "Waiting",
+    "dependencies": [],
+    "scheduledDueAt": "2026-09-01T12:00:00Z",
+    "leadTimeDays": 2,
+    "created_by": "alice",
+    "created_at": "2026-01-01T12:00:00Z",
+    "updated_at": "2026-01-01T12:00:00Z"
+  },
+  {
+    "id": "task-ready",
+    "title": "Rolling task",
+    "description": "Ready recurring work",
+    "state": "Ready",
+    "dependencies": [],
+    "scheduledDueAt": "2026-08-01T12:00:00Z",
+    "recurrence": {
+      "type": "rolling",
+      "intervalDays": 7,
+      "leadTimeDays": 1,
+      "weekdays": [],
+      "paused": false
+    },
+    "created_by": "alice",
+    "created_at": "2026-01-02T12:00:00Z",
+    "updated_at": "2026-08-01T12:00:00Z"
+  },
+  {
+    "id": "task-progress",
+    "title": "Claimed task",
+    "description": "Has a current and historical point snapshot",
+    "state": "InProgress",
+    "dependencies": [],
+    "picker": "alice",
+    "picked_at": "2026-08-04T12:00:00Z",
+    "points_snapshot": 11,
+    "points_snapshot_created_by": "alice",
+    "points_snapshot_created_at": "2026-08-04T12:00:00Z",
+    "points_history": [
+      {"ts": "2026-08-04T12:00:00Z", "snapshot": 11, "by": "alice"}
+    ],
+    "created_by": "alice",
+    "created_at": "2026-01-03T12:00:00Z",
+    "updated_at": "2026-08-04T12:00:00Z"
+  },
+  {
+    "id": "task-blocked",
+    "title": "Blocked task",
+    "description": "Blocked independently of dependencies",
+    "state": "Blocked",
+    "dependencies": [],
+    "deadline": "2026-08-10T12:00:00Z",
+    "timeCritical": true,
+    "meta": {"block_note": "Waiting for a replacement part"},
+    "created_by": "bob",
+    "created_at": "2026-01-04T12:00:00Z",
+    "updated_at": "2026-08-03T12:00:00Z"
+  },
+  {
+    "id": "task-remedy",
+    "title": "Get replacement part",
+    "description": "Remedy task",
+    "state": "Ready",
+    "dependencies": [],
+    "remedy_for": "task-suspended",
+    "created_by": "alice",
+    "created_at": "2026-01-05T12:00:00Z",
+    "updated_at": "2026-01-05T12:00:00Z"
+  },
+  {
+    "id": "task-suspended",
+    "title": "Paused dependent task",
+    "description": "Suspended by both recurrence and dependency",
+    "state": "Suspended",
+    "dependencies": ["task-remedy"],
+    "scheduledDueAt": "2027-03-01T12:00:00Z",
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 365,
+      "leadTimeDays": 14,
+      "weekdays": [],
+      "paused": true
+    },
+    "created_by": "alice",
+    "created_at": "2026-01-06T12:00:00Z",
+    "updated_at": "2026-01-06T12:00:00Z"
+  },
+  {
+    "id": "task-weekdays",
+    "title": "Weekday task",
+    "description": "Anchored to selected weekdays",
+    "state": "Ready",
+    "dependencies": [],
+    "scheduledDueAt": "2026-08-03T08:30:00Z",
+    "recurrence": {
+      "type": "anchored",
+      "intervalDays": 0,
+      "leadTimeDays": 0,
+      "weekdays": [1, 3],
+      "paused": false
+    },
+    "created_by": "bob",
+    "created_at": "2026-01-07T12:00:00Z",
+    "updated_at": "2026-01-07T12:00:00Z"
+  },
+  {
+    "id": "task-done",
+    "title": "Completed task",
+    "description": "Completion can be reversed exactly",
+    "state": "Done",
+    "dependencies": [],
+    "picker": "alice",
+    "picked_at": "2026-08-04T09:00:00Z",
+    "lastCompletedAt": "2026-08-04T10:00:00Z",
+    "points_snapshot": 7,
+    "points_snapshot_created_by": "alice",
+    "points_snapshot_created_at": "2026-08-04T09:00:00Z",
+    "created_by": "alice",
+    "created_at": "2026-01-08T12:00:00Z",
+    "updated_at": "2026-08-04T10:00:00Z",
+    "completionUndo": {
+      "completionId": "completion-task-done",
+      "completedAt": "2026-08-04T10:00:00Z",
+      "award": {
+        "user": "alice",
+        "points": 7,
+        "completionId": "completion-task-done"
+      },
+      "previousTask": {
+        "id": "task-done",
+        "title": "Completed task",
+        "description": "Completion can be reversed exactly",
+        "state": "InProgress",
+        "dependencies": [],
+        "picker": "alice",
+        "picked_at": "2026-08-04T09:00:00Z",
+        "points_snapshot": 7,
+        "points_snapshot_created_by": "alice",
+        "points_snapshot_created_at": "2026-08-04T09:00:00Z",
+        "created_by": "alice",
+        "created_at": "2026-01-08T12:00:00Z",
+        "updated_at": "2026-08-04T09:00:00Z"
+      }
+    }
+  }
+]
