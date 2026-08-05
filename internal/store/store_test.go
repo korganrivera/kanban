@@ -172,6 +172,33 @@ func TestRecurringCompletionAdvancesAndCanUndo(t *testing.T) {
 	}
 }
 
+func TestAnchoredWeekdaysPersistAndAdvance(t *testing.T) {
+	store, ctx, now := openTestStore(t)
+	due := time.Date(2026, time.August, 5, 8, 30, 0, 0, time.UTC)
+	task, err := store.Create(ctx, board.TaskInput{
+		Title: "Weekday recurrence", ScheduledAt: &due,
+		Recurrence: board.Recurrence{Kind: "anchored", Weekdays: []int{1, 3}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(task.Recurrence.Weekdays) != 2 || task.Recurrence.Weekdays[0] != 1 || task.Recurrence.Weekdays[1] != 3 {
+		t.Fatalf("stored weekdays = %v", task.Recurrence.Weekdays)
+	}
+	task, err = store.Action(ctx, task.ID, "claim", "korgan", board.ActionInput{Version: task.Version})
+	if err != nil {
+		t.Fatal(err)
+	}
+	task, err = store.Action(ctx, task.ID, "complete", "korgan", board.ActionInput{Version: task.Version})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := time.Date(2026, time.August, 10, 8, 30, 0, 0, time.UTC)
+	if task.ScheduledAt == nil || !task.ScheduledAt.Equal(want) {
+		t.Fatalf("next weekday schedule = %v, want %v (now %v)", task.ScheduledAt, want, now)
+	}
+}
+
 func TestDeletingPrerequisiteRequiresConfirmation(t *testing.T) {
 	store, ctx, _ := openTestStore(t)
 	prerequisite, err := store.Create(ctx, board.TaskInput{Title: "Prerequisite"})

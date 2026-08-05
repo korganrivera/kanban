@@ -54,3 +54,19 @@ func TestAnchoredAndRollingSchedules(t *testing.T) {
 		t.Fatalf("rolling schedule = %s, want %s", rolling, want)
 	}
 }
+
+func TestAnchoredWeekdaySchedulePreservesDueTime(t *testing.T) {
+	due := time.Date(2026, time.August, 5, 8, 30, 0, 0, time.UTC)
+	completed := time.Date(2026, time.August, 5, 15, 0, 0, 0, time.UTC)
+	next, err := AdvanceSchedule(&Task{
+		ScheduledAt: &due,
+		Recurrence:  Recurrence{Kind: "anchored", Weekdays: []int{1, 3}},
+	}, completed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := time.Date(2026, time.August, 10, 8, 30, 0, 0, time.UTC)
+	if !next.Equal(want) {
+		t.Fatalf("weekday schedule = %s, want %s", next, want)
+	}
+}

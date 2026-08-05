@@ -108,6 +108,9 @@ func (store *Store) Create(ctx context.Context, input board.TaskInput) (*board.T
 	if err := replaceDependencies(ctx, tx, id, input.Dependencies); err != nil {
 		return nil, err
 	}
+	if err := replaceRecurrenceWeekdays(ctx, tx, id, input.Recurrence.Weekdays); err != nil {
+		return nil, err
+	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -163,6 +166,9 @@ func (store *Store) Update(ctx context.Context, id string, input board.TaskInput
 		return nil, err
 	}
 	if err := replaceDependencies(ctx, tx, id, input.Dependencies); err != nil {
+		return nil, err
+	}
+	if err := replaceRecurrenceWeekdays(ctx, tx, id, input.Recurrence.Weekdays); err != nil {
 		return nil, err
 	}
 	updatedTasks, err := listTasks(ctx, tx)
@@ -605,6 +611,7 @@ func listTasks(ctx context.Context, query queryer) ([]*board.Task, error) {
 		}
 		task.CanUndo = canUndo == 1
 		task.Dependencies = []string{}
+		task.Recurrence.Weekdays = []int{}
 		tasks = append(tasks, task)
 		byID[task.ID] = task
 	}
@@ -615,7 +622,6 @@ func listTasks(ctx context.Context, query queryer) ([]*board.Task, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer dependencyRows.Close()
 	for dependencyRows.Next() {
 		var taskID, dependencyID string
 		if err := dependencyRows.Scan(&taskID, &dependencyID); err != nil {
@@ -625,7 +631,30 @@ func listTasks(ctx context.Context, query queryer) ([]*board.Task, error) {
 			task.Dependencies = append(task.Dependencies, dependencyID)
 		}
 	}
-	return tasks, dependencyRows.Err()
+	if err := dependencyRows.Err(); err != nil {
+		dependencyRows.Close()
+		return nil, err
+	}
+	if err := dependencyRows.Close(); err != nil {
+		return nil, err
+	}
+	weekdayRows, err := query.QueryContext(ctx, `
+		SELECT task_id, weekday FROM task_recurrence_weekdays ORDER BY task_id, weekday`)
+	if err != nil {
+		return nil, err
+	}
+	defer weekdayRows.Close()
+	for weekdayRows.Next() {
+		var taskID string
+		var weekday int
+		if err := weekdayRows.Scan(&taskID, &weekday); err != nil {
+			return nil, err
+		}
+		if task := byID[taskID]; task != nil {
+			task.Recurrence.Weekdays = append(task.Recurrence.Weekdays, weekday)
+		}
+	}
+	return tasks, weekdayRows.Err()
 }
 
 func ensureDependenciesExist(ctx context.Context, tx *sql.Tx, taskID string, dependencies []string) error {
@@ -695,6 +724,19 @@ func replaceDependencies(ctx context.Context, tx *sql.Tx, taskID string, depende
 	}
 	for _, dependencyID := range dependencies {
 		if _, err := tx.ExecContext(ctx, `INSERT INTO task_dependencies(task_id, depends_on_id) VALUES (?, ?)`, taskID, dependencyID); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func replaceRecurrenceWeekdays(ctx context.Context, tx *sql.Tx, taskID string, weekdays []int) error {
+	if _, err := tx.ExecContext(ctx, `DELETE FROM task_recurrence_weekdays WHERE task_id = ?`, taskID); err != nil {
+		return err
+	}
+	for _, weekday := range weekdays {
+		if _, err := tx.ExecContext(ctx, `
+			INSERT INTO task_recurrence_weekdays(task_id, weekday) VALUES (?, ?)`, taskID, weekday); err != nil {
 			return err
 		}
 	}

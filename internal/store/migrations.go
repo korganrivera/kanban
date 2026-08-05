@@ -15,6 +15,11 @@ var migrations = []string{
 	 INSERT INTO wip_limits(state, limit_count) VALUES
 		('Waiting', NULL), ('Ready', NULL), ('InProgress', 4),
 		('Blocked', 10), ('Suspended', NULL), ('Done', NULL);`,
+	`CREATE TABLE task_recurrence_weekdays (
+		task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+		weekday INTEGER NOT NULL CHECK (weekday BETWEEN 0 AND 6),
+		PRIMARY KEY (task_id, weekday)
+	);`,
 }
 
 func migrate(db *sql.DB) error {

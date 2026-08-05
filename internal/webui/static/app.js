@@ -18,6 +18,7 @@ const COLORS = {
     Done: "var(--done)",
 };
 const MANUAL_TARGETS = new Set(["Ready", "InProgress", "Blocked", "Done"]);
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 let tasks = [];
 let wipLimits = {};
@@ -135,7 +136,10 @@ function makeCard(task) {
     if (task.claimedBy) metadata.append(element("span", "", `Claimed by ${task.claimedBy}`));
     if (task.dependencies.length) metadata.append(element("span", "", `${task.dependencies.length} dependencies`));
     if (task.recurrence.kind !== "none") {
-        metadata.append(element("span", "", `${task.recurrence.kind} every ${task.recurrence.days} days`));
+        const recurrenceText = task.recurrence.weekdays?.length
+            ? `${task.recurrence.kind} on ${task.recurrence.weekdays.map((weekday) => WEEKDAYS[weekday]).join(", ")}`
+            : `${task.recurrence.kind} every ${task.recurrence.days} days`;
+        metadata.append(element("span", "", recurrenceText));
     }
     if (task.remedyFor) metadata.append(element("span", "", "Remedy task"));
     card.append(metadata);
@@ -251,8 +255,14 @@ function openEditor(task = null) {
     document.getElementById("task-scheduled").value = task?.scheduledAt ? toLocalInput(task.scheduledAt) : "";
     document.getElementById("task-lead").value = String(task?.leadDays || 0);
     document.getElementById("task-recurrence").value = task?.recurrence.kind || "none";
-    document.getElementById("task-recurrence-days").value = String(task?.recurrence.days || 30);
+    document.getElementById("task-recurrence-days").value = task
+        ? (task.recurrence.days ? String(task.recurrence.days) : "")
+        : "30";
     document.getElementById("task-paused").checked = Boolean(task?.recurrence.paused);
+    const selectedWeekdays = new Set(task?.recurrence.weekdays || []);
+    for (const checkbox of document.querySelectorAll("#weekday-options input")) {
+        checkbox.checked = selectedWeekdays.has(Number(checkbox.value));
+    }
     document.getElementById("task-time-critical").checked = Boolean(task?.timeCritical);
     renderTaskContext(task);
     renderDependencies(task);
@@ -326,6 +336,9 @@ async function saveEditor(event) {
         recurrence: {
             kind: recurrenceKind,
             days: recurrenceKind === "none" ? 0 : Number(document.getElementById("task-recurrence-days").value || 0),
+            weekdays: recurrenceKind === "anchored"
+                ? Array.from(document.querySelectorAll("#weekday-options input:checked"), (input) => Number(input.value))
+                : [],
             paused: recurrenceKind !== "none" && document.getElementById("task-paused").checked,
         },
         dependencies: Array.from(document.querySelectorAll("#dependency-list input:checked"), (input) => input.value),
@@ -441,9 +454,12 @@ async function quickAdd(event) {
 }
 
 function updateRecurrenceControls() {
-    const recurring = document.getElementById("task-recurrence").value !== "none";
+    const kind = document.getElementById("task-recurrence").value;
+    const recurring = kind !== "none";
     document.getElementById("task-recurrence-days").disabled = !recurring;
+    document.getElementById("task-recurrence-days").required = kind === "rolling";
     document.getElementById("task-paused").disabled = !recurring;
+    document.getElementById("weekday-options").hidden = kind !== "anchored";
 }
 
 function element(tag, className = "", text = null) {

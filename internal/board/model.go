@@ -3,6 +3,7 @@ package board
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 )
@@ -28,9 +29,10 @@ const (
 )
 
 type Recurrence struct {
-	Kind   string `json:"kind"`
-	Days   int    `json:"days"`
-	Paused bool   `json:"paused"`
+	Kind     string `json:"kind"`
+	Days     int    `json:"days"`
+	Weekdays []int  `json:"weekdays"`
+	Paused   bool   `json:"paused"`
 }
 
 type Task struct {
@@ -143,9 +145,36 @@ func (input *TaskInput) Normalize() error {
 	}
 	if input.Recurrence.Kind == "none" {
 		input.Recurrence.Days = 0
+		input.Recurrence.Weekdays = nil
 		input.Recurrence.Paused = false
-	} else if input.Recurrence.Days <= 0 {
-		return errors.New("recurrence days must be positive")
+	} else {
+		weekdays := make([]int, 0, len(input.Recurrence.Weekdays))
+		seenWeekdays := make(map[int]struct{}, len(input.Recurrence.Weekdays))
+		for _, weekday := range input.Recurrence.Weekdays {
+			if weekday < 0 || weekday > 6 {
+				return errors.New("recurrence weekdays must be between 0 and 6")
+			}
+			if _, exists := seenWeekdays[weekday]; exists {
+				continue
+			}
+			seenWeekdays[weekday] = struct{}{}
+			weekdays = append(weekdays, weekday)
+		}
+		sort.Ints(weekdays)
+		input.Recurrence.Weekdays = weekdays
+		if input.Recurrence.Kind == "rolling" {
+			input.Recurrence.Weekdays = nil
+			if input.Recurrence.Days <= 0 {
+				return errors.New("rolling recurrence days must be positive")
+			}
+		} else {
+			if input.Recurrence.Days < 0 {
+				return errors.New("anchored recurrence days cannot be negative")
+			}
+			if input.Recurrence.Days == 0 && len(input.Recurrence.Weekdays) == 0 {
+				return errors.New("anchored recurrence requires an interval or weekdays")
+			}
+		}
 	}
 	seen := make(map[string]struct{}, len(input.Dependencies))
 	cleaned := make([]string, 0, len(input.Dependencies))
@@ -258,6 +287,33 @@ func hasUnresolvedDependency(task *Task, byID map[string]*Task) bool {
 func AdvanceSchedule(task *Task, completedAt time.Time) (*time.Time, error) {
 	if task.Recurrence.Kind == "none" {
 		return nil, nil
+	}
+	if task.Recurrence.Kind == "anchored" && len(task.Recurrence.Weekdays) > 0 {
+		location := completedAt.Location()
+		base := completedAt
+		if task.ScheduledAt != nil {
+			location = task.ScheduledAt.Location()
+			base = completedAt.In(location)
+			base = time.Date(
+				base.Year(), base.Month(), base.Day(),
+				task.ScheduledAt.Hour(), task.ScheduledAt.Minute(), task.ScheduledAt.Second(), task.ScheduledAt.Nanosecond(),
+				location,
+			)
+		}
+		allowed := make(map[time.Weekday]struct{}, len(task.Recurrence.Weekdays))
+		for _, weekday := range task.Recurrence.Weekdays {
+			if weekday < 0 || weekday > 6 {
+				return nil, fmt.Errorf("invalid recurrence weekday: %d", weekday)
+			}
+			allowed[time.Weekday(weekday)] = struct{}{}
+		}
+		for offset := 1; offset <= 14; offset++ {
+			candidate := base.AddDate(0, 0, offset)
+			if _, exists := allowed[candidate.Weekday()]; exists {
+				return &candidate, nil
+			}
+		}
+		return nil, errors.New("could not find the next recurrence weekday")
 	}
 	if task.Recurrence.Days <= 0 {
 		return nil, fmt.Errorf("invalid recurrence interval: %d", task.Recurrence.Days)

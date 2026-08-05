@@ -31,7 +31,7 @@ go run ./cmd/kanban
 - Claim, release, block, unblock, complete, exact completion undo, and guarded
   deletion commands
 - Scheduled tasks with configurable lead time
-- Rolling and anchored recurring tasks
+- Rolling and anchored recurring tasks, including selected weekdays
 - Dependency-driven suspension with cycle protection
 - Configurable WIP limits enforced against effective column state
 - Automatic priority scoring from due dates and downstream dependencies
@@ -41,8 +41,8 @@ go run ./cmd/kanban
 - Optimistic version checks and transactional updates
 - Embedded browser assets and live board refresh through server-sent events
 
-Authentication, points/history, weekday recurrence, and migration from the
-existing board remain to be implemented.
+Authentication, points/history, and migration from the existing board remain
+to be implemented.
 
 ## Test
 
