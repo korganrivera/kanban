@@ -9,14 +9,6 @@ const LABELS = {
     Suspended: "Suspended",
     Done: "Done",
 };
-const COLORS = {
-    Waiting: "var(--waiting)",
-    Ready: "var(--ready)",
-    InProgress: "var(--progress)",
-    Blocked: "var(--blocked)",
-    Suspended: "var(--suspended)",
-    Done: "var(--done)",
-};
 const MANUAL_TARGETS = new Set(["Ready", "InProgress", "Blocked", "Done"]);
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const DEFAULT_PALETTE = "standard";
@@ -237,7 +229,6 @@ function compareTasks(state, left, right) {
 
 function makeColumn(state, columnTasks) {
     const column = element("section", "column");
-    column.style.setProperty("--state-color", COLORS[state]);
     const header = element("header", "column-header");
     const limit = wipLimits[state];
     const count = element(
@@ -262,7 +253,6 @@ function makeCard(task) {
     card.classList.add(`state-${stateClass}`);
     if (isTimeCriticalActive(task)) card.classList.add("time-critical");
     if (task.overdue) card.classList.add("overdue");
-    card.style.setProperty("--state-color", COLORS[task.effectiveState]);
     card.draggable = draggable;
     card.dataset.id = task.id;
     if (!["Waiting", "Done"].includes(task.effectiveState)) {

@@ -179,7 +179,7 @@ func TestStaticAssetsAndRequestValidation(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/", nil)
 	response := httptest.NewRecorder()
 	handler.ServeHTTP(response, request)
-	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), "Kanban Go") {
+	if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), "<title>Kanban</title>") {
 		t.Fatalf("index response = %d, body = %q", response.Code, response.Body.String())
 	}
 	index := response.Body.String()

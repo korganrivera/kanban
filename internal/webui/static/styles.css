@@ -2,24 +2,37 @@
     color-scheme: light;
     --page: #f6f8fa;
     --surface: #ffffff;
-    --surface-alt: #f3f4f6;
+    --surface-alt: #f6f8fa;
+    --surface-subtle: #f3f4f6;
     --text: #24292f;
     --muted: #57606a;
     --line: rgba(27, 31, 36, 0.15);
     --primary: #0969da;
-    --primary-hover: #0757b8;
+    --primary-hover: #1f6feb;
+    --accent-2: #1f6feb;
     --waiting: #9a6700;
     --ready: #1a7f37;
     --progress: #0969da;
     --blocked: #cf222e;
     --suspended: #8250df;
     --done: #57606a;
+    --page-grad-start: #f6f8fa;
+    --page-grad-end: #eef3f8;
+    --header-grad-start: rgba(255, 255, 255, 0.98);
+    --header-grad-end: rgba(246, 248, 250, 0.94);
+    --panel-grad-start: #ffffff;
+    --panel-grad-end: #f6f8fa;
+    --card-grad-start: #ffffff;
+    --card-grad-end: #fbfcfe;
     --field-bg: #ffffff;
+    --toast-bg: #ffffff;
     --button-fg: #ffffff;
+    --drop-target: rgba(9, 105, 218, 0.2);
+    --shadow-color: rgba(140, 149, 159, 0.2);
     --shadow: 0 8px 24px rgba(140, 149, 159, 0.2);
-    --column-shadow: 0 1px 3px rgba(140, 149, 159, 0.24);
-    --card-shadow: 0 1px 2px rgba(27, 31, 36, 0.08);
-    --button-shadow: 0 1px 0 rgba(27, 31, 36, 0.12);
+    --column-shadow: 0 1px 3px rgba(140, 149, 159, 0.2);
+    --card-shadow: 0 1px 2px rgba(27, 31, 36, 0.06);
+    --button-shadow: 0 1px 0 rgba(27, 31, 36, 0.1);
     --heatmap-0: #ebedf0;
     --heatmap-1: #9be9a8;
     --heatmap-2: #40c463;
@@ -31,20 +44,33 @@
     color-scheme: dark;
     --page: #071428;
     --surface: #081826;
-    --surface-alt: #0d2234;
+    --surface-alt: #061428;
+    --surface-subtle: #0d2234;
     --text: #e6eef6;
     --muted: #97a6b6;
     --line: rgba(255, 255, 255, 0.09);
     --primary: #60a5fa;
     --primary-hover: #7dd3fc;
+    --accent-2: #7dd3fc;
     --waiting: #d1a93d;
     --ready: #46a66f;
     --progress: #60a5fa;
     --blocked: #e26058;
     --suspended: #aa7fc0;
     --done: #929aa3;
-    --field-bg: #0b1e30;
+    --page-grad-start: #041025;
+    --page-grad-end: #06122a;
+    --header-grad-start: rgba(255, 255, 255, 0.012);
+    --header-grad-end: transparent;
+    --panel-grad-start: #071226;
+    --panel-grad-end: #041121;
+    --card-grad-start: #071428;
+    --card-grad-end: #061428;
+    --field-bg: rgba(255, 255, 255, 0.02);
+    --toast-bg: #041827;
     --button-fg: #06202b;
+    --drop-target: rgba(96, 165, 250, 0.1);
+    --shadow-color: rgba(2, 6, 23, 0.6);
     --shadow: 0 12px 30px rgba(2, 6, 23, 0.58);
     --column-shadow: 0 2px 7px rgba(2, 6, 23, 0.46);
     --card-shadow: 0 1px 3px rgba(2, 6, 23, 0.52);
@@ -57,23 +83,36 @@
 }
 
 :root[data-palette="forest"] {
-    --page: #eef3ef;
-    --surface: #ffffff;
-    --surface-alt: #e2eae4;
-    --text: #1f2a23;
-    --muted: #5f6f64;
-    --line: #bfcac1;
-    --primary: #286443;
-    --primary-hover: #1e5035;
+    --page: #f4f8f2;
+    --surface: #fcfefb;
+    --surface-alt: #eef4ec;
+    --surface-subtle: #edf4ea;
+    --text: #233127;
+    --muted: #5d6f60;
+    --line: rgba(53, 82, 60, 0.16);
+    --primary: #2f6f4f;
+    --primary-hover: #4f8f6b;
+    --accent-2: #4f8f6b;
     --waiting: #8b6b12;
     --ready: #2d7148;
     --progress: #276b86;
     --blocked: #ac3f38;
     --suspended: #755181;
     --done: #59645d;
+    --page-grad-start: #f4f8f2;
+    --page-grad-end: #e5efe4;
+    --header-grad-start: rgba(252, 254, 251, 0.98);
+    --header-grad-end: rgba(237, 244, 234, 0.94);
+    --panel-grad-start: #fcfefb;
+    --panel-grad-end: #edf4ea;
+    --card-grad-start: #ffffff;
+    --card-grad-end: #f5faf2;
     --field-bg: #ffffff;
-    --column-shadow: 0 1px 3px rgba(80, 102, 88, 0.2);
-    --card-shadow: 0 1px 2px rgba(53, 82, 60, 0.1);
+    --toast-bg: #fcfefb;
+    --drop-target: rgba(47, 111, 79, 0.18);
+    --shadow-color: rgba(80, 102, 88, 0.18);
+    --column-shadow: 0 1px 3px rgba(80, 102, 88, 0.18);
+    --card-shadow: 0 1px 2px rgba(53, 82, 60, 0.08);
     --heatmap-0: #e6eee3;
     --heatmap-1: #b6d7b8;
     --heatmap-2: #7cba83;
@@ -85,17 +124,31 @@
     --page: #f3f3ef;
     --surface: #ffffff;
     --surface-alt: #ecece6;
+    --surface-subtle: #ecece6;
     --text: #333333;
     --muted: #6f6f67;
-    --line: #c9c9c1;
+    --line: rgba(51, 51, 51, 0.18);
     --primary: #346734;
-    --primary-hover: #285329;
+    --primary-hover: #006699;
+    --accent-2: #006699;
     --waiting: #806315;
     --ready: #346734;
     --progress: #006699;
     --blocked: #a33f3f;
     --suspended: #6a5578;
     --done: #666660;
+    --page-grad-start: #f7f7f4;
+    --page-grad-end: #e9e9e1;
+    --header-grad-start: rgba(255, 255, 255, 0.98);
+    --header-grad-end: rgba(243, 243, 239, 0.96);
+    --panel-grad-start: #ffffff;
+    --panel-grad-end: #ecece6;
+    --card-grad-start: #ffffff;
+    --card-grad-end: #f7f7f2;
+    --field-bg: #ffffff;
+    --toast-bg: #ffffff;
+    --drop-target: rgba(52, 103, 52, 0.2);
+    --shadow-color: rgba(102, 102, 102, 0.16);
     --shadow: 0 2px 8px rgba(70, 70, 64, 0.16);
     --column-shadow: 0 1px 3px rgba(102, 102, 102, 0.2);
     --card-shadow: 0 1px 2px rgba(51, 51, 51, 0.08);
@@ -109,18 +162,32 @@
 :root[data-palette="warm-paper"] {
     --page: #fbf7ef;
     --surface: #fffdf8;
-    --surface-alt: #f4ede0;
+    --surface-alt: #f7f0e5;
+    --surface-subtle: #f4ede0;
     --text: #3a3127;
     --muted: #746556;
-    --line: #d8cbbb;
-    --primary: #a65028;
-    --primary-hover: #87401f;
+    --line: rgba(98, 78, 58, 0.16);
+    --primary: #b35c2e;
+    --primary-hover: #8f4e2d;
+    --accent-2: #8f4e2d;
     --waiting: #8b681c;
     --ready: #41714c;
     --progress: #98602d;
     --blocked: #ad4038;
     --suspended: #765276;
     --done: #6c6257;
+    --page-grad-start: #fbf7ef;
+    --page-grad-end: #f3eadc;
+    --header-grad-start: rgba(255, 253, 248, 0.98);
+    --header-grad-end: rgba(244, 237, 224, 0.94);
+    --panel-grad-start: #fffdf8;
+    --panel-grad-end: #f4ede0;
+    --card-grad-start: #fffdf8;
+    --card-grad-end: #fbf4ea;
+    --field-bg: #fffdf8;
+    --toast-bg: #fffdf8;
+    --drop-target: rgba(179, 92, 46, 0.18);
+    --shadow-color: rgba(139, 118, 89, 0.18);
     --shadow: 0 2px 8px rgba(98, 78, 58, 0.18);
     --column-shadow: 0 1px 3px rgba(139, 118, 89, 0.22);
     --card-shadow: 0 1px 2px rgba(98, 78, 58, 0.1);
@@ -135,17 +202,31 @@
     --page: #fff7f3;
     --surface: #fffaf8;
     --surface-alt: #ffe5d9;
+    --surface-subtle: #ffe5d9;
     --text: #5e4b52;
-    --muted: #80686f;
-    --line: #dbc7ca;
-    --primary: #8d6e77;
-    --primary-hover: #745861;
+    --muted: #866d74;
+    --line: rgba(157, 129, 137, 0.2);
+    --primary: #9d8189;
+    --primary-hover: #f4acb7;
+    --accent-2: #f4acb7;
     --waiting: #8b671d;
     --ready: #47735b;
     --progress: #5d708f;
     --blocked: #ad4a53;
     --suspended: #806080;
     --done: #74686c;
+    --page-grad-start: #fff7f3;
+    --page-grad-end: #ffe5d9;
+    --header-grad-start: rgba(255, 250, 248, 0.98);
+    --header-grad-end: rgba(255, 229, 217, 0.94);
+    --panel-grad-start: #fffaf8;
+    --panel-grad-end: #ffdfe1;
+    --card-grad-start: #fffdfc;
+    --card-grad-end: #fff0eb;
+    --field-bg: #fffdfc;
+    --toast-bg: #fffaf8;
+    --drop-target: rgba(244, 172, 183, 0.28);
+    --shadow-color: rgba(157, 129, 137, 0.16);
     --shadow: 0 2px 8px rgba(120, 91, 100, 0.16);
     --column-shadow: 0 1px 3px rgba(157, 129, 137, 0.2);
     --card-shadow: 0 1px 2px rgba(94, 75, 82, 0.09);
@@ -160,17 +241,31 @@
     --page: #ffffff;
     --surface: #ffffff;
     --surface-alt: #eeeeee;
+    --surface-subtle: #eeeeee;
     --text: #000000;
     --muted: #333333;
     --line: #000000;
     --primary: #0047ab;
     --primary-hover: #002f73;
+    --accent-2: #0047ab;
     --waiting: #715500;
     --ready: #00652e;
     --progress: #0047ab;
     --blocked: #a30000;
     --suspended: #5c2877;
     --done: #333333;
+    --page-grad-start: #ffffff;
+    --page-grad-end: #ffffff;
+    --header-grad-start: #ffffff;
+    --header-grad-end: #ffffff;
+    --panel-grad-start: #ffffff;
+    --panel-grad-end: #ffffff;
+    --card-grad-start: #ffffff;
+    --card-grad-end: #ffffff;
+    --field-bg: #ffffff;
+    --toast-bg: #ffffff;
+    --drop-target: rgba(0, 71, 171, 0.2);
+    --shadow-color: transparent;
     --shadow: none;
     --column-shadow: none;
     --card-shadow: none;
@@ -191,7 +286,7 @@ body {
     margin: 0;
     height: 100%;
     min-height: 100%;
-    background: linear-gradient(180deg, var(--page), color-mix(in srgb, var(--surface-alt) 72%, var(--page)));
+    background: linear-gradient(180deg, var(--page-grad-start), var(--page-grad-end));
     color: var(--text);
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     font-size: 13px;
@@ -208,11 +303,11 @@ select {
 
 button {
     min-height: 30px;
-    border: 1px solid color-mix(in srgb, var(--primary) 78%, #000000);
+    border: 0;
     border-radius: 6px;
     background: var(--primary);
     color: var(--button-fg);
-    padding: 5px 9px;
+    padding: 6px 8px;
     box-shadow: var(--button-shadow);
     cursor: pointer;
     font-size: 12px;
@@ -225,12 +320,14 @@ button:hover {
 
 button.secondary {
     border-color: var(--line);
-    background: color-mix(in srgb, var(--surface) 88%, var(--surface-alt));
+    border-style: solid;
+    border-width: 1px;
+    background: var(--surface);
     color: var(--muted);
 }
 
 button.secondary:hover {
-    background: var(--surface-alt);
+    background: var(--surface-subtle);
 }
 
 button.danger {
@@ -259,7 +356,7 @@ button.danger:hover {
     width: min(380px, 100%);
     border: 1px solid var(--line);
     border-radius: 6px;
-    background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface-alt) 52%, var(--surface)));
+    background: linear-gradient(180deg, var(--panel-grad-start), var(--panel-grad-end));
     box-shadow: var(--shadow);
     padding: 24px;
 }
@@ -293,14 +390,14 @@ button.danger:hover {
     flex: 0 0 auto;
     z-index: 10;
     display: grid;
-    grid-template-columns: auto minmax(260px, 560px) auto;
+    grid-template-columns: auto minmax(260px, 1fr) auto;
     align-items: center;
     gap: 10px;
     min-height: 50px;
     padding: 8px 12px;
     border-bottom: 1px solid var(--line);
-    background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 96%, transparent), color-mix(in srgb, var(--surface-alt) 56%, var(--surface)));
-    box-shadow: 0 1px 0 color-mix(in srgb, var(--line) 38%, transparent);
+    background: linear-gradient(180deg, var(--header-grad-start), var(--header-grad-end));
+    box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04);
 }
 
 #app-shell {
@@ -313,17 +410,9 @@ button.danger:hover {
 
 .brand {
     color: var(--primary);
-    font-size: 15px;
+    font-size: 1rem;
     font-weight: 700;
     white-space: nowrap;
-}
-
-.prototype {
-    margin-left: 6px;
-    color: var(--muted);
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
 }
 
 .connection-status {
@@ -419,6 +508,7 @@ select:focus {
 .board {
     display: grid;
     grid-template-columns: repeat(6, minmax(260px, 1fr));
+    align-items: start;
     gap: 10px;
     height: 100%;
     min-width: 1610px;
@@ -427,30 +517,27 @@ select:focus {
 }
 
 .column {
-    display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
+    display: flex;
+    flex-direction: column;
     min-width: 0;
     min-height: 0;
+    max-height: 100%;
     overflow: hidden;
     border: 1px solid var(--line);
     border-radius: 8px;
-    background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface-alt) 72%, var(--surface)));
-    box-shadow: var(--column-shadow);
+    background: linear-gradient(180deg, var(--surface), var(--surface-alt));
+    box-shadow: 0 1px 3px var(--shadow-color);
+    padding: 8px;
 }
 
 .column-header {
-    position: sticky;
-    top: 0;
-    z-index: 3;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: 38px;
-    padding: 8px 10px 7px;
-    border-bottom: 2px solid color-mix(in srgb, var(--state-color) 65%, var(--line));
-    background: color-mix(in srgb, var(--surface) 78%, transparent);
+    min-height: 0;
+    padding: 0 0 6px;
     color: var(--muted);
-    font-size: 12px;
+    font-size: 0.85rem;
     font-weight: 700;
 }
 
@@ -466,18 +553,23 @@ select:focus {
 
 .column-list {
     display: grid;
+    flex: 1 1 auto;
     align-content: start;
     gap: 8px;
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior-y: contain;
-    padding: 8px;
+    padding: 0 0 8px;
     scrollbar-gutter: stable;
 }
 
+.column-list:empty {
+    min-height: 34px;
+}
+
 .column-list.drop-target {
-    background: color-mix(in srgb, var(--primary) 12%, transparent);
-    box-shadow: inset 0 0 0 2px var(--primary);
+    background: var(--drop-target);
+    box-shadow: inset 0 0 0 2px var(--drop-target);
 }
 
 .card {
@@ -485,41 +577,41 @@ select:focus {
     min-width: 0;
     border: 1px solid var(--line);
     border-radius: 6px;
-    background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--page) 42%, var(--surface)));
-    box-shadow: inset 3px 0 0 color-mix(in srgb, var(--state-color) 48%, var(--line)), var(--card-shadow);
-    padding: 10px 9px 9px 11px;
+    background: linear-gradient(180deg, var(--card-grad-start), var(--card-grad-end));
+    box-shadow: var(--card-shadow);
+    padding: 12px 54px 10px 12px;
     cursor: pointer;
     transition: border-color 100ms ease, box-shadow 100ms ease, opacity 100ms ease;
 }
 
 .card:hover {
-    border-color: color-mix(in srgb, var(--primary) 32%, var(--line));
-    box-shadow: inset 3px 0 0 color-mix(in srgb, var(--state-color) 72%, var(--line)), 0 3px 8px rgba(27, 31, 36, 0.12);
+    border-color: var(--line);
+    box-shadow: var(--card-shadow);
 }
 
 .card.state-waiting {
-    opacity: 0.66;
-    filter: grayscale(0.08);
+    opacity: 0.56;
+    filter: grayscale(6%);
 }
 
 .card.state-waiting:hover {
-    opacity: 0.82;
+    opacity: 0.56;
 }
 
 .card.time-critical {
-    border-color: rgba(234, 88, 12, 0.52);
+    border-color: rgba(234, 88, 12, 0.55);
+    border-left: 4px solid #f97316;
     background: linear-gradient(180deg, #fff7ed, #ffedd5);
-    box-shadow: inset 3px 0 0 #f97316, 0 1px 3px rgba(154, 52, 18, 0.18);
+    box-shadow: 0 0 0 1px rgba(234, 88, 12, 0.16), 0 8px 18px rgba(234, 88, 12, 0.14);
 }
 
 :root[data-palette="dark"] .card.time-critical {
-    border-color: rgba(251, 146, 60, 0.52);
-    background: linear-gradient(180deg, #351c10, #27150d);
-    box-shadow: inset 3px 0 0 #fb923c, 0 2px 5px rgba(0, 0, 0, 0.38);
+    border-color: rgba(251, 146, 60, 0.62);
+    background: linear-gradient(180deg, #2a1708, #1f1208);
 }
 
-.card.overdue {
-    box-shadow: inset 3px 0 0 var(--blocked), inset 0 0 0 1px color-mix(in srgb, var(--blocked) 42%, transparent), var(--card-shadow);
+.card.overdue:not(.time-critical) {
+    box-shadow: var(--card-shadow);
 }
 
 .overdue-label {
@@ -536,11 +628,11 @@ select:focus {
 }
 
 .card-title {
-    margin: 0 0 5px;
+    margin: 0 0 4px;
     overflow-wrap: anywhere;
-    padding-right: 40px;
-    font-size: 13px;
-    line-height: 1.32;
+    padding-right: 0;
+    font-size: 0.96rem;
+    line-height: 1.3;
 }
 
 .priority {
@@ -549,20 +641,21 @@ select:focus {
     right: 8px;
     display: grid;
     place-items: center;
-    min-width: 31px;
-    height: 21px;
-    border-radius: 999px;
+    width: 28px;
+    height: 20px;
+    box-sizing: content-box;
+    border-radius: 12px;
     color: #ffffff;
     padding: 0 7px;
-    font-size: 11px;
+    font-size: 0.78rem;
     font-weight: 700;
-    box-shadow: 0 2px 5px rgba(27, 31, 36, 0.24);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .card-description {
-    margin: 0 0 7px;
+    margin: 0 0 6px;
     color: var(--muted);
-    font-size: 12px;
+    font-size: 0.92rem;
     line-height: 1.35;
     overflow-wrap: anywhere;
 }
@@ -583,13 +676,14 @@ select:focus {
     flex-wrap: wrap;
     gap: 4px 8px;
     color: var(--muted);
-    font-size: 11px;
+    font-size: 0.84rem;
     line-height: 1.3;
+    margin-bottom: 6px;
 }
 
 .owner-label {
-    color: color-mix(in srgb, var(--primary) 78%, var(--text));
-    font-weight: 650;
+    color: var(--accent-2);
+    font-weight: 700;
 }
 
 .critical-label {
@@ -597,8 +691,11 @@ select:focus {
     border-radius: 999px;
     background: rgba(249, 115, 22, 0.1);
     color: #c2410c;
-    padding: 1px 5px;
-    font-weight: 700;
+    min-height: 20px;
+    padding: 1px 7px;
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-transform: uppercase;
 }
 
 :root[data-palette="dark"] .critical-label {
@@ -613,9 +710,15 @@ select:focus {
 }
 
 .card-actions button {
-    min-height: 26px;
-    padding: 3px 7px;
-    font-size: 11px;
+    min-height: 28px;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+}
+
+.card-actions button.danger,
+.card-actions button.danger:hover {
+    background: var(--primary);
+    color: var(--button-fg);
 }
 
 .editor {
@@ -623,12 +726,13 @@ select:focus {
     top: 0;
     right: 0;
     z-index: 30;
-    width: min(440px, 100vw);
+    width: 360px;
+    max-width: 92vw;
     height: 100vh;
     overflow-y: auto;
     border-left: 1px solid var(--line);
-    background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface-alt) 36%, var(--surface)));
-    box-shadow: -12px 0 30px rgba(27, 31, 36, 0.2);
+    background: linear-gradient(180deg, var(--panel-grad-start), var(--panel-grad-end));
+    box-shadow: -12px 0 30px var(--shadow-color);
     padding: 16px 16px 32px;
     transform: translateX(105%);
     transition: transform 160ms ease;
@@ -678,7 +782,7 @@ select:focus {
 #task-form label,
 #task-form legend {
     color: var(--muted);
-    font-size: 12px;
+    font-size: 0.85rem;
     font-weight: 650;
 }
 
@@ -708,7 +812,7 @@ fieldset {
     margin: 6px 0;
     border: 1px solid var(--line);
     border-radius: 6px;
-    background: color-mix(in srgb, var(--surface-alt) 42%, transparent);
+    background: transparent;
     padding: 10px;
 }
 
@@ -780,10 +884,9 @@ fieldset {
     display: flex;
     flex-wrap: wrap;
     gap: 5px 12px;
-    border: 1px solid var(--line);
-    border-radius: 5px;
-    background: color-mix(in srgb, var(--surface-alt) 62%, transparent);
-    padding: 8px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 8px 0;
     color: var(--muted);
     font-size: 12px;
 }
@@ -810,7 +913,7 @@ fieldset {
     width: min(760px, calc(100vw - 32px));
     border: 1px solid var(--line);
     border-radius: 6px;
-    background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--surface-alt) 38%, var(--surface)));
+    background: linear-gradient(180deg, var(--panel-grad-start), var(--panel-grad-end));
     color: var(--text);
     padding: 20px;
     box-shadow: 0 12px 36px rgba(20, 28, 38, 0.24);
@@ -894,7 +997,7 @@ fieldset {
     max-width: min(420px, calc(100vw - 32px));
     border-radius: 5px;
     border: 1px solid var(--line);
-    background: var(--surface);
+    background: var(--toast-bg);
     color: var(--text);
     padding: 10px 14px;
     box-shadow: var(--shadow);
