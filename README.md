@@ -108,7 +108,8 @@ independent storage when one becomes available.
 Run `./scripts/install-service.sh` to install the persistent user service and
 six-hour backup timer. See [systemd/README.md](systemd/README.md) for service,
 configuration, and restore details. The final cutover and rollback procedure is
-in [MIGRATION.md](MIGRATION.md).
+in [MIGRATION.md](MIGRATION.md), and the completed evidence review is in
+[PARITY_REVIEW.md](PARITY_REVIEW.md).
 
 ## Test
 

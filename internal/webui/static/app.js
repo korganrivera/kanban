@@ -274,7 +274,9 @@ function makeCard(task) {
     if (task.description) {
         card.append(element("p", "card-description", truncate(task.description, 150)));
     }
-    if (task.effectiveState === "Blocked" && task.blockNote) card.append(element("p", "card-note", task.blockNote));
+    if (task.effectiveState === "Blocked" && task.blockNote) {
+        card.append(element("p", "card-note", truncate(task.blockNote, 150)));
+    }
 
     const metadata = element("div", "metadata");
     if (task.scheduledAt) metadata.append(element("span", "", `Due ${formatDate(task.scheduledAt)}`));

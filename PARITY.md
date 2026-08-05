@@ -67,7 +67,7 @@ design is simpler or safer.
 - [x] Complete task metadata: creator, age, completion date, and owner
 - [x] Palette selection persisted per browser user
 - [x] Automatic time-boundary refresh without waiting up to one minute
-- [ ] Recheck desktop and mobile layout after parity controls are present
+- [x] Recheck desktop and mobile layout after parity controls are present
 
 ## Data Migration
 
@@ -97,7 +97,7 @@ design is simpler or safer.
 - [x] Multi-session tests for login, revocation, live updates, and stale edits
 - [x] Import fixture covering every legacy task shape
 - [x] Backup corruption and restore-drill tests
-- [ ] Manual side-by-side workflow review before migration
+- [x] Manual side-by-side workflow review before migration
 - [x] Final migration plan with rollback steps
 
 ## Implementation Order
