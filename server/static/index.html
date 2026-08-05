@@ -1748,6 +1748,7 @@
             function enableColumnDrops() {
                 document.querySelectorAll(".col").forEach((col) => {
                     col.addEventListener("dragover", (ev) => {
+                        if (col.dataset.state === "Suspended") return;
                         ev.preventDefault();
                         col.classList.add("drop-target");
                     });
@@ -1759,6 +1760,11 @@
                         col.classList.remove("drop-target");
                         const id = ev.dataTransfer.getData("text/plain");
                         const dstState = col.dataset.state;
+                        if (dstState === "Suspended") {
+                            return toast(
+                                "Suspended is managed by dependencies or paused recurrence",
+                            );
+                        }
                         const task = tasksCache.find((t) => t.id === id);
                         if (!task) return toast("Task not found");
                         const s = getTaskState(task);

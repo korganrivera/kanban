@@ -34,7 +34,8 @@ it like a live household or project board.
 - `Blocked`
   Work cannot continue right now.
 - `Suspended`
-  The task is paused, often because a dependency is not done yet.
+  The task has an unfinished dependency or its recurrence is paused. This
+  column is managed automatically rather than by dragging cards into it.
 - `Done`
   The task is finished.
 

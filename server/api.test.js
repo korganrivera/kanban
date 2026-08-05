@@ -182,6 +182,10 @@ test("state and ownership are server controlled", async () => {
     method: "PATCH",
     body: JSON.stringify({ state: "InProgress", picker: "someone-else" }),
   });
+  const manuallySuspended = await jsonRequest(`/tasks/${task.id}/state`, {
+    method: "PATCH",
+    body: JSON.stringify({ state: "Suspended" }),
+  });
   const claimed = await jsonRequest(`/tasks/${task.id}/state`, {
     method: "PATCH",
     body: JSON.stringify({ state: "InProgress" }),
@@ -189,8 +193,31 @@ test("state and ownership are server controlled", async () => {
 
   assert.equal(invalid.response.status, 400);
   assert.equal(forged.response.status, 400);
+  assert.equal(manuallySuspended.response.status, 400);
   assert.equal(claimed.response.status, 200);
   assert.equal(claimed.body.picker, "reviewer");
+});
+
+test("dependencies automatically suspend and release tasks", async () => {
+  const prerequisite = await createTask("Automatic suspension prerequisite");
+  const dependent = await createTask("Automatically suspended task", {
+    dependencies: [prerequisite.id],
+  });
+
+  assert.equal(dependent.state, "Suspended");
+  assert.equal(dependent.effectiveState, "Suspended");
+
+  const released = await jsonRequest(`/tasks/${dependent.id}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      dependencies: [],
+      expectedUpdatedAt: dependent.updated_at,
+    }),
+  });
+
+  assert.equal(released.response.status, 200);
+  assert.equal(released.body.state, "Ready");
+  assert.equal(released.body.effectiveState, "Ready");
 });
 
 test("claims are cleared outside In Progress but retained in Done", async () => {

@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const {
   TASK_STATES,
+  anyDependencyUnresolved,
   computeEffectiveState,
 } = require("../static/task-state.js");
 
@@ -43,6 +44,13 @@ for (const task of Array.isArray(tasks) ? tasks : []) {
     errors.push(`Task ${task.id} has duplicate dependencies`);
   }
   const effectiveState = computeEffectiveState(task, tasks).effectiveState;
+  if (
+    task.state === "Suspended" &&
+    !task.recurrence?.paused &&
+    !anyDependencyUnresolved(tasks, task)
+  ) {
+    errors.push(`Task ${task.id} is suspended without an unresolved dependency`);
+  }
   if (task.picker && !["InProgress", "Done"].includes(effectiveState)) {
     errors.push(`Task ${task.id} has a claim in effective state ${effectiveState}`);
   }

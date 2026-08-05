@@ -1390,6 +1390,11 @@ app.patch("/tasks/:id/state", requireAuth, async (req, res) => {
       if (!TASK_STATES.includes(newState)) {
         throw requestError(`state must be one of: ${TASK_STATES.join(", ")}`);
       }
+      if (newState === "Suspended") {
+        throw requestError(
+          "Suspended is managed automatically by dependencies or paused recurrence",
+        );
+      }
       if ("picker" in req.body) {
         throw requestError("picker is controlled by the server");
       }
