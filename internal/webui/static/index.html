@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Kanban Go</title>
+        <link rel="stylesheet" href="/styles.css">
+        <script src="/app.js" defer></script>
+    </head>
+    <body>
+        <header class="topbar">
+            <div class="brand">Kanban Go <span class="prototype">Prototype</span></div>
+            <form id="quick-add" class="quick-add">
+                <label class="sr-only" for="quick-title">Task title</label>
+                <input id="quick-title" name="title" maxlength="200" placeholder="Add a task" required>
+                <button type="submit">Add</button>
+            </form>
+            <button id="new-task" type="button" class="secondary">New task</button>
+        </header>
+
+        <main id="board" class="board" aria-live="polite"></main>
+
+        <aside id="editor" class="editor" aria-hidden="true">
+            <div class="editor-header">
+                <h2 id="editor-title">Task</h2>
+                <button id="close-editor" type="button" class="secondary">Close</button>
+            </div>
+            <form id="task-form">
+                <label for="task-title">Title</label>
+                <input id="task-title" maxlength="200" required>
+
+                <label for="task-description">Description</label>
+                <textarea id="task-description" rows="6" maxlength="20000"></textarea>
+
+                <div id="block-note-wrap" hidden>
+                    <label for="task-block-note">Block note</label>
+                    <textarea id="task-block-note" rows="3" maxlength="5000"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div>
+                        <label for="task-scheduled">Scheduled for</label>
+                        <input id="task-scheduled" type="datetime-local">
+                    </div>
+                    <div>
+                        <label for="task-lead">Lead days</label>
+                        <input id="task-lead" type="number" min="0" step="1" value="0">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div>
+                        <label for="task-recurrence">Recurrence</label>
+                        <select id="task-recurrence">
+                            <option value="none">None</option>
+                            <option value="rolling">Rolling</option>
+                            <option value="anchored">Anchored</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="task-recurrence-days">Interval days</label>
+                        <input id="task-recurrence-days" type="number" min="1" step="1" value="30">
+                    </div>
+                </div>
+
+                <label class="checkbox-line">
+                    <input id="task-paused" type="checkbox">
+                    Pause recurrence
+                </label>
+
+                <fieldset>
+                    <legend>Dependencies</legend>
+                    <div id="dependency-list" class="dependency-list"></div>
+                </fieldset>
+
+                <div class="editor-actions">
+                    <button type="submit">Save</button>
+                    <button id="cancel-editor" type="button" class="secondary">Cancel</button>
+                    <button id="delete-task" type="button" class="danger delete" hidden>Delete</button>
+                </div>
+            </form>
+        </aside>
+        <div id="backdrop" class="backdrop" hidden></div>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    </body>
+</html>
