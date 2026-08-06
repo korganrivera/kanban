@@ -20,6 +20,7 @@ let toastTimer = null;
 let currentUser = null;
 let events = null;
 let refreshTimer = null;
+let renderedBoardSnapshot = null;
 
 const board = document.getElementById("board");
 const editor = document.getElementById("editor");
@@ -72,6 +73,7 @@ async function startApplication(account) {
 
 async function showAuth() {
     currentUser = null;
+    renderedBoardSnapshot = null;
     if (events) {
         events.close();
         events = null;
@@ -179,10 +181,17 @@ async function loadBoard() {
             request("/api/wip-limits"),
             request("/api/auth/me"),
         ]);
+        const nextSnapshot = JSON.stringify(
+            [loadedTasks, loadedLimits],
+            (key, value) => key === "urgency" ? undefined : value,
+        );
         tasks = loadedTasks;
         wipLimits = loadedLimits;
         updateAccount(account);
-        renderBoard();
+        if (nextSnapshot !== renderedBoardSnapshot) {
+            renderBoard();
+            renderedBoardSnapshot = nextSnapshot;
+        }
     } catch (error) {
         if (error.status !== 401) showToast(error.message);
     }
