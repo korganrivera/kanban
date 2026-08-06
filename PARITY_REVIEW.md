@@ -1,6 +1,6 @@
 # Final Parity Review
 
-Reviewed on 2026-08-05 against the current Node server, browser client, tests,
+Reviewed on 2026-08-06 against the current Node server, browser client, tests,
 and legacy data. The Node project remained unchanged throughout the review.
 
 ## Route Equivalence
@@ -84,3 +84,16 @@ cutover and rollback sequence is in `MIGRATION.md`.
 The Go rewrite has functional parity with the useful Node workflows, with the
 documented improvements in state modeling, identity, validation, concurrency,
 security, migration, testing, and recovery.
+
+## Known Differences
+
+- Waiting is derived from scheduling rather than manually assignable. Legacy
+  undated Waiting tasks therefore import as Ready instead of preserving a
+  mutable state that users cannot move back out of through the Node UI.
+- Active columns use the displayed integer priority for stable ordering. The
+  Node client used continuously changing fractional priority values, which
+  could reorder equal-looking tasks during periodic refreshes.
+- Anchored weekday recurrence currently preserves the stored UTC clock time.
+  The Node server preserved its local clock time across daylight-saving
+  changes. No migrated task currently uses anchored weekday recurrence.
+- Legacy points and picker-history data remain intentionally excluded.

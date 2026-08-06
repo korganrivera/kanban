@@ -182,7 +182,7 @@ async function loadBoard() {
             request("/api/auth/me"),
         ]);
         const nextSnapshot = JSON.stringify(
-            [loadedTasks, loadedLimits],
+            [loadedTasks, loadedLimits, localDateKey(new Date())],
             (key, value) => key === "urgency" ? undefined : value,
         );
         tasks = loadedTasks;
@@ -329,18 +329,22 @@ function makeCard(task) {
 }
 
 function actionsFor(task) {
+    let actions;
     switch (task.effectiveState) {
         case "Ready":
-            return [["Claim", "claim"], ["Block", "block", "danger"]];
+            actions = [["Claim", "claim"], ["Block", "block", "danger"]];
+            break;
         case "InProgress":
-            return [["Release", "release", "secondary"], ["Complete", "complete"], ["Block", "block", "danger"]];
+            actions = [["Release", "release", "secondary"], ["Complete", "complete"], ["Block", "block", "danger"]];
+            break;
         case "Blocked":
-            return [["Remedy", "remedy"], ["Unblock", "unblock", "secondary"]];
-        case "Done":
-            return task.canUndo ? [["Undo", "undo", "secondary"]] : [];
+            actions = [["Remedy", "remedy"], ["Unblock", "unblock", "secondary"]];
+            break;
         default:
-            return [];
+            actions = [];
     }
+    if (task.canUndo) actions.push(["Undo", "undo", "secondary"]);
+    return actions;
 }
 
 async function runAction(task, action) {
@@ -419,7 +423,7 @@ function openEditor(task = null) {
     document.getElementById("task-recurrence").value = task?.recurrence.kind || "none";
     document.getElementById("task-recurrence-days").value = task
         ? (task.recurrence.days ? String(task.recurrence.days) : "")
-        : "30";
+        : "";
     document.getElementById("task-paused").checked = Boolean(task?.recurrence.paused);
     const selectedWeekdays = new Set(task?.recurrence.weekdays || []);
     for (const checkbox of document.querySelectorAll("#weekday-options input")) {
@@ -472,10 +476,21 @@ function renderTaskContext(task) {
 function renderDependencies(task) {
     const container = document.getElementById("dependency-list");
     const selected = new Set(task?.dependencies || []);
-    const candidates = tasks.filter((candidate) => candidate.id !== task?.id);
+    const candidates = tasks
+        .filter((candidate) => candidate.id !== task?.id)
+        .filter((candidate) => candidate.effectiveState !== "Done" || selected.has(candidate.id))
+        .sort((left, right) => {
+            const titleDifference = left.title.localeCompare(right.title, undefined, { sensitivity: "base" });
+            return titleDifference || left.id.localeCompare(right.id);
+        });
     if (!candidates.length) {
         container.textContent = "No available tasks";
         return;
+    }
+    const titleCounts = new Map();
+    for (const candidate of candidates) {
+        const key = candidate.title.trim().toLocaleLowerCase();
+        titleCounts.set(key, (titleCounts.get(key) || 0) + 1);
     }
     container.replaceChildren(...candidates.map((candidate) => {
         const label = element("label", "dependency-option");
@@ -483,7 +498,15 @@ function renderDependencies(task) {
         checkbox.type = "checkbox";
         checkbox.value = candidate.id;
         checkbox.checked = selected.has(candidate.id);
-        label.append(checkbox, element("span", "", candidate.title));
+        const key = candidate.title.trim().toLocaleLowerCase();
+        let text = candidate.title;
+        if ((titleCounts.get(key) || 0) > 1) {
+            const detail = candidate.scheduledAt
+                ? `${LABELS[candidate.effectiveState]}, due ${formatDate(candidate.scheduledAt)}`
+                : `${LABELS[candidate.effectiveState]}, created ${formatDate(candidate.createdAt)}`;
+            text = `${candidate.title} - ${detail}`;
+        }
+        label.append(checkbox, element("span", "", text));
         return label;
     }));
 }
