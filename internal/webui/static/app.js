@@ -194,6 +194,9 @@ function updateAccount(account) {
 }
 
 function renderBoard() {
+    const scrollPositions = new Map(
+        [...board.querySelectorAll(".column-list")].map((list) => [list.dataset.state, list.scrollTop]),
+    );
     const groups = Object.fromEntries(STATES.map((state) => [state, []]));
     for (const task of tasks) {
         (groups[task.effectiveState] || groups.Ready).push(task);
@@ -202,6 +205,9 @@ function renderBoard() {
         groups[state].sort((left, right) => compareTasks(state, left, right));
     }
     board.replaceChildren(...STATES.map((state) => makeColumn(state, groups[state])));
+    for (const list of board.querySelectorAll(".column-list")) {
+        list.scrollTop = scrollPositions.get(list.dataset.state) || 0;
+    }
 }
 
 function compareTasks(state, left, right) {
