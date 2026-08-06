@@ -480,6 +480,8 @@ function renderDependencies(task) {
         .filter((candidate) => candidate.id !== task?.id)
         .filter((candidate) => candidate.effectiveState !== "Done" || selected.has(candidate.id))
         .sort((left, right) => {
+            const selectedDifference = Number(selected.has(right.id)) - Number(selected.has(left.id));
+            if (selectedDifference) return selectedDifference;
             const titleDifference = left.title.localeCompare(right.title, undefined, { sensitivity: "base" });
             return titleDifference || left.id.localeCompare(right.id);
         });
@@ -493,9 +495,10 @@ function renderDependencies(task) {
         titleCounts.set(key, (titleCounts.get(key) || 0) + 1);
     }
     container.replaceChildren(...candidates.map((candidate) => {
-        const label = element("label", "dependency-option");
+        const option = element("div", "dependency-option");
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
+        checkbox.id = `dependency-${candidate.id}`;
         checkbox.value = candidate.id;
         checkbox.checked = selected.has(candidate.id);
         const key = candidate.title.trim().toLocaleLowerCase();
@@ -506,8 +509,21 @@ function renderDependencies(task) {
                 : `${LABELS[candidate.effectiveState]}, created ${formatDate(candidate.createdAt)}`;
             text = `${candidate.title} - ${detail}`;
         }
-        label.append(checkbox, element("span", "", text));
-        return label;
+        checkbox.setAttribute("aria-label", `${checkbox.checked ? "Remove" : "Add"} dependency ${text}`);
+        if (checkbox.checked) {
+            const link = element("a", "dependency-link", text);
+            link.href = `#task-${encodeURIComponent(candidate.id)}`;
+            link.addEventListener("click", (event) => {
+                event.preventDefault();
+                openEditor(candidate);
+            });
+            option.append(checkbox, link);
+        } else {
+            const label = element("label", "", text);
+            label.htmlFor = checkbox.id;
+            option.append(checkbox, label);
+        }
+        return option;
     }));
 }
 

@@ -850,6 +850,26 @@ fieldset {
     margin-top: 3px;
 }
 
+.dependency-option > label {
+    color: var(--text) !important;
+    font-weight: 400 !important;
+    overflow-wrap: anywhere;
+}
+
+.dependency-link {
+    min-width: 0;
+    color: var(--primary);
+    font-size: 0.85rem;
+    font-weight: 400;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+    text-decoration: underline;
+}
+
+.dependency-link:hover {
+    color: var(--primary-hover);
+}
+
 .weekday-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
