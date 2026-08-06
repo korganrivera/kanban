@@ -43,13 +43,13 @@
                 <label class="sr-only" for="quick-title">Task title</label>
                 <input id="quick-title" name="title" maxlength="200" placeholder="Add a task" required>
                 <button type="submit">Add</button>
+                <button id="new-task" type="button" class="secondary">Advanced</button>
             </form>
             <div class="topbar-actions">
                 <button id="account-summary" type="button" class="account-summary secondary">
                     <span id="current-user" class="current-user"></span>
                 </button>
                 <button id="settings-button" type="button" class="secondary">Settings</button>
-                <button id="new-task" type="button" class="secondary">New task</button>
                 <button id="logout-button" type="button" class="secondary">Log out</button>
             </div>
         </header>
@@ -77,15 +77,15 @@
                     <textarea id="task-block-note" rows="3" maxlength="5000"></textarea>
                 </div>
 
-                <div class="form-row">
-                    <div>
-                        <label for="task-scheduled">Scheduled for</label>
-                        <input id="task-scheduled" type="datetime-local">
-                    </div>
-                    <div>
-                        <label for="task-lead">Lead days</label>
-                        <input id="task-lead" type="number" min="0" step="1" value="0">
-                    </div>
+                <label for="task-scheduled-date">Scheduled for</label>
+                <div class="scheduled-inputs">
+                    <input id="task-scheduled-date" type="date" aria-label="Scheduled date">
+                    <input id="task-scheduled-time" type="time" aria-label="Scheduled time (optional)">
+                </div>
+
+                <div class="lead-input">
+                    <label for="task-lead">Lead days</label>
+                    <input id="task-lead" type="number" min="0" step="1" value="0">
                 </div>
 
                 <div class="form-row">

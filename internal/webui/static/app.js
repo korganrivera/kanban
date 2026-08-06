@@ -412,7 +412,9 @@ function openEditor(task = null) {
     document.getElementById("task-block-note").value = task?.blockNote || "";
     document.getElementById("block-note-wrap").hidden = !task || (task.effectiveState !== "Blocked" && !task.blockNote);
     document.getElementById("delete-task").hidden = !task;
-    document.getElementById("task-scheduled").value = task?.scheduledAt ? toLocalInput(task.scheduledAt) : "";
+    const scheduledValue = task?.scheduledAt ? toLocalInput(task.scheduledAt) : "";
+    document.getElementById("task-scheduled-date").value = scheduledValue.slice(0, 10);
+    document.getElementById("task-scheduled-time").value = scheduledValue.slice(11, 16);
     document.getElementById("task-lead").value = String(task?.leadDays || 0);
     document.getElementById("task-recurrence").value = task?.recurrence.kind || "none";
     document.getElementById("task-recurrence-days").value = task
@@ -490,7 +492,8 @@ async function saveEditor(event) {
     event.preventDefault();
     const existing = editorTaskID ? tasks.find((task) => task.id === editorTaskID) : null;
     const recurrenceKind = document.getElementById("task-recurrence").value;
-    const scheduledValue = document.getElementById("task-scheduled").value;
+    const scheduledDate = document.getElementById("task-scheduled-date").value;
+    const scheduledTime = document.getElementById("task-scheduled-time").value;
     const selectedDependencies = Array.from(
         document.querySelectorAll("#dependency-list input:checked"),
         (input) => input.value,
@@ -515,7 +518,7 @@ async function saveEditor(event) {
         description: document.getElementById("task-description").value.trim(),
         blockNote: document.getElementById("task-block-note").value.trim(),
         timeCritical: document.getElementById("task-time-critical").checked,
-        scheduledAt: scheduledValue ? new Date(scheduledValue).toISOString() : null,
+        scheduledAt: scheduledInputsToIso(scheduledDate, scheduledTime),
         deadline: existing?.deadline || null,
         leadDays: Number(document.getElementById("task-lead").value || 0),
         recurrence: {
@@ -853,6 +856,12 @@ function toLocalInput(value) {
     const date = new Date(value);
     const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
     return local.toISOString().slice(0, 16);
+}
+
+function scheduledInputsToIso(dateValue, timeValue) {
+    if (!dateValue) return null;
+    const local = new Date(`${dateValue}T${timeValue || "00:00"}:00`);
+    return Number.isNaN(local.getTime()) ? null : local.toISOString();
 }
 
 function showToast(message) {

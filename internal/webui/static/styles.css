@@ -444,7 +444,7 @@ button.danger:hover {
 
 .quick-add {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     gap: 6px;
 }
 
@@ -797,6 +797,19 @@ select:focus {
     gap: 8px;
 }
 
+.scheduled-inputs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 110px;
+    gap: 8px;
+}
+
+.lead-input {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 90px;
+    align-items: center;
+    gap: 8px;
+}
+
 .checkbox-line {
     display: flex;
     align-items: center;
@@ -1037,7 +1050,7 @@ fieldset {
         display: grid;
         grid-column: 1;
         grid-row: 2;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .topbar-actions button {
