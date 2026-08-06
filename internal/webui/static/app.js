@@ -432,6 +432,7 @@ function openEditor(task = null) {
     document.getElementById("task-time-critical").checked = Boolean(task?.timeCritical);
     renderTaskContext(task);
     renderDependencies(task);
+    renderDependents(task);
     updateRecurrenceControls();
     backdrop.hidden = false;
     editor.classList.add("open");
@@ -482,18 +483,13 @@ function renderDependencies(task) {
         .sort((left, right) => {
             const selectedDifference = Number(selected.has(right.id)) - Number(selected.has(left.id));
             if (selectedDifference) return selectedDifference;
-            const titleDifference = left.title.localeCompare(right.title, undefined, { sensitivity: "base" });
-            return titleDifference || left.id.localeCompare(right.id);
+            return compareTaskTitles(left, right);
         });
     if (!candidates.length) {
         container.textContent = "No available tasks";
         return;
     }
-    const titleCounts = new Map();
-    for (const candidate of candidates) {
-        const key = candidate.title.trim().toLocaleLowerCase();
-        titleCounts.set(key, (titleCounts.get(key) || 0) + 1);
-    }
+    const titleCounts = countTaskTitles(candidates);
     container.replaceChildren(...candidates.map((candidate) => {
         const option = element("div", "dependency-option");
         const checkbox = document.createElement("input");
@@ -501,23 +497,10 @@ function renderDependencies(task) {
         checkbox.id = `dependency-${candidate.id}`;
         checkbox.value = candidate.id;
         checkbox.checked = selected.has(candidate.id);
-        const key = candidate.title.trim().toLocaleLowerCase();
-        let text = candidate.title;
-        if ((titleCounts.get(key) || 0) > 1) {
-            const detail = candidate.scheduledAt
-                ? `${LABELS[candidate.effectiveState]}, due ${formatDate(candidate.scheduledAt)}`
-                : `${LABELS[candidate.effectiveState]}, created ${formatDate(candidate.createdAt)}`;
-            text = `${candidate.title} - ${detail}`;
-        }
+        const text = relationshipTaskText(candidate, titleCounts);
         checkbox.setAttribute("aria-label", `${checkbox.checked ? "Remove" : "Add"} dependency ${text}`);
         if (checkbox.checked) {
-            const link = element("a", "dependency-link", text);
-            link.href = `#task-${encodeURIComponent(candidate.id)}`;
-            link.addEventListener("click", (event) => {
-                event.preventDefault();
-                openEditor(candidate);
-            });
-            option.append(checkbox, link);
+            option.append(checkbox, taskEditorLink(candidate, text));
         } else {
             const label = element("label", "", text);
             label.htmlFor = checkbox.id;
@@ -525,6 +508,61 @@ function renderDependencies(task) {
         }
         return option;
     }));
+}
+
+function renderDependents(task) {
+    const fieldset = document.getElementById("dependent-fieldset");
+    const container = document.getElementById("dependent-list");
+    if (!task) {
+        fieldset.hidden = true;
+        container.replaceChildren();
+        return;
+    }
+    const dependents = tasks
+        .filter((candidate) => candidate.dependencies.includes(task.id))
+        .sort(compareTaskTitles);
+    if (!dependents.length) {
+        fieldset.hidden = true;
+        container.replaceChildren();
+        return;
+    }
+    const titleCounts = countTaskTitles(dependents);
+    container.replaceChildren(...dependents.map((dependent) =>
+        taskEditorLink(dependent, relationshipTaskText(dependent, titleCounts))));
+    fieldset.hidden = false;
+}
+
+function compareTaskTitles(left, right) {
+    const titleDifference = left.title.localeCompare(right.title, undefined, { sensitivity: "base" });
+    return titleDifference || left.id.localeCompare(right.id);
+}
+
+function countTaskTitles(candidates) {
+    const counts = new Map();
+    for (const candidate of candidates) {
+        const key = candidate.title.trim().toLocaleLowerCase();
+        counts.set(key, (counts.get(key) || 0) + 1);
+    }
+    return counts;
+}
+
+function relationshipTaskText(task, titleCounts) {
+    const key = task.title.trim().toLocaleLowerCase();
+    if ((titleCounts.get(key) || 0) <= 1) return task.title;
+    const detail = task.scheduledAt
+        ? `${LABELS[task.effectiveState]}, due ${formatDate(task.scheduledAt)}`
+        : `${LABELS[task.effectiveState]}, created ${formatDate(task.createdAt)}`;
+    return `${task.title} - ${detail}`;
+}
+
+function taskEditorLink(task, text) {
+    const link = element("a", "dependency-link", text);
+    link.href = `#task-${encodeURIComponent(task.id)}`;
+    link.addEventListener("click", (event) => {
+        event.preventDefault();
+        openEditor(task);
+    });
+    return link;
 }
 
 async function saveEditor(event) {
