@@ -213,7 +213,19 @@
                 <button id="close-history" type="button" class="secondary">Close</button>
             </div>
             <div class="heatmap-scroll">
-                <div id="heatmap-grid" class="heatmap-grid" aria-label="Task completions in the last year"></div>
+                <div class="heatmap-calendar">
+                    <div id="heatmap-months" class="heatmap-months" aria-hidden="true"></div>
+                    <div class="heatmap-days" aria-hidden="true">
+                        <span>Sun</span>
+                        <span></span>
+                        <span>Tue</span>
+                        <span></span>
+                        <span>Thu</span>
+                        <span></span>
+                        <span>Sat</span>
+                    </div>
+                    <div id="heatmap-grid" class="heatmap-grid" aria-label="Task completions in the last year"></div>
+                </div>
             </div>
             <div class="heatmap-legend" aria-hidden="true">
                 <span>Less</span>

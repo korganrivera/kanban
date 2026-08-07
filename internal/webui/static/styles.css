@@ -979,14 +979,60 @@ fieldset {
     padding: 4px 0 10px;
 }
 
+.heatmap-calendar {
+    --heatmap-cell-size: 10px;
+    --heatmap-gap: 3px;
+    display: grid;
+    grid-template-columns: 24px max-content;
+    grid-template-rows: 14px max-content;
+    gap: 5px 8px;
+    width: max-content;
+    min-width: 100%;
+}
+
+.heatmap-months {
+    display: grid;
+    grid-column: 2;
+    grid-template-columns: repeat(53, var(--heatmap-cell-size));
+    column-gap: var(--heatmap-gap);
+    height: 14px;
+}
+
+.heatmap-month-label {
+    width: max-content;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 14px;
+    white-space: nowrap;
+}
+
+.heatmap-month-label:last-child {
+    justify-self: end;
+}
+
+.heatmap-days {
+    display: grid;
+    grid-column: 1;
+    grid-row: 2;
+    grid-template-rows: repeat(7, var(--heatmap-cell-size));
+    row-gap: var(--heatmap-gap);
+}
+
+.heatmap-days span {
+    color: var(--muted);
+    font-size: 9px;
+    line-height: var(--heatmap-cell-size);
+}
+
 .heatmap-grid {
     display: grid;
+    grid-column: 2;
+    grid-row: 2;
     grid-auto-columns: 10px;
     grid-auto-flow: column;
     grid-template-rows: repeat(7, 10px);
     gap: 3px;
     width: max-content;
-    min-width: 100%;
 }
 
 .heatmap-cell {

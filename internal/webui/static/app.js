@@ -720,6 +720,23 @@ function renderHeatmap(entries) {
         counts.set(key, (counts.get(key) || 0) + 1);
     }
 
+    const monthLabels = [];
+    let lastMonth = -1;
+    for (let week = 0; week < 53; week++) {
+        const date = new Date(start);
+        date.setDate(start.getDate() + week * 7);
+        if (date.getMonth() === lastMonth) continue;
+        lastMonth = date.getMonth();
+        const label = element(
+            "span",
+            "heatmap-month-label",
+            date.toLocaleDateString(undefined, { month: "short" }),
+        );
+        label.style.gridColumn = String(week + 1);
+        monthLabels.push(label);
+    }
+    document.getElementById("heatmap-months").replaceChildren(...monthLabels);
+
     let maxCount = 0;
     for (let week = 0; week < 53; week++) {
         for (let day = 0; day < 7; day++) {
