@@ -276,7 +276,14 @@ function makeCard(task) {
         priority.title = "Automatic priority";
         card.append(priority);
     }
-    card.append(element("h3", "card-title", task.title));
+    const title = element("h3", "card-title", task.title);
+    if (task.recurrence.kind !== "none") {
+        const recurrenceIcon = element("span", "recurrence-icon", "🔁");
+        recurrenceIcon.title = task.recurrence.paused ? "Recurring task (paused)" : "Recurring task";
+        recurrenceIcon.setAttribute("aria-hidden", "true");
+        title.append(recurrenceIcon);
+    }
+    card.append(title);
     if (task.description) {
         card.append(element("p", "card-description", truncate(task.description, 150)));
     }
