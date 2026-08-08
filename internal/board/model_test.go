@@ -55,6 +55,26 @@ func TestAnchoredAndRollingSchedules(t *testing.T) {
 	}
 }
 
+func TestAnchoredScheduleCatchesUpMissedIntervals(t *testing.T) {
+	due := time.Date(2026, time.January, 1, 8, 0, 0, 0, time.UTC)
+	want := time.Date(2026, time.April, 1, 8, 0, 0, 0, time.UTC)
+	for _, completed := range []time.Time{
+		time.Date(2026, time.March, 2, 8, 0, 0, 0, time.UTC),
+		time.Date(2026, time.March, 5, 10, 0, 0, 0, time.UTC),
+	} {
+		next, err := AdvanceSchedule(&Task{
+			ScheduledAt: &due,
+			Recurrence:  Recurrence{Kind: "anchored", Days: 30},
+		}, completed)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !next.Equal(want) {
+			t.Fatalf("anchored schedule completed at %s = %s, want %s", completed, next, want)
+		}
+	}
+}
+
 func TestAnchoredWeekdaySchedulePreservesDueTime(t *testing.T) {
 	due := time.Date(2026, time.August, 5, 8, 30, 0, 0, time.UTC)
 	completed := time.Date(2026, time.August, 5, 15, 0, 0, 0, time.UTC)

@@ -197,6 +197,33 @@ func TestRecurringCompletionAdvancesAndCanUndo(t *testing.T) {
 	}
 }
 
+func TestRecurringCompletionCatchesUpMissedAnchoredIntervals(t *testing.T) {
+	store, ctx, now := openTestStore(t)
+	due := now.AddDate(0, 0, -95)
+	task, err := store.Create(ctx, board.TaskInput{
+		Title: "Overdue inspection", ScheduledAt: &due,
+		Recurrence: board.Recurrence{Kind: "anchored", Days: 30},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	task, err = store.Action(ctx, task.ID, "claim", "korgan", board.ActionInput{Version: task.Version})
+	if err != nil {
+		t.Fatal(err)
+	}
+	task, err = store.Action(ctx, task.ID, "complete", "korgan", board.ActionInput{Version: task.Version})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := due.AddDate(0, 0, 120)
+	if task.ScheduledAt == nil || !task.ScheduledAt.Equal(want) {
+		t.Fatalf("caught-up schedule = %v, want %v", task.ScheduledAt, want)
+	}
+	if !task.ScheduledAt.After(now) || task.EffectiveState != board.StateWaiting || task.ClaimedBy != nil {
+		t.Fatalf("caught-up recurring state = schedule %v, state %s, owner %v", task.ScheduledAt, task.EffectiveState, task.ClaimedBy)
+	}
+}
+
 func TestAnchoredWeekdaysPersistAndAdvance(t *testing.T) {
 	store, ctx, now := openTestStore(t)
 	due := time.Date(2026, time.August, 5, 8, 30, 0, 0, time.UTC)

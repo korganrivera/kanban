@@ -356,5 +356,10 @@ func AdvanceSchedule(task *Task, completedAt time.Time) (*time.Time, error) {
 		base = *task.ScheduledAt
 	}
 	next := base.AddDate(0, 0, task.Recurrence.Days)
+	if task.Recurrence.Kind == "anchored" {
+		for !next.After(completedAt) {
+			next = next.AddDate(0, 0, task.Recurrence.Days)
+		}
+	}
 	return &next, nil
 }
