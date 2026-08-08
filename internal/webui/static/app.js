@@ -737,14 +737,50 @@ function renderHeatmap(entries) {
     }
     document.getElementById("heatmap-months").replaceChildren(...monthLabels);
 
+    const weekTotals = Array(53).fill(0);
+    const dayTotals = Array(7).fill(0);
     let maxCount = 0;
     for (let week = 0; week < 53; week++) {
         for (let day = 0; day < 7; day++) {
             const date = new Date(start);
             date.setDate(start.getDate() + week * 7 + day);
-            if (date <= today) maxCount = Math.max(maxCount, counts.get(localDateKey(date)) || 0);
+            if (date > today) continue;
+            const count = counts.get(localDateKey(date)) || 0;
+            maxCount = Math.max(maxCount, count);
+            weekTotals[week] += count;
+            dayTotals[day] += count;
         }
     }
+
+    const weekMax = Math.max(...weekTotals);
+    const weekCells = weekTotals.map((count, week) => {
+        const weekStart = new Date(start);
+        weekStart.setDate(start.getDate() + week * 7);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        const cell = element("span", `heatmap-cell level-${heatmapLevel(count, weekMax)}`);
+        const completionLabel = `${count} completion${count === 1 ? "" : "s"}`;
+        cell.title = `${completionLabel} from ${weekStart.toLocaleDateString()} to ${weekEnd.toLocaleDateString()}`;
+        return cell;
+    });
+    document.getElementById("heatmap-week-summary").replaceChildren(...weekCells);
+
+    const dayNames = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+    ];
+    const dayMax = Math.max(...dayTotals);
+    const dayCells = dayTotals.map((count, day) => {
+        const cell = element("span", `heatmap-cell level-${heatmapLevel(count, dayMax)}`);
+        cell.title = `${dayNames[day]} total: ${count} completion${count === 1 ? "" : "s"} in the last year`;
+        return cell;
+    });
+    document.getElementById("heatmap-day-summary").replaceChildren(...dayCells);
 
     const cells = [];
     for (let week = 0; week < 53; week++) {
