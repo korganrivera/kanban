@@ -83,7 +83,8 @@ cutover and rollback sequence is in `MIGRATION.md`.
 
 The Go rewrite has functional parity with the useful Node workflows, with the
 documented improvements in state modeling, identity, validation, concurrency,
-security, migration, testing, and recovery.
+security, migration, testing, and recovery. It replaced the Node board in
+production on 2026-08-15.
 
 ## Known Differences
 
@@ -96,4 +97,7 @@ security, migration, testing, and recovery.
 - Anchored weekday recurrence currently preserves the stored UTC clock time.
   The Node server preserved its local clock time across daylight-saving
   changes. No migrated task currently uses anchored weekday recurrence.
+- Fixed-interval anchored recurrence skips missed occurrences on completion and
+  advances to the first cadence-aligned future date instead of renewing to an
+  already elapsed date.
 - Legacy points and picker-history data remain intentionally excluded.

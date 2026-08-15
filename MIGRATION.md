@@ -1,7 +1,21 @@
 # Migration And Rollback
 
-The Node board remains the production source until the Go board passes the
-final browser review. The importer never changes the Node data.
+## Cutover Status
+
+The Go board became the production board on 2026-08-15 after successful parity,
+browser, integrity, persistence, and backup checks.
+
+- `kanban-go.service` is enabled and serves the board on `127.0.0.1:3100`.
+- `kanban-server.service` is disabled, and the legacy Node data is unchanged.
+- The final verified Node backup is at
+  `~/.local/state/kanban-node-final/latest`.
+- Go backups are retained under `~/.local/state/kanban-go/backups`, with a
+  verified backup created every six hours by `kanban-go-backup.timer`.
+- The Node implementation remains available through the `node-legacy-final`
+  Git tag and the unchanged `/home/korgan/code/kanban` working directory.
+
+The importer never writes to the Node data. The original cutover procedure is
+retained below as an operational reference.
 
 ## Rehearsal Result
 
@@ -19,7 +33,7 @@ database:
 The importer also preserves the existing bcrypt password hashes. Attribution-
 only users have no password and cannot log in.
 
-## Final Cutover
+## Cutover Procedure
 
 1. Announce a short write freeze and stop the Node service.
 2. Run the Node tests and its final backup command.
@@ -50,4 +64,6 @@ only users have no password and cannot log in.
    and run `kanban-admin audit` before restarting.
 
 Do not delete the Node project or its final backup until the Go board has been
-used successfully through at least one backup-and-restore drill.
+used successfully through at least one backup-and-restore drill. Local backups
+also need an independent copy before the board is protected from total machine
+or disk loss.

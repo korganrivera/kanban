@@ -1,10 +1,10 @@
-# Kanban Go
+# Kanban
 
-An isolated Go rewrite of the existing kanban board. It uses a single SQLite
-database and embeds the browser interface in the executable.
+The production kanban board is a self-contained Go application. It uses a
+single SQLite database and embeds the browser interface in the executable.
 
-This is a prototype. It does not read or modify the original kanban project or
-its task data.
+This implementation replaced the legacy Node board on 2026-08-15. The Node
+source and its final data backup remain preserved for rollback.
 
 ## Run
 
@@ -107,8 +107,8 @@ independent storage when one becomes available.
 
 Run `./scripts/install-service.sh` to install the persistent user service and
 six-hour backup timer. See [systemd/README.md](systemd/README.md) for service,
-configuration, and restore details. The final cutover and rollback procedure is
-in [MIGRATION.md](MIGRATION.md), and the completed evidence review is in
+configuration, and restore details. Cutover status and rollback instructions
+are in [MIGRATION.md](MIGRATION.md), and the completed evidence review is in
 [PARITY_REVIEW.md](PARITY_REVIEW.md).
 
 ## Test
