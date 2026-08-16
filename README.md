@@ -1,118 +1,169 @@
 # Kanban
 
-The production kanban board is a self-contained Go application. It uses a
-single SQLite database and embeds the browser interface in the executable.
+![Kanban task board](kanban_screenshot.jpg)
 
-This implementation replaced the legacy Node board on 2026-08-15. The Node
-source and its final data backup remain preserved for rollback.
+Kanban is a small task board for keeping track of work without turning task
+management into a project of its own.
 
-## Run
+It runs in a web browser, but the application and its data stay on the computer
+where it is installed. It is useful for household work, gardening, personal
+projects, maintenance, or any other collection of tasks that needs more
+structure than a list.
 
-Go 1.26.5 or newer is required.
+## What It Does
 
-```sh
+- Sorts available work automatically so important tasks rise to the top.
+- Moves scheduled tasks into Ready when it is time to start them.
+- Supports repeating tasks, including fixed calendar schedules and selected
+  weekdays.
+- Keeps tasks suspended until their dependencies are finished.
+- Records why a task is blocked and can create a separate remedy task.
+- Limits how much work can be in progress at once.
+- Shows overdue and time-critical work clearly.
+- Keeps completion history and allows an accidental completion to be undone.
+- Shows completion activity in a one-year heatmap.
+- Updates open boards when another user makes a change.
+
+## The Columns
+
+| Column | Meaning |
+| --- | --- |
+| **Waiting** | The task is scheduled for later and is not ready yet. |
+| **Ready** | The task can be started. |
+| **In Progress** | Someone has claimed the task and is working on it. |
+| **Blocked** | Work cannot continue until a problem is resolved. |
+| **Suspended** | A dependency is unfinished or the task's recurrence is paused. |
+| **Done** | The task has been completed. |
+
+Waiting and Suspended are managed automatically. Ready, In Progress, Blocked,
+and Done represent actions taken by the user.
+
+## Everyday Use
+
+1. Add a task using the box at the top of the board.
+2. Use **Advanced** when the task needs a description, date, recurrence, or
+   dependencies.
+3. Claim a Ready task when you begin working on it.
+4. Complete it when the work is finished.
+5. Block it and save a note when work cannot continue.
+
+Click any card to see or edit all of its details. The board automatically sorts
+each column, so the task most in need of attention appears near the top.
+
+## Installing Kanban
+
+### Current Availability
+
+Kanban does not yet have a Windows installer, macOS application, or one-click
+Linux package. The current release is installed from source on Linux. Once it
+has been installed, using the board does not require programming knowledge.
+
+A future packaged release should only require downloading an installer and
+launching the application.
+
+### Linux Requirements
+
+- A Linux system that uses systemd
+- [Go 1.26.5 or newer](https://go.dev/dl/)
+- Git
+
+### Linux Installation
+
+Open a terminal and run:
+
+```bash
+git clone https://github.com/korganrivera/kanban.git
+cd kanban
+./scripts/install-service.sh
+```
+
+The installation script:
+
+- builds Kanban
+- starts it automatically when the Linux user logs in
+- restarts it if it crashes
+- creates a local database
+- creates an initial backup and schedules local backups every six hours
+
+Open <http://127.0.0.1:3100> in a browser. On the first visit, create the first
+username and password. Public account registration is disabled after the first
+account is created.
+
+## Starting And Stopping
+
+The installer creates a background user service.
+
+```bash
+systemctl --user start kanban-go.service
+systemctl --user stop kanban-go.service
+systemctl --user restart kanban-go.service
+```
+
+To check whether it is running:
+
+```bash
+systemctl --user status kanban-go.service
+```
+
+## Updating
+
+Automatic application updates are not available yet. To install a newer
+version, open a terminal in the Kanban folder and run:
+
+```bash
+systemctl --user start kanban-go-backup.service
+git pull --ff-only
+./scripts/install-service.sh
+systemctl --user restart kanban-go.service
+```
+
+The first command makes a backup before changing the application. Updates keep
+the existing account, tasks, settings, and completion history.
+
+## Data And Backups
+
+The live database is stored at:
+
+```text
+data/kanban.db
+```
+
+Automatic backups are stored at:
+
+```text
+~/.local/state/kanban-go/backups
+```
+
+Do not delete the Kanban folder without first preserving the database. Local
+backups protect against mistakes and database damage, but they do not protect
+against losing the entire computer or disk. Copy backups to another device or
+trusted storage location regularly.
+
+Restore instructions are in [systemd/README.md](systemd/README.md).
+
+## Privacy And Network Access
+
+By default, Kanban listens only on `127.0.0.1`, which means it is available only
+on the computer running it. Task data is not sent to a hosted Kanban service.
+
+Making the board available to other computers requires additional HTTPS and
+network configuration. Do not expose the application directly to the internet
+without that protection.
+
+## Technical Documentation
+
+- [Service, backup, and restore operations](systemd/README.md)
+- [Migration and rollback information](MIGRATION.md)
+- [Feature-parity review](PARITY_REVIEW.md)
+
+Developers can run the application without installing the service:
+
+```bash
 go run ./cmd/kanban
 ```
 
-Open <http://127.0.0.1:3100>. The database is created at `data/kanban.db`.
-The first visit offers account registration. After the first account is
-created, further registration is disabled by default.
+Run the automated tests with:
 
-Configuration is available through environment variables:
-
-```sh
-KANBAN_ADDR=127.0.0.1:3100 \
-KANBAN_DATA_DIR=/path/to/data \
-ALLOW_REGISTRATION=0 \
-COOKIE_SECURE=0 \
-go run ./cmd/kanban
-```
-
-Set `ALLOW_REGISTRATION=1` only while additional accounts should be creatable.
-Set `COOKIE_SECURE=1` when the browser reaches the board through HTTPS.
-
-## Current scope
-
-- Waiting, Ready, In Progress, Blocked, Suspended, and Done views
-- Claim, release, block, unblock, complete, exact completion undo, and guarded
-  deletion commands
-- Scheduled tasks with configurable lead time
-- Rolling and anchored recurring tasks, including selected weekdays
-- Dependency-driven suspension with cycle protection
-- Configurable WIP limits enforced against effective column state
-- Automatic priority values from due dates and downstream dependencies
-- Time-critical task ordering and blocked-task remedy creation
-- Automatic claim release when a task leaves In Progress, while Done retains
-  completion ownership
-- Optimistic version checks and transactional updates
-- Embedded browser assets and live board refresh through server-sent events
-- Account registration, login, logout, rolling sessions, and password rotation
-- Authenticated creator, claimant, and completion attribution
-- Scoreless completion history with transactional exact undo
-- One-year completion activity heatmap
-- Ready-time, overdue, deadline, creator, age, and completion metadata
-- Per-account browser palettes and visible live-connection state
-
-## Legacy import
-
-The importer validates the Node board without writing anything by default:
-
-```sh
-go run ./cmd/kanban-import \
-  --source /path/to/node-kanban/server/data
-```
-
-Stop the Go server before applying an import. Applying to an empty destination
-requires `--apply`; replacing any existing Go users, tasks, or completion
-history also requires the explicit `--replace` flag:
-
-```sh
-go run ./cmd/kanban-import \
-  --source /path/to/node-kanban/server/data \
-  --data-dir /path/to/go-kanban/data \
-  --apply --replace
-```
-
-Every applied import first creates a consistent database under
-`DATA_DIR/backups/pre-import-*.db`. The import itself is transactional and
-reports source and destination counts, invariant failures, and any legacy undo
-record that could not be converted safely.
-
-## Operations
-
-Build the operational binaries with the server:
-
-```sh
-go build -o bin/kanban-go ./cmd/kanban
-go build -o bin/kanban-admin ./cmd/kanban-admin
-go build -o bin/kanban-import ./cmd/kanban-import
-```
-
-Audit the live database, create a consistent local backup, and verify the
-published backup with:
-
-```sh
-bin/kanban-admin audit --data-dir data
-bin/kanban-admin backup \
-  --data-dir data \
-  --destination /path/outside/data \
-  --retention 30
-bin/kanban-admin verify --backup /path/outside/data/latest
-```
-
-Each backup is published atomically with a SHA-256 manifest, an audited SQLite
-database, an atomic `latest` symlink, and bounded retention. Local backups do
-not protect against loss of the whole machine, so copy the backup directory to
-independent storage when one becomes available.
-
-Run `./scripts/install-service.sh` to install the persistent user service and
-six-hour backup timer. See [systemd/README.md](systemd/README.md) for service,
-configuration, and restore details. Cutover status and rollback instructions
-are in [MIGRATION.md](MIGRATION.md), and the completed evidence review is in
-[PARITY_REVIEW.md](PARITY_REVIEW.md).
-
-## Test
-
-```sh
+```bash
 go test ./...
 ```
