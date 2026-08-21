@@ -1,5 +1,7 @@
 /data/
 /bin/
+/dist/
+/cmd/kanban-installer/payload/kanban.exe
 /.codex/
 *.db
 *.db-shm

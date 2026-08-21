@@ -52,14 +52,26 @@ each column, so the task most in need of attention appears near the top.
 
 ## Installing Kanban
 
-### Current Availability
+### Windows 10 or 11
 
-Kanban does not yet have a Windows installer, macOS application, or one-click
-Linux package. The current release is installed from source on Linux. Once it
-has been installed, using the board does not require programming knowledge.
+The Windows package is for 64-bit Windows and does not require Go, Git, a
+terminal, or administrator access.
 
-A future packaged release should only require downloading an installer and
-launching the application.
+1. Download `Kanban-Setup-windows-amd64.exe`.
+2. Double-click it and approve the Windows security prompt if one appears.
+3. Kanban opens in the default browser. Create the first username and password.
+
+The installer creates Desktop and Start Menu shortcuts and starts Kanban
+automatically when that Windows user signs in. Opening either shortcut brings
+the board up in the default browser. The app remains local to that computer and
+listens only on `127.0.0.1`.
+
+Early local builds are not code-signed, so Windows SmartScreen may require
+**More info** followed by **Run anyway**. A signing certificate is required to
+remove that warning reliably.
+
+Uninstall Kanban through **Settings > Apps > Installed apps**. Uninstalling
+preserves the task database so a later reinstall can restore the board.
 
 ### Linux Requirements
 
@@ -107,8 +119,12 @@ systemctl --user status kanban-go.service
 
 ## Updating
 
-Automatic application updates are not available yet. To install a newer
-version, open a terminal in the Kanban folder and run:
+Automatic application updates are not available yet.
+
+On Windows, run the newer setup executable. It replaces the application while
+keeping the existing account, tasks, settings, completion history, and backups.
+
+On Linux, open a terminal in the Kanban folder and run:
 
 ```bash
 systemctl --user start kanban-go-backup.service
@@ -122,13 +138,27 @@ the existing account, tasks, settings, and completion history.
 
 ## Data And Backups
 
-The live database is stored at:
+On Windows, the live database and diagnostic log are stored at:
+
+```text
+%LOCALAPPDATA%\Kanban\data\kanban.db
+%LOCALAPPDATA%\Kanban\kanban.log
+```
+
+Windows creates an audited backup at startup and every six hours, retaining the
+latest 30 under:
+
+```text
+%LOCALAPPDATA%\Kanban\backups
+```
+
+On a source-installed Linux system, the live database is stored at:
 
 ```text
 data/kanban.db
 ```
 
-Automatic backups are stored at:
+Linux automatic backups are stored at:
 
 ```text
 ~/.local/state/kanban-go/backups
@@ -167,3 +197,12 @@ Run the automated tests with:
 ```bash
 go test ./...
 ```
+
+Build the Windows installer and portable executable from Linux or macOS with:
+
+```bash
+./scripts/build-windows.sh
+```
+
+The build uses Go's Windows cross-compiler and writes the single-file installer,
+portable fallback, and SHA-256 checksums to `dist/windows/`.
