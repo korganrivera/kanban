@@ -352,7 +352,15 @@ func AdvanceSchedule(task *Task, completedAt time.Time) (*time.Time, error) {
 		return nil, fmt.Errorf("invalid recurrence interval: %d", task.Recurrence.Days)
 	}
 	base := completedAt
-	if task.Recurrence.Kind == "anchored" && task.ScheduledAt != nil {
+	if task.Recurrence.Kind == "rolling" && task.ScheduledAt != nil {
+		completedLocal := completedAt.In(time.Local)
+		scheduledLocal := task.ScheduledAt.In(time.Local)
+		base = time.Date(
+			completedLocal.Year(), completedLocal.Month(), completedLocal.Day(),
+			scheduledLocal.Hour(), scheduledLocal.Minute(), scheduledLocal.Second(), scheduledLocal.Nanosecond(),
+			time.Local,
+		)
+	} else if task.Recurrence.Kind == "anchored" && task.ScheduledAt != nil {
 		base = *task.ScheduledAt
 	}
 	next := base.AddDate(0, 0, task.Recurrence.Days)

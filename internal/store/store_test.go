@@ -197,6 +197,41 @@ func TestRecurringCompletionAdvancesAndCanUndo(t *testing.T) {
 	}
 }
 
+func TestRollingCompletionPreservesScheduledTimeOfDay(t *testing.T) {
+	location, err := time.LoadLocation("America/Chicago")
+	if err != nil {
+		t.Fatal(err)
+	}
+	previousLocal := time.Local
+	time.Local = location
+	t.Cleanup(func() { time.Local = previousLocal })
+
+	store, ctx, _ := openTestStore(t)
+	due := time.Date(2026, time.August, 5, 6, 0, 0, 0, location)
+	completed := time.Date(2026, time.August, 5, 15, 0, 0, 0, location)
+	store.now = func() time.Time { return completed }
+	task, err := store.Create(ctx, board.TaskInput{
+		Title:       "Morning weekly task",
+		ScheduledAt: &due,
+		Recurrence:  board.Recurrence{Kind: "rolling", Days: 7},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	task, err = store.Action(ctx, task.ID, "claim", "korgan", board.ActionInput{Version: task.Version})
+	if err != nil {
+		t.Fatal(err)
+	}
+	task, err = store.Action(ctx, task.ID, "complete", "korgan", board.ActionInput{Version: task.Version})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := time.Date(2026, time.August, 12, 6, 0, 0, 0, location)
+	if task.ScheduledAt == nil || !task.ScheduledAt.Equal(want) {
+		t.Fatalf("rolling completion schedule = %v, want %v", task.ScheduledAt, want)
+	}
+}
+
 func TestRecurringCompletionCatchesUpMissedAnchoredIntervals(t *testing.T) {
 	store, ctx, now := openTestStore(t)
 	due := now.AddDate(0, 0, -95)

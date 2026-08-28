@@ -50,8 +50,46 @@ func TestAnchoredAndRollingSchedules(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if want := completed.AddDate(0, 0, 30); !rolling.Equal(want) {
+	if want := time.Date(2026, time.May, 3, 8, 0, 0, 0, time.UTC); !rolling.Equal(want) {
 		t.Fatalf("rolling schedule = %s, want %s", rolling, want)
+	}
+}
+
+func TestRollingSchedulePreservesScheduledWallClockAcrossDST(t *testing.T) {
+	location, err := time.LoadLocation("America/Chicago")
+	if err != nil {
+		t.Fatal(err)
+	}
+	previousLocal := time.Local
+	time.Local = location
+	t.Cleanup(func() { time.Local = previousLocal })
+
+	due := time.Date(2026, time.October, 31, 6, 0, 0, 0, location)
+	completed := time.Date(2026, time.October, 31, 15, 0, 0, 0, location)
+	next, err := AdvanceSchedule(&Task{
+		ScheduledAt: &due,
+		Recurrence:  Recurrence{Kind: "rolling", Days: 7},
+	}, completed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := time.Date(2026, time.November, 7, 6, 0, 0, 0, location)
+	if !next.Equal(want) || next.Hour() != 6 {
+		t.Fatalf("rolling schedule across DST = %s, want %s", next, want)
+	}
+}
+
+func TestRollingScheduleWithoutDueTimeUsesCompletionInstant(t *testing.T) {
+	completed := time.Date(2026, time.August, 5, 15, 0, 0, 0, time.UTC)
+	next, err := AdvanceSchedule(&Task{
+		Recurrence: Recurrence{Kind: "rolling", Days: 7},
+	}, completed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := completed.AddDate(0, 0, 7)
+	if !next.Equal(want) {
+		t.Fatalf("unscheduled rolling task = %s, want %s", next, want)
 	}
 }
 
