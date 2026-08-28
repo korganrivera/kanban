@@ -407,6 +407,143 @@ func TestAuthenticationAndPasswordRotation(t *testing.T) {
 	}
 }
 
+func TestTrustedLocalHandlerUsesTransportIdentity(t *testing.T) {
+	database, err := store.Open(filepath.Join(t.TempDir(), "kanban.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { database.Close() })
+	application := New(database, Config{AuthEnabled: true})
+	t.Cleanup(application.Close)
+
+	publicHandler := application.Handler()
+	unauthorized := performJSON(t, publicHandler, http.MethodPost, "/api/tasks", map[string]string{
+		"title": "Must not be created",
+	})
+	if unauthorized.Code != http.StatusUnauthorized {
+		t.Fatalf("public unauthenticated create status = %d", unauthorized.Code)
+	}
+	registered := performJSON(t, publicHandler, http.MethodPost, "/api/auth/register", map[string]string{
+		"username": "alice", "password": "correct horse battery staple",
+	})
+	if registered.Code != http.StatusCreated {
+		t.Fatalf("register status = %d, body = %s", registered.Code, registered.Body.String())
+	}
+
+	trustedHandler := application.TrustedHandler("alice")
+	account := performJSON(t, trustedHandler, http.MethodGet, "/api/auth/me", nil)
+	if account.Code != http.StatusOK || !strings.Contains(account.Body.String(), `"username":"alice"`) ||
+		!strings.Contains(account.Body.String(), `"local":true`) {
+		t.Fatalf("trusted account response = %d, %s", account.Code, account.Body.String())
+	}
+	created := performJSON(t, trustedHandler, http.MethodPost, "/api/tasks", map[string]string{
+		"title": "Created through local transport",
+	})
+	if created.Code != http.StatusCreated {
+		t.Fatalf("trusted create status = %d, body = %s", created.Code, created.Body.String())
+	}
+	task := decodeTask(t, created)
+	if task.CreatedBy == nil || *task.CreatedBy != "alice" {
+		t.Fatalf("trusted task creator = %v", task.CreatedBy)
+	}
+
+	claimed := performJSON(t, trustedHandler, http.MethodPost, "/api/tasks/"+task.ID+"/claim", board.ActionInput{
+		Version: task.Version,
+	})
+	if claimed.Code != http.StatusOK {
+		t.Fatalf("trusted claim status = %d, body = %s", claimed.Code, claimed.Body.String())
+	}
+	task = decodeTask(t, claimed)
+	if task.ClaimedBy == nil || *task.ClaimedBy != "alice" {
+		t.Fatalf("trusted task claimant = %v", task.ClaimedBy)
+	}
+}
+
+func TestOneTimeDeviceCodeLogin(t *testing.T) {
+	database, err := store.Open(filepath.Join(t.TempDir(), "kanban.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { database.Close() })
+	application := New(database, Config{AuthEnabled: true})
+	t.Cleanup(application.Close)
+	now := time.Date(2026, time.August, 21, 12, 0, 0, 0, time.UTC)
+	application.now = func() time.Time { return now }
+	handler := application.Handler()
+
+	unauthorized := performJSON(t, handler, http.MethodPost, "/api/auth/device-code", map[string]any{})
+	if unauthorized.Code != http.StatusUnauthorized {
+		t.Fatalf("unauthorized code creation status = %d", unauthorized.Code)
+	}
+	registered := performJSON(t, handler, http.MethodPost, "/api/auth/register", map[string]string{
+		"username": "alice", "password": "correct horse battery staple",
+	})
+	if registered.Code != http.StatusCreated {
+		t.Fatalf("register status = %d, body = %s", registered.Code, registered.Body.String())
+	}
+	desktopCookie := responseCookie(t, registered)
+
+	created := performJSONWithCookie(t, handler, http.MethodPost, "/api/auth/device-code", map[string]any{}, desktopCookie)
+	if created.Code != http.StatusCreated {
+		t.Fatalf("device code status = %d, body = %s", created.Code, created.Body.String())
+	}
+	var result struct {
+		Code      string    `json:"code"`
+		ExpiresAt time.Time `json:"expiresAt"`
+	}
+	if err := json.NewDecoder(created.Body).Decode(&result); err != nil {
+		t.Fatal(err)
+	}
+	if len(result.Code) != 9 || result.Code[4] != '-' || !result.ExpiresAt.Equal(now.Add(deviceCodeTTL)) {
+		t.Fatalf("device code response = %#v", result)
+	}
+
+	invalid := performJSON(t, handler, http.MethodPost, "/api/auth/device-login", map[string]string{"code": "WRONG-CODE"})
+	if invalid.Code != http.StatusUnauthorized {
+		t.Fatalf("invalid device code status = %d", invalid.Code)
+	}
+	typedCode := strings.ToLower(strings.ReplaceAll(result.Code, "-", " "))
+	redeemed := performJSON(t, handler, http.MethodPost, "/api/auth/device-login", map[string]string{"code": typedCode})
+	if redeemed.Code != http.StatusOK {
+		t.Fatalf("device login status = %d, body = %s", redeemed.Code, redeemed.Body.String())
+	}
+	phoneCookie := responseCookie(t, redeemed)
+	phoneRequest := performJSONWithCookie(t, handler, http.MethodGet, "/api/tasks", nil, phoneCookie)
+	if phoneRequest.Code != http.StatusOK {
+		t.Fatalf("device session task status = %d", phoneRequest.Code)
+	}
+	reused := performJSON(t, handler, http.MethodPost, "/api/auth/device-login", map[string]string{"code": result.Code})
+	if reused.Code != http.StatusUnauthorized {
+		t.Fatalf("reused device code status = %d", reused.Code)
+	}
+
+	expiring := performJSONWithCookie(t, handler, http.MethodPost, "/api/auth/device-code", map[string]any{}, desktopCookie)
+	if err := json.NewDecoder(expiring.Body).Decode(&result); err != nil {
+		t.Fatal(err)
+	}
+	now = now.Add(deviceCodeTTL + time.Second)
+	expired := performJSON(t, handler, http.MethodPost, "/api/auth/device-login", map[string]string{"code": result.Code})
+	if expired.Code != http.StatusUnauthorized {
+		t.Fatalf("expired device code status = %d", expired.Code)
+	}
+
+	now = now.Add(time.Minute)
+	revokedCode := performJSONWithCookie(t, handler, http.MethodPost, "/api/auth/device-code", map[string]any{}, desktopCookie)
+	if err := json.NewDecoder(revokedCode.Body).Decode(&result); err != nil {
+		t.Fatal(err)
+	}
+	changed := performJSONWithCookie(t, handler, http.MethodPost, "/api/auth/change-password", map[string]string{
+		"currentPassword": "correct horse battery staple", "newPassword": "a different long password",
+	}, desktopCookie)
+	if changed.Code != http.StatusOK {
+		t.Fatalf("password change status = %d, body = %s", changed.Code, changed.Body.String())
+	}
+	revoked := performJSON(t, handler, http.MethodPost, "/api/auth/device-login", map[string]string{"code": result.Code})
+	if revoked.Code != http.StatusUnauthorized {
+		t.Fatalf("password-revoked device code status = %d", revoked.Code)
+	}
+}
+
 func TestCrossOriginMutationIsRejected(t *testing.T) {
 	handler := testServer(t)
 	request := httptest.NewRequest(http.MethodPost, "/api/tasks", strings.NewReader(`{"title":"Rejected"}`))

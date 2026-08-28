@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -30,6 +31,11 @@ func main() {
 func run(args []string) error {
 	address := envOr("KANBAN_ADDR", "127.0.0.1:3100")
 	dataDir := envOr("KANBAN_DATA_DIR", defaultDataDir())
+	localActor := strings.TrimSpace(os.Getenv("KANBAN_LOCAL_ACTOR"))
+	localSocketPath := configuredLocalSocket(dataDir, localActor)
+	if localSocketPath != "" && localActor == "" {
+		return errors.New("KANBAN_LOCAL_ACTOR must name a registered user when KANBAN_LOCAL_SOCKET is enabled")
+	}
 	boardURL := serverURL(address)
 	background := hasArgument(args, "--background")
 
@@ -71,8 +77,28 @@ func run(args []string) error {
 	if err != nil {
 		return fmtError("listen on "+address, err)
 	}
+	serverErrors := make(chan error, 2)
+	var localServer *http.Server
+	if localSocketPath != "" {
+		localListener, err := listenLocalSocket(localSocketPath)
+		if err != nil {
+			listener.Close()
+			return fmtError("listen on local socket "+localSocketPath, err)
+		}
+		defer os.Remove(localSocketPath)
+		localServer = &http.Server{
+			Handler:           application.TrustedHandler(localActor),
+			ReadHeaderTimeout: 5 * time.Second,
+			IdleTimeout:       60 * time.Second,
+		}
+		go func() {
+			log.Printf("Trusted local API listening on unix://%s as %s", localSocketPath, localActor)
+			if err := localServer.Serve(localListener); err != nil && !errors.Is(err, http.ErrServerClosed) {
+				serverErrors <- err
+			}
+		}()
+	}
 
-	serverErrors := make(chan error, 1)
 	go func() {
 		log.Printf("Kanban Go listening on http://%s", address)
 		if err := httpServer.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
@@ -92,10 +118,10 @@ func run(args []string) error {
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, terminationSignals()...)
+	var serveErr error
 	select {
 	case err := <-serverErrors:
-		application.Close()
-		return fmtError("serve Kanban", err)
+		serveErr = err
 	case <-stop:
 	}
 	application.Close()
@@ -104,7 +130,40 @@ func run(args []string) error {
 	if err := httpServer.Shutdown(ctx); err != nil {
 		return fmtError("shutdown", err)
 	}
+	if localServer != nil {
+		if err := localServer.Shutdown(ctx); err != nil {
+			return fmtError("shutdown local API", err)
+		}
+	}
+	if serveErr != nil {
+		return fmtError("serve Kanban", serveErr)
+	}
 	return nil
+}
+
+func listenLocalSocket(path string) (net.Listener, error) {
+	info, err := os.Lstat(path)
+	switch {
+	case err == nil:
+		if info.Mode()&os.ModeSocket == 0 {
+			return nil, errors.New("path exists and is not a socket")
+		}
+		if err := os.Remove(path); err != nil {
+			return nil, err
+		}
+	case !errors.Is(err, os.ErrNotExist):
+		return nil, err
+	}
+	listener, err := net.Listen("unix", path)
+	if err != nil {
+		return nil, err
+	}
+	if err := os.Chmod(path, 0o600); err != nil {
+		listener.Close()
+		os.Remove(path)
+		return nil, err
+	}
+	return listener, nil
 }
 
 func envOr(name, fallback string) string {
@@ -121,6 +180,19 @@ func envBool(name string) bool {
 	default:
 		return false
 	}
+}
+
+func configuredLocalSocket(dataDir, actor string) string {
+	if runtime.GOOS == "windows" {
+		return ""
+	}
+	if path, configured := os.LookupEnv("KANBAN_LOCAL_SOCKET"); configured {
+		return strings.TrimSpace(path)
+	}
+	if actor == "" {
+		return ""
+	}
+	return filepath.Join(dataDir, "kanban.sock")
 }
 
 func hasArgument(args []string, wanted string) bool {

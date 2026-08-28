@@ -101,6 +101,12 @@ Open <http://127.0.0.1:3100> in a browser. On the first visit, create the first
 username and password. Public account registration is disabled after the first
 account is created.
 
+To sign in on another device without exposing or copying the password, open
+**Settings > Sign in another device** on a browser that is already signed in.
+Create a one-time code, choose **Use a sign-in code** on the other device, and
+enter the code there. Codes expire after five minutes, work only once, and are
+invalidated by a password change or server restart.
+
 ## Starting And Stopping
 
 The installer creates a background user service.
@@ -175,6 +181,13 @@ Restore instructions are in [systemd/README.md](systemd/README.md).
 
 By default, Kanban listens only on `127.0.0.1`, which means it is available only
 on the computer running it. Task data is not sent to a hosted Kanban service.
+
+On Linux, same-user automation can use a private Unix socket without borrowing
+a browser cookie or storing another API secret. Set `KANBAN_LOCAL_ACTOR` to an
+existing Kanban username to enable `data/kanban.sock`; requests use the normal
+application API and are attributed to that account. The socket is mode `0600`,
+local to the machine, and unreachable over the LAN. Set `KANBAN_LOCAL_SOCKET`
+to change its path or to an empty value to disable it.
 
 Making the board available to other computers requires additional HTTPS and
 network configuration. Do not expose the application directly to the internet

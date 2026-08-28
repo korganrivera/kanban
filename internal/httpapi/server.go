@@ -46,15 +46,16 @@ type Config struct {
 }
 
 type Server struct {
-	store     taskStore
-	config    Config
-	mux       *http.ServeMux
-	events    *broker
-	limiter   *loginLimiter
-	dummyHash []byte
-	now       func() time.Time
-	closed    chan struct{}
-	close     sync.Once
+	store       taskStore
+	config      Config
+	mux         *http.ServeMux
+	events      *broker
+	limiter     *loginLimiter
+	deviceCodes *deviceCodeStore
+	dummyHash   []byte
+	now         func() time.Time
+	closed      chan struct{}
+	close       sync.Once
 }
 
 func New(store *store.Store, config Config) *Server {
@@ -66,13 +67,14 @@ func New(store *store.Store, config Config) *Server {
 		config.SessionTTL = 7 * 24 * time.Hour
 	}
 	server := &Server{
-		store:   store,
-		config:  config,
-		mux:     http.NewServeMux(),
-		events:  newBroker(),
-		limiter: newLoginLimiter(20, 15*time.Minute),
-		now:     time.Now,
-		closed:  make(chan struct{}),
+		store:       store,
+		config:      config,
+		mux:         http.NewServeMux(),
+		events:      newBroker(),
+		limiter:     newLoginLimiter(20, 15*time.Minute),
+		deviceCodes: newDeviceCodeStore(),
+		now:         time.Now,
+		closed:      make(chan struct{}),
 	}
 	server.initializeDummyHash()
 	server.routes()
@@ -81,6 +83,23 @@ func New(store *store.Store, config Config) *Server {
 
 func (server *Server) Handler() http.Handler {
 	return securityHeaders(server.mux)
+}
+
+// TrustedHandler exposes the normal application API to a transport that has
+// already authenticated its caller. The Linux server uses it only behind a
+// same-user Unix socket with mode 0600, so browser sessions and API secrets are
+// not involved. Never attach this handler directly to a TCP listener.
+func (server *Server) TrustedHandler(actor string) http.Handler {
+	actor = strings.TrimSpace(actor)
+	if actor == "" {
+		actor = "local"
+	}
+	handler := server.Handler()
+	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		ctx := context.WithValue(request.Context(), identityContextKey{}, identity{Username: actor})
+		ctx = context.WithValue(ctx, trustedRequestContextKey{}, true)
+		handler.ServeHTTP(response, request.WithContext(ctx))
+	})
 }
 
 func (server *Server) Close() {
@@ -92,7 +111,9 @@ func (server *Server) routes() {
 	server.mux.HandleFunc("GET /api/auth/registration", server.registrationStatus)
 	server.mux.HandleFunc("POST /api/auth/register", server.register)
 	server.mux.HandleFunc("POST /api/auth/login", server.login)
+	server.mux.HandleFunc("POST /api/auth/device-login", server.deviceLogin)
 	server.mux.HandleFunc("GET /api/auth/me", server.me)
+	server.mux.Handle("POST /api/auth/device-code", server.requireAuth(http.HandlerFunc(server.createDeviceCode)))
 	server.mux.Handle("POST /api/auth/change-password", server.requireAuth(http.HandlerFunc(server.changePassword)))
 	server.mux.Handle("POST /api/auth/logout", server.requireAuth(http.HandlerFunc(server.logout)))
 	server.mux.Handle("GET /api/account/completions", server.requireAuth(http.HandlerFunc(server.completionHistory)))

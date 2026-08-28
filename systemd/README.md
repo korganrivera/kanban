@@ -14,7 +14,8 @@ absolute path, so rerun the installer after moving the repository.
 Configuration files are created with mode `0600`:
 
 - `~/.config/kanban-go/server.env` controls `KANBAN_ADDR`,
-  `ALLOW_REGISTRATION`, and `COOKIE_SECURE`.
+  `ALLOW_REGISTRATION`, `COOKIE_SECURE`, `KANBAN_LOCAL_SOCKET`, and
+  `KANBAN_LOCAL_ACTOR`.
 - `~/.config/kanban-go/backup.env` controls `KANBAN_DATA_DIR`,
   `KANBAN_BACKUP_DEST`, and `KANBAN_BACKUP_RETENTION`.
 
@@ -31,7 +32,14 @@ systemctl --user list-timers kanban-go-backup.timer
 bin/kanban-admin audit --data-dir data
 bin/kanban-admin verify --backup ~/.local/state/kanban-go/backups/latest
 curl http://127.0.0.1:3100/healthz
+curl --unix-socket data/kanban.sock http://localhost/api/auth/me
 ```
+
+Set `KANBAN_LOCAL_ACTOR` to an existing Kanban username to enable the Unix
+socket. It is created at `data/kanban.sock` with mode `0600` and provides
+same-user local automation access to the normal API without a browser session
+or reusable API secret. Changes are attributed to the configured user. Do not
+proxy or expose this socket to another user or machine.
 
 To keep user services running after logout, enable lingering once where the
 host permits it:

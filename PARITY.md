@@ -43,6 +43,7 @@ design is simpler or safer.
 - [x] Claims and creation attributed to the authenticated user
 - [x] Password change with current-password verification
 - [x] Password change revokes the user's other sessions and live connections
+- [x] Short-lived, one-time codes for signing in another device without revealing the password
 - [x] Authentication rate limiting and constant-work invalid login checks
 - [x] Same-origin checks for mutating requests
 - [x] Account controls in the browser UI

@@ -773,12 +773,49 @@ select:focus {
     gap: 8px;
 }
 
-#password-form {
+#password-form,
+.account-settings-section {
     display: grid;
     gap: 8px;
     margin-top: 18px;
     border-top: 1px solid var(--line);
     padding-top: 12px;
+}
+
+.form-help {
+    margin: 0 0 10px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.45;
+}
+
+.form-status {
+    margin: 10px 0 0;
+    color: var(--ready);
+    font-size: 0.88rem;
+    font-weight: 650;
+}
+
+.form-status.error {
+    color: var(--blocked);
+}
+
+.device-code-panel {
+    margin-top: 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface-alt);
+    padding: 14px;
+    text-align: center;
+}
+
+.device-code {
+    display: block;
+    margin-bottom: 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: clamp(1.5rem, 7vw, 2.2rem);
+    font-weight: 750;
+    letter-spacing: 0.12em;
 }
 
 .password-fields {

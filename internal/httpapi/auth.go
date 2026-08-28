@@ -20,7 +20,13 @@ import (
 	"kanban-go/internal/store"
 )
 
-const sessionCookieName = "kanban_session"
+const (
+	sessionCookieName = "kanban_session"
+	deviceCodeTTL     = 5 * time.Minute
+	deviceCodeLength  = 8
+)
+
+const deviceCodeAlphabet = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
 
 var usernamePattern = regexp.MustCompile(`^[A-Za-z0-9_.-]{3,32}$`)
 
@@ -31,6 +37,8 @@ type identity struct {
 
 type identityContextKey struct{}
 
+type trustedRequestContextKey struct{}
+
 type credentials struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -39,6 +47,80 @@ type credentials struct {
 type passwordChange struct {
 	CurrentPassword string `json:"currentPassword"`
 	NewPassword     string `json:"newPassword"`
+}
+
+type deviceCodeInput struct {
+	Code string `json:"code"`
+}
+
+type deviceCodeEntry struct {
+	Username  string
+	ExpiresAt time.Time
+}
+
+type deviceCodeStore struct {
+	mu      sync.Mutex
+	entries map[string]deviceCodeEntry
+}
+
+func newDeviceCodeStore() *deviceCodeStore {
+	return &deviceCodeStore{entries: make(map[string]deviceCodeEntry)}
+}
+
+func (codes *deviceCodeStore) create(username string, now time.Time) (string, time.Time, error) {
+	raw := make([]byte, deviceCodeLength)
+	if _, err := rand.Read(raw); err != nil {
+		return "", time.Time{}, err
+	}
+	plain := make([]byte, deviceCodeLength)
+	for index, value := range raw {
+		plain[index] = deviceCodeAlphabet[int(value)&(len(deviceCodeAlphabet)-1)]
+	}
+	expiresAt := now.Add(deviceCodeTTL)
+
+	codes.mu.Lock()
+	defer codes.mu.Unlock()
+	for tokenHash, entry := range codes.entries {
+		if !entry.ExpiresAt.After(now) || entry.Username == username {
+			delete(codes.entries, tokenHash)
+		}
+	}
+	codes.entries[hashToken(string(plain))] = deviceCodeEntry{Username: username, ExpiresAt: expiresAt}
+	return string(plain[:4]) + "-" + string(plain[4:]), expiresAt, nil
+}
+
+func (codes *deviceCodeStore) consume(code string, now time.Time) (string, bool) {
+	normalized := normalizeDeviceCode(code)
+	if len(normalized) != deviceCodeLength {
+		return "", false
+	}
+	tokenHash := hashToken(normalized)
+	codes.mu.Lock()
+	defer codes.mu.Unlock()
+	entry, ok := codes.entries[tokenHash]
+	if ok {
+		delete(codes.entries, tokenHash)
+	}
+	if !ok || !entry.ExpiresAt.After(now) {
+		return "", false
+	}
+	return entry.Username, true
+}
+
+func (codes *deviceCodeStore) revokeUser(username string) {
+	codes.mu.Lock()
+	defer codes.mu.Unlock()
+	for tokenHash, entry := range codes.entries {
+		if entry.Username == username {
+			delete(codes.entries, tokenHash)
+		}
+	}
+}
+
+func normalizeDeviceCode(code string) string {
+	code = strings.ToUpper(strings.TrimSpace(code))
+	code = strings.ReplaceAll(code, "-", "")
+	return strings.ReplaceAll(code, " ", "")
 }
 
 type loginLimiter struct {
@@ -86,6 +168,14 @@ func (server *Server) initializeDummyHash() {
 
 func (server *Server) requireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		if trusted, _ := request.Context().Value(trustedRequestContextKey{}).(bool); trusted {
+			if _, err := server.store.User(request.Context(), requestIdentity(request).Username); err != nil {
+				writeError(response, http.StatusUnauthorized, "trusted local actor is not a registered user")
+				return
+			}
+			next.ServeHTTP(response, request)
+			return
+		}
 		if !server.config.AuthEnabled {
 			identity := identity{Username: server.config.Actor}
 			next.ServeHTTP(response, request.WithContext(context.WithValue(request.Context(), identityContextKey{}, identity)))
@@ -216,7 +306,65 @@ func (server *Server) login(response http.ResponseWriter, request *http.Request)
 	writeJSON(response, http.StatusOK, publicUser(user))
 }
 
+func (server *Server) createDeviceCode(response http.ResponseWriter, request *http.Request) {
+	now := server.now().UTC()
+	code, expiresAt, err := server.deviceCodes.create(requestIdentity(request).Username, now)
+	if err != nil {
+		log.Printf("create device code: %v", err)
+		writeError(response, http.StatusInternalServerError, "could not create sign-in code")
+		return
+	}
+	writeJSON(response, http.StatusCreated, map[string]any{
+		"code":      code,
+		"expiresAt": expiresAt,
+	})
+}
+
+func (server *Server) deviceLogin(response http.ResponseWriter, request *http.Request) {
+	now := server.now().UTC()
+	key := clientAddress(request)
+	if !server.limiter.allow(key, now) {
+		writeError(response, http.StatusTooManyRequests, "too many login attempts; try again later")
+		return
+	}
+	var input deviceCodeInput
+	if err := decodeJSON(response, request, &input); err != nil {
+		writeError(response, http.StatusBadRequest, err.Error())
+		return
+	}
+	username, ok := server.deviceCodes.consume(input.Code, now)
+	if !ok {
+		writeError(response, http.StatusUnauthorized, "invalid or expired sign-in code")
+		return
+	}
+	user, err := server.store.User(request.Context(), username)
+	if err != nil {
+		writeError(response, http.StatusUnauthorized, "invalid or expired sign-in code")
+		return
+	}
+	if _, err := server.issueSession(response, request, username, now); err != nil {
+		log.Printf("create device login session: %v", err)
+		writeError(response, http.StatusInternalServerError, "could not log in")
+		return
+	}
+	server.limiter.reset(key)
+	writeJSON(response, http.StatusOK, publicUser(user))
+}
+
 func (server *Server) me(response http.ResponseWriter, request *http.Request) {
+	if trusted, _ := request.Context().Value(trustedRequestContextKey{}).(bool); trusted {
+		user, err := server.store.User(request.Context(), requestIdentity(request).Username)
+		if err != nil {
+			writeJSON(response, http.StatusOK, map[string]bool{"authenticated": false})
+			return
+		}
+		writeJSON(response, http.StatusOK, map[string]any{
+			"authenticated": true,
+			"username":      user.Username,
+			"local":         true,
+		})
+		return
+	}
 	if !server.config.AuthEnabled {
 		writeJSON(response, http.StatusOK, map[string]any{
 			"authenticated": true,
@@ -265,6 +413,7 @@ func (server *Server) changePassword(response http.ResponseWriter, request *http
 		writeError(response, http.StatusInternalServerError, "could not change password")
 		return
 	}
+	server.deviceCodes.revokeUser(identity.Username)
 	server.events.disconnectUser(identity.Username)
 	if _, err := server.issueSession(response, request, identity.Username, now); err != nil {
 		log.Printf("create replacement session: %v", err)

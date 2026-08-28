@@ -21,6 +21,7 @@ let currentUser = null;
 let events = null;
 let refreshTimer = null;
 let renderedBoardSnapshot = null;
+let deviceCodeTimer = null;
 
 const board = document.getElementById("board");
 const editor = document.getElementById("editor");
@@ -99,14 +100,24 @@ async function showAuth() {
 function showLoginForm() {
     document.getElementById("auth-title").textContent = "Log in";
     document.getElementById("login-form").hidden = false;
+    document.getElementById("device-login-form").hidden = true;
     document.getElementById("register-form").hidden = true;
 }
 
 function showRegistrationForm() {
     document.getElementById("auth-title").textContent = "Create account";
     document.getElementById("login-form").hidden = true;
+    document.getElementById("device-login-form").hidden = true;
     document.getElementById("register-form").hidden = false;
     document.getElementById("register-username").focus();
+}
+
+function showDeviceLoginForm() {
+    document.getElementById("auth-title").textContent = "Use a sign-in code";
+    document.getElementById("login-form").hidden = true;
+    document.getElementById("register-form").hidden = true;
+    document.getElementById("device-login-form").hidden = false;
+    document.getElementById("device-login-code").focus();
 }
 
 async function login(event) {
@@ -120,6 +131,20 @@ async function login(event) {
             }),
         });
         document.getElementById("login-password").value = "";
+        await startApplication({ ...account, authenticated: true });
+    } catch (error) {
+        showToast(error.message);
+    }
+}
+
+async function deviceLogin(event) {
+    event.preventDefault();
+    try {
+        const account = await request("/api/auth/device-login", {
+            method: "POST",
+            body: JSON.stringify({ code: document.getElementById("device-login-code").value }),
+        });
+        document.getElementById("device-login-form").reset();
         await startApplication({ ...account, authenticated: true });
     } catch (error) {
         showToast(error.message);
@@ -640,6 +665,11 @@ function openSettings() {
         const limit = wipLimits[state];
         document.getElementById(`limit-${state}`).value = limit === null || limit === undefined ? "" : String(limit);
     }
+    document.getElementById("password-form").reset();
+    const passwordStatus = document.getElementById("password-status");
+    passwordStatus.hidden = true;
+    passwordStatus.classList.remove("error");
+    clearDeviceCodeDisplay();
     document.getElementById("palette-select").value = getCurrentPalette();
     backdrop.hidden = false;
     settings.classList.add("open");
@@ -648,9 +678,52 @@ function openSettings() {
 }
 
 function closeSettings() {
+    clearDeviceCodeDisplay();
     settings.classList.remove("open");
     settings.setAttribute("aria-hidden", "true");
     if (!editor.classList.contains("open")) backdrop.hidden = true;
+}
+
+function clearDeviceCodeDisplay() {
+    clearInterval(deviceCodeTimer);
+    deviceCodeTimer = null;
+    document.getElementById("device-code").textContent = "";
+    document.getElementById("device-code-expiry").textContent = "";
+    document.getElementById("device-code-panel").hidden = true;
+}
+
+async function createDeviceCode() {
+    const button = document.getElementById("create-device-code");
+    button.disabled = true;
+    try {
+        const result = await request("/api/auth/device-code", { method: "POST", body: "{}" });
+        const panel = document.getElementById("device-code-panel");
+        const code = document.getElementById("device-code");
+        const expiry = document.getElementById("device-code-expiry");
+        const expiresAt = new Date(result.expiresAt);
+        code.textContent = result.code;
+        panel.hidden = false;
+        clearInterval(deviceCodeTimer);
+        const renderExpiry = () => {
+            const seconds = Math.max(0, Math.ceil((expiresAt.getTime() - Date.now()) / 1000));
+            if (seconds === 0) {
+                code.textContent = "Expired";
+                expiry.textContent = "Create another code to sign in.";
+                clearInterval(deviceCodeTimer);
+                deviceCodeTimer = null;
+                return;
+            }
+            const minutes = Math.floor(seconds / 60);
+            const remainder = String(seconds % 60).padStart(2, "0");
+            expiry.textContent = `Single use · expires in ${minutes}:${remainder}`;
+        };
+        renderExpiry();
+        deviceCodeTimer = setInterval(renderExpiry, 1000);
+    } catch (error) {
+        showToast(error.message);
+    } finally {
+        button.disabled = false;
+    }
 }
 
 function closePanels() {
@@ -685,8 +758,13 @@ async function changePassword(event) {
     event.preventDefault();
     const currentPassword = document.getElementById("current-password").value;
     const newPassword = document.getElementById("new-password").value;
+    const status = document.getElementById("password-status");
+    status.hidden = true;
+    status.classList.remove("error");
     if (newPassword !== document.getElementById("confirm-password").value) {
-        showToast("New passwords do not match");
+        status.textContent = "New passwords do not match.";
+        status.classList.add("error");
+        status.hidden = false;
         return;
     }
     try {
@@ -695,10 +773,14 @@ async function changePassword(event) {
             body: JSON.stringify({ currentPassword, newPassword }),
         });
         document.getElementById("password-form").reset();
-        closeSettings();
         connectEvents();
+        status.textContent = "Password changed. Other signed-in sessions were closed.";
+        status.hidden = false;
         showToast("Password changed");
     } catch (error) {
+        status.textContent = error.message;
+        status.classList.add("error");
+        status.hidden = false;
         showToast(error.message);
     }
 }
@@ -1015,6 +1097,7 @@ document.getElementById("settings-button").addEventListener("click", openSetting
 document.getElementById("task-form").addEventListener("submit", saveEditor);
 document.getElementById("settings-form").addEventListener("submit", saveSettings);
 document.getElementById("password-form").addEventListener("submit", changePassword);
+document.getElementById("create-device-code").addEventListener("click", createDeviceCode);
 document.getElementById("close-editor").addEventListener("click", closeEditor);
 document.getElementById("cancel-editor").addEventListener("click", closeEditor);
 document.getElementById("delete-task").addEventListener("click", deleteEditorTask);
@@ -1023,9 +1106,12 @@ document.getElementById("cancel-settings").addEventListener("click", closeSettin
 document.getElementById("backdrop").addEventListener("click", closePanels);
 document.getElementById("task-recurrence").addEventListener("change", updateRecurrenceControls);
 document.getElementById("login-form").addEventListener("submit", login);
+document.getElementById("device-login-form").addEventListener("submit", deviceLogin);
 document.getElementById("register-form").addEventListener("submit", register);
 document.getElementById("show-register").addEventListener("click", showRegistrationForm);
 document.getElementById("show-login").addEventListener("click", showLoginForm);
+document.getElementById("show-device-login").addEventListener("click", showDeviceLoginForm);
+document.getElementById("cancel-device-login").addEventListener("click", showLoginForm);
 document.getElementById("logout-button").addEventListener("click", logout);
 document.getElementById("account-summary").addEventListener("click", openHistory);
 document.getElementById("close-history").addEventListener("click", () => document.getElementById("history-dialog").close());

@@ -18,7 +18,15 @@
                     <label for="login-password">Password</label>
                     <input id="login-password" name="password" type="password" autocomplete="current-password" maxlength="200" required>
                     <button type="submit">Log in</button>
+                    <button id="show-device-login" type="button" class="secondary">Use a sign-in code</button>
                     <button id="show-register" type="button" class="secondary" hidden>Create account</button>
+                </form>
+                <form id="device-login-form" class="auth-form" hidden>
+                    <p class="form-help">Create a code from Settings on a device where you are already logged in.</p>
+                    <label for="device-login-code">One-time code</label>
+                    <input id="device-login-code" name="code" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" maxlength="12" required>
+                    <button type="submit">Sign in</button>
+                    <button id="cancel-device-login" type="button" class="secondary">Use password instead</button>
                 </form>
                 <form id="register-form" class="auth-form" hidden>
                     <label for="register-username">Username</label>
@@ -187,9 +195,21 @@
                     <button id="cancel-settings" type="button" class="secondary">Cancel</button>
                 </div>
             </form>
+            <section id="device-sign-in" class="account-settings-section">
+                <fieldset>
+                    <legend>Sign in another device</legend>
+                    <p class="form-help">Create a one-time code, then enter it on the other device. The code expires after five minutes and cannot reveal or change your password.</p>
+                    <button id="create-device-code" type="button">Create sign-in code</button>
+                    <div id="device-code-panel" class="device-code-panel" role="status" aria-live="polite" hidden>
+                        <output id="device-code" class="device-code"></output>
+                        <div id="device-code-expiry" class="form-help"></div>
+                    </div>
+                </fieldset>
+            </section>
             <form id="password-form">
                 <fieldset>
                     <legend>Change password</legend>
+                    <p class="form-help">Kanban cannot display your current password. Masked text here may have been supplied by your browser.</p>
                     <div class="password-fields">
                         <label for="current-password">Current password</label>
                         <input id="current-password" type="password" autocomplete="current-password" maxlength="200" required>
@@ -199,6 +219,7 @@
                         <input id="confirm-password" type="password" autocomplete="new-password" minlength="10" maxlength="200" required>
                     </div>
                     <button type="submit">Change password</button>
+                    <p id="password-status" class="form-status" role="status" aria-live="polite" hidden></p>
                 </fieldset>
             </form>
         </aside>
