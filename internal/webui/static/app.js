@@ -12,6 +12,7 @@ const LABELS = {
 const MANUAL_TARGETS = new Set(["Ready", "InProgress", "Blocked", "Done"]);
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const DEFAULT_PALETTE = "standard";
+const MIN_REVIEW_PRIORITY_GAP = 5;
 
 let tasks = [];
 let wipLimits = {};
@@ -206,8 +207,14 @@ async function loadBoard() {
             request("/api/wip-limits"),
             request("/api/auth/me"),
         ]);
+        const claimAges = loadedTasks
+            .filter((task) => task.effectiveState === "InProgress")
+            .map((task) => {
+                const age = claimAge(task.claimedAt);
+                return [task.id, age === null ? null : Math.floor(age / 60000)];
+            });
         const nextSnapshot = JSON.stringify(
-            [loadedTasks, loadedLimits, localDateKey(new Date())],
+            [loadedTasks, loadedLimits, account.username, localDateKey(new Date()), claimAges],
             (key, value) => key === "urgency" ? undefined : value,
         );
         tasks = loadedTasks;
@@ -238,7 +245,7 @@ function renderBoard() {
     for (const state of STATES) {
         groups[state].sort((left, right) => compareTasks(state, left, right));
     }
-    board.replaceChildren(...STATES.map((state) => makeColumn(state, groups[state])));
+    board.replaceChildren(...STATES.map((state) => makeColumn(state, groups[state], groups.Ready)));
     for (const list of board.querySelectorAll(".column-list")) {
         list.scrollTop = scrollPositions.get(list.dataset.state) || 0;
     }
@@ -267,7 +274,7 @@ function compareTasks(state, left, right) {
     return new Date(left.createdAt) - new Date(right.createdAt);
 }
 
-function makeColumn(state, columnTasks) {
+function makeColumn(state, columnTasks, readyTasks) {
     const column = element("section", "column");
     const header = element("header", "column-header");
     const limit = wipLimits[state];
@@ -280,13 +287,13 @@ function makeColumn(state, columnTasks) {
     header.append(element("span", "", LABELS[state]), count);
     const list = element("div", "column-list");
     list.dataset.state = state;
-    for (const task of columnTasks) list.append(makeCard(task));
+    for (const task of columnTasks) list.append(makeCard(task, readyTasks));
     enableDropTarget(list);
     column.append(header, list);
     return column;
 }
 
-function makeCard(task) {
+function makeCard(task, readyTasks) {
     const draggable = ["Ready", "InProgress", "Blocked"].includes(task.effectiveState);
     const card = element("article", "card");
     const stateClass = task.effectiveState.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
@@ -326,6 +333,9 @@ function makeCard(task) {
         const ownerLabel = task.effectiveState === "Done" ? "Completed by" : "Claimed by";
         metadata.append(element("span", "owner-label", `${ownerLabel} ${task.claimedBy}`));
     }
+    if (task.effectiveState === "InProgress") {
+        metadata.append(element("span", "", formatClaimAge(task.claimedAt)));
+    }
     if (task.dependencies.length) metadata.append(element("span", "", `${task.dependencies.length} dependencies`));
     if (task.recurrence.kind !== "none") {
         const recurrenceText = task.recurrence.weekdays?.length
@@ -335,6 +345,28 @@ function makeCard(task) {
     }
     if (task.remedyFor) metadata.append(element("span", "", "Remedy task"));
     card.append(metadata);
+
+    const claimReview = claimReviewDetails(task, readyTasks, currentUser?.username);
+    if (claimReview) {
+        const { alternative, gap, weight } = claimReview;
+        const review = element("div", "claim-review");
+        // Bound the visual emphasis using the 1–100 priority range. This is
+        // display scaling only: qualifying gaps are visible even on a new claim.
+        const emphasis = weight / (99 + weight);
+        review.style.setProperty("--review-border-width", `${2 + 4 * emphasis}px`);
+        review.style.setProperty("--review-tint", `${4 + 12 * emphasis}%`);
+        review.style.setProperty("--review-emphasis", `${100 * emphasis}%`);
+        review.append(element("strong", "claim-review-gap", `+${gap} priority in Ready`));
+        review.append(element("p", "", `${alternative.title} has priority ${alternative.priority}. Consider releasing this claim if work has paused.`));
+        const view = element("button", "secondary", "Review Ready task");
+        view.type = "button";
+        view.addEventListener("click", (event) => {
+            event.stopPropagation();
+            openEditor(alternative);
+        });
+        review.append(view);
+        card.append(review);
+    }
 
     const actions = element("div", "card-actions");
     for (const [label, action, className] of actionsFor(task)) {
@@ -377,6 +409,38 @@ function actionsFor(task) {
     }
     if (task.canUndo) actions.push(["Undo", "undo", "secondary"]);
     return actions;
+}
+
+function claimAge(claimedAt, now = Date.now()) {
+    const time = dateValue(claimedAt, NaN);
+    if (!Number.isFinite(time)) return null;
+    return Math.max(0, now - time);
+}
+
+function formatClaimAge(claimedAt, now = Date.now()) {
+    const age = claimAge(claimedAt, now);
+    if (age === null) return "Claim age unknown";
+    const minutes = Math.floor(age / 60000);
+    if (minutes < 1) return "Claimed just now";
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const [count, unit] = days ? [days, "day"] : hours ? [hours, "hour"] : [minutes, "minute"];
+    return `Claimed ${count} ${unit}${count === 1 ? "" : "s"} ago`;
+}
+
+function claimReviewDetails(task, readyTasks, username, now = Date.now()) {
+    if (task.effectiveState !== "InProgress" || !username || task.claimedBy !== username) return null;
+    const alternative = readyTasks.reduce((highest, ready) => {
+        if (ready.effectiveState !== "Ready" || !Number.isFinite(Number(ready.priority))) return highest;
+        return !highest || Number(ready.priority) > Number(highest.priority) ? ready : highest;
+    }, null);
+    if (!alternative) return null;
+    const gap = Number(alternative.priority) - Number(task.priority);
+    if (!Number.isFinite(gap) || gap < MIN_REVIEW_PRIORITY_GAP) return null;
+    // Claim age is a proxy for inactivity, not evidence that work has stopped.
+    // Missing timestamps leave the priority gap visible without inventing an age.
+    const ageDays = (claimAge(task.claimedAt, now) ?? 0) / 86400000;
+    return { alternative, gap, weight: gap * ageDays };
 }
 
 async function runAction(task, action) {

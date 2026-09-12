@@ -694,6 +694,33 @@ select:focus {
     font-weight: 700;
 }
 
+.claim-review {
+    --review-color: color-mix(in srgb, var(--blocked) var(--review-emphasis, 0%), var(--waiting));
+    margin-top: 8px;
+    border-left: var(--review-border-width, 2px) solid var(--review-color);
+    border-radius: 0 4px 4px 0;
+    background: color-mix(in srgb, var(--review-color) var(--review-tint, 4%), transparent);
+    padding: 8px;
+    font-size: 0.84rem;
+    line-height: 1.35;
+}
+
+.claim-review-gap {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.claim-review p {
+    margin: 0 0 7px;
+    overflow-wrap: anywhere;
+}
+
+.claim-review button {
+    min-height: 28px;
+    padding: 4px 8px;
+    font-size: 0.84rem;
+}
+
 .critical-label {
     border: 1px solid rgba(234, 88, 12, 0.28);
     border-radius: 999px;

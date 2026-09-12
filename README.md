@@ -19,6 +19,8 @@ structure than a list.
 - Keeps tasks suspended until their dependencies are finished.
 - Records why a task is blocked and can create a separate remedy task.
 - Limits how much work can be in progress at once.
+- Shows claim age and the gap to the highest-priority Ready task on your claimed
+  tasks, with increasing emphasis as the gap and claim age grow.
 - Shows overdue and time-critical work clearly.
 - Keeps completion history and allows an accidental completion to be undone.
 - Shows completion activity in a one-year heatmap.
@@ -49,6 +51,13 @@ and Done represent actions taken by the user.
 
 Click any card to see or edit all of its details. The board automatically sorts
 each column, so the task most in need of attention appears near the top.
+
+When the highest-priority Ready task scores at least 5 points above one of your
+claimed tasks, the claimed card shows the difference and lets you review that
+Ready task. Smaller gaps stay quiet. Its emphasis grows with the priority difference
+multiplied by claim age; there is no fixed waiting period. Claim age is only a
+proxy for inactivity: the board cannot tell whether work is actually happening.
+Use **Release** when you want to return a claimed task to available work.
 
 ## Installing Kanban
 
